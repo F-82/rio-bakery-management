@@ -43,3 +43,8 @@ No paragraphs. If it needs a paragraph, it belongs in ARCHITECTURE.md.
 - [decision] auth trigger reads business/role/counter from user_metadata, defaults to the single business and role=staff — safe default for any future self-signup, profiles.role stays source of truth
 - [decision] seed data run via `supabase db query --linked --file` (no psql, direct db host is IPv6-only); auth users via Admin API script so the trigger builds profiles
 - [note] RLS still OFF — owner JWT can currently read all profiles. Locked down in step 04
+- [done] 02 catalog schema — categories/menu_items/inventory_items/recipe_items, category_scope + stock_type + tax_category enums; pushed to staging, seeded 12 cats / 20 inventory / 21 menu / 65 recipe rows; recipe expansion query returns correct qty incl. finished_good self-ref and scaled deductions
+- [decision] finished_good + merchandise share inventory_items with ingredients; their menu item's recipe points at their own inventory row qty 1 — one deduction path (Croissant, Bottled Water, Canned Soda seeded this way)
+- [decision] added unique(business_id, name) on menu/inventory items and unique(business_id, scope, name) on categories — idempotent name-keyed seeding + data hygiene
+- [decision] recipe_items carries business_id with composite FKs to menu_items/inventory_items(business_id, id) — Invariant 10; qty in the item's base_unit, no conversion table
+- [note] seed tax categories are placeholders (1 zero_rated water, 1 exempt roti, rest standard) — real categorisation is client blocker #9, pending accountant
