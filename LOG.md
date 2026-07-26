@@ -38,3 +38,8 @@ No paragraphs. If it needs a paragraph, it belongs in ARCHITECTURE.md.
 - [decision] region ap-southeast-1 (Singapore) — nearest to Colombo, matches the org's existing project
 - [blocked] rio-prod not created — org already has 1 project + staging = 2 (free tier cap); prod is #3 and forces a paid plan. Not needed until prod push; awaiting owner go-ahead on billing
 - [note] staging keys/db-url in .env.local (gitignored, uncommitted); db password only in .env.local — Supabase can't retrieve it later, save to a password manager
+- [done] 01 identity schema — businesses/counters/profiles/settings, user_role + counter_kind enums, on_auth_user_created trigger; pushed to staging, seeded, owner login resolves to profile role=owner
+- [decision] profiles carry a composite FK (business_id, counter_id) → counters(business_id, id) — enforces a default counter stays inside its business (Invariant 10)
+- [decision] auth trigger reads business/role/counter from user_metadata, defaults to the single business and role=staff — safe default for any future self-signup, profiles.role stays source of truth
+- [decision] seed data run via `supabase db query --linked --file` (no psql, direct db host is IPv6-only); auth users via Admin API script so the trigger builds profiles
+- [note] RLS still OFF — owner JWT can currently read all profiles. Locked down in step 04
