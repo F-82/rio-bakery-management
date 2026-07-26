@@ -48,3 +48,11 @@ No paragraphs. If it needs a paragraph, it belongs in ARCHITECTURE.md.
 - [decision] added unique(business_id, name) on menu/inventory items and unique(business_id, scope, name) on categories — idempotent name-keyed seeding + data hygiene
 - [decision] recipe_items carries business_id with composite FKs to menu_items/inventory_items(business_id, id) — Invariant 10; qty in the item's base_unit, no conversion table
 - [note] seed tax categories are placeholders (1 zero_rated water, 1 exempt roti, rest standard) — real categorisation is client blocker #9, pending accountant
+- [done] 03 order rpc + stock ledger + print queue — orders/order_items/daily_counters/stock_movements/print_jobs + create_order/void_order; pushed to staging; 11/11 db tests pass incl. both concurrency cases
+- [decision] prices computed server-side in create_order; payload gives only menu_item_id/qty/notes, any price key ignored (verified by test)
+- [decision] tax_amount stays 0 — no VAT rate is defined anywhere; the tax report splits actual revenue by tax_category (Invariant 7). A rate would be a client decision, not invented here
+- [decision] stock_movements is append-only, enforced by a before-update/delete trigger; test teardown bypasses it per-session with session_replication_role=replica
+- [decision] orders gained order_day (Colombo date) so unique(business_id, order_day, daily_seq) can enforce the daily reset — a STABLE tz expression can't be a generated column
+- [decision] db test harness uses pg over the IPv4 session pooler (aws-0-ap-southeast-1:5432), TLS verified against committed supabase/certs/prod-ca-2021.crt; actor set via request.jwt.claims; functional tests isolate with BEGIN/ROLLBACK, concurrency tests commit + restore
+- [note] loyalty accrual/redemption in create_order deferred to step 12 (customers table); orders.customer_id stored now, FK added later
+- [note] deferred db tests to their steps — RLS (staff/expenses, cross-counter) to 04, loyalty phone dedupe to 12
