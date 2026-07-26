@@ -18,12 +18,12 @@ on conflict (id) do update
   set name = excluded.name, kind = excluded.kind, active = true;
 
 -- Baseline settings (see ARCHITECTURE.md §Loyalty, §Stock ledger) ----------
-insert into public.settings (business_id, key, value)
+insert into public.settings (business_id, key, value, is_public)
 values
-  ('11111111-1111-1111-1111-111111111111', 'loyalty.earn_points_per_lkr',   '1'::jsonb),
-  ('11111111-1111-1111-1111-111111111111', 'loyalty.redeem_lkr_per_point',  '0.01'::jsonb),
-  ('11111111-1111-1111-1111-111111111111', 'inventory.allow_negative_stock', 'true'::jsonb)
-on conflict (business_id, key) do update set value = excluded.value;
+  ('11111111-1111-1111-1111-111111111111', 'loyalty.earn_points_per_lkr',   '1'::jsonb,    true),
+  ('11111111-1111-1111-1111-111111111111', 'loyalty.redeem_lkr_per_point',  '0.01'::jsonb, true),
+  ('11111111-1111-1111-1111-111111111111', 'inventory.allow_negative_stock', 'true'::jsonb, false)
+on conflict (business_id, key) do update set value = excluded.value, is_public = excluded.is_public;
 
 -- Catalog ------------------------------------------------------------------
 -- Categories (menu + inventory scopes)

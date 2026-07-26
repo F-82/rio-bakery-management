@@ -56,3 +56,11 @@ No paragraphs. If it needs a paragraph, it belongs in ARCHITECTURE.md.
 - [decision] db test harness uses pg over the IPv4 session pooler (aws-0-ap-southeast-1:5432), TLS verified against committed supabase/certs/prod-ca-2021.crt; actor set via request.jwt.claims; functional tests isolate with BEGIN/ROLLBACK, concurrency tests commit + restore
 - [note] loyalty accrual/redemption in create_order deferred to step 12 (customers table); orders.customer_id stored now, FK added later
 - [note] deferred db tests to their steps — RLS (staff/expenses, cross-counter) to 04, loyalty phone dedupe to 12
+- [done] 04 rls — helpers current_business_id/current_counter_id/current_role/is_owner/is_owner_or_manager; policies on all 14 tables; pushed to staging; 17/17 db tests pass incl. all three negative cases + coverage check (no table rowsecurity=false)
+- [decision] created expenses table now (schema per §Money) so its RLS can be enforced+tested this step; step 14 builds finance UI on top
+- [decision] deferred customers RLS to step 12 — that table isn't built yet; its matrix policies land with it
+- [decision] helpers are SECURITY DEFINER to read profiles without recursing on the profiles policy; the order RPC + print agent bypass RLS (definer/service_role) so staff need no direct write grants
+- [decision] staff get no direct INSERT on orders — creation is only via the definer create_order RPC, which is safer than the matrix's literal "insert"; staff direct access is SELECT own-counter-today only
+- [decision] added settings.is_public; staff read only public keys (loyalty rates marked public, allow_negative_stock private)
+- [decision] current_role() name is reserved in SQL, created quoted as "current_role"()
+- [note] db RLS tests must `set local role authenticated` (pooler login is superuser and bypasses RLS); expected-write failures guarded with savepoints so the tx stays usable

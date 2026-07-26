@@ -39,6 +39,28 @@ export async function setActor(c: pg.Client, uid: string): Promise<void> {
   await c.query("select set_config('request.jwt.claims', $1, true)", [claims]);
 }
 
+/**
+ * Impersonate a real API request: set the JWT claims AND switch to the
+ * `authenticated` SQL role so RLS actually applies (the pooler login role is
+ * superuser and bypasses RLS otherwise). Transaction-scoped.
+ */
+export async function becomeAuthenticated(c: pg.Client, uid: string): Promise<void> {
+  const claims = JSON.stringify({ sub: uid, role: "authenticated" });
+  await c.query("select set_config('request.jwt.claims', $1, true)", [claims]);
+  await c.query("set local role authenticated");
+}
+
+/** Switch to the anonymous (logged-out) role. */
+export async function becomeAnon(c: pg.Client): Promise<void> {
+  await c.query("select set_config('request.jwt.claims', '', true)");
+  await c.query("set local role anon");
+}
+
+/** Return to the superuser login role (undoes becomeAuthenticated/becomeAnon). */
+export async function resetRole(c: pg.Client): Promise<void> {
+  await c.query("reset role");
+}
+
 export async function userId(c: pg.Client, email: string): Promise<string> {
   const r = await c.query("select id from auth.users where email = $1", [email]);
   if (!r.rows[0]) throw new Error(`no auth user ${email}`);
