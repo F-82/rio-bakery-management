@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="384" height="96" viewBox="0 0 384 96">
+  <!-- Placeholder receipt header — thermal printers render 1-bit, so this stays pure black/white. Swap once the client sends artwork. -->
+  <rect width="384" height="96" fill="#FFFFFF" />
+  <rect x="8" y="8" width="80" height="80" rx="12" fill="#000000" />
+  <text x="48" y="66" text-anchor="middle" font-family="Georgia, serif" font-weight="300" font-size="40" fill="#FFFFFF">R</text>
+  <text x="104" y="46" font-family="Georgia, serif" font-weight="400" font-size="28" fill="#000000">Rio Bakers Hut</text>
+  <text x="104" y="74" font-family="Helvetica, Arial, sans-serif" font-weight="500" font-size="14" letter-spacing="1" fill="#000000">BAKERY &amp; HOT PLATE COUNTER</text>
+</svg>

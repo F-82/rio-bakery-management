@@ -3,9 +3,18 @@ import { updateSession } from "@/lib/supabase/middleware";
 
 const LOGIN_PATH = "/login";
 
+// Static dev-only design reference, gated to non-production inside the page
+// itself — no session or business data involved, so it doesn't need the
+// auth gate below.
+const PUBLIC_PATHS = ["/kitchen-sink"];
+
 export async function proxy(request: NextRequest) {
-  const { response, user, supabase } = await updateSession(request);
   const { pathname } = request.nextUrl;
+  if (PUBLIC_PATHS.includes(pathname)) {
+    return NextResponse.next();
+  }
+
+  const { response, user, supabase } = await updateSession(request);
   const isLoginPath = pathname === LOGIN_PATH;
 
   if (!user) {

@@ -4,117 +4,127 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Spacing discipline (DESIGN.md §Space & shape): 4px base, Tailwind's
+ * default `--spacing: 0.25rem` already matches it exactly. Only use the
+ * scale steps 2 3 4 6 8 12 16 20 24 (e.g. `gap-4`, `p-6`, `px-12`) — no
+ * in-between values like `gap-5` or `p-10`.
+ */
+
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  /* Rio palette */
+  --color-bg: var(--rio-bg);
+  --color-surface: var(--rio-surface);
+  --color-surface-alt: var(--rio-surface-alt);
+  --color-ink: var(--rio-ink);
+  --color-ink-2: var(--rio-ink-2);
+  --color-ink-3: var(--rio-ink-3);
+  --color-line: var(--rio-line);
+  --color-accent-ink: var(--rio-accent-ink);
+  --color-pos: var(--rio-pos);
+  --color-neg: var(--rio-neg);
+  --color-warn: var(--rio-warn);
+  --color-alert: var(--rio-alert);
+  --color-alert-ink: var(--rio-alert-ink);
+  --color-alert-bg: var(--rio-alert-bg);
+
+  /* shadcn semantic aliases, mapped onto the Rio palette so any generated
+     ui/ primitive picks up the right colors without per-component overrides */
+  --color-background: var(--rio-bg);
+  --color-foreground: var(--rio-ink);
+  --color-card: var(--rio-surface);
+  --color-card-foreground: var(--rio-ink);
+  --color-popover: var(--rio-surface);
+  --color-popover-foreground: var(--rio-ink);
+  --color-primary: var(--rio-ink);
+  --color-primary-foreground: var(--rio-accent-ink);
+  --color-secondary: var(--rio-surface-alt);
+  --color-secondary-foreground: var(--rio-ink);
+  --color-muted: var(--rio-surface-alt);
+  --color-muted-foreground: var(--rio-ink-2);
+  --color-accent: var(--rio-surface-alt);
+  --color-accent-foreground: var(--rio-ink);
+  --color-destructive: var(--rio-alert);
+  --color-destructive-foreground: var(--rio-alert-ink);
+  --color-border: var(--rio-line);
+  --color-input: var(--rio-line);
+  --color-ring: var(--rio-ink);
+
+  /* Left rail (step 07) and any future chart, mapped now so they don't
+     render with unstyled shadcn defaults the moment they're added */
+  --color-sidebar: var(--rio-surface);
+  --color-sidebar-foreground: var(--rio-ink);
+  --color-sidebar-primary: var(--rio-ink);
+  --color-sidebar-primary-foreground: var(--rio-accent-ink);
+  --color-sidebar-accent: var(--rio-surface-alt);
+  --color-sidebar-accent-foreground: var(--rio-ink);
+  --color-sidebar-border: var(--rio-line);
+  --color-sidebar-ring: var(--rio-ink);
+  --color-chart-1: var(--rio-pos);
+  --color-chart-2: var(--rio-warn);
+  --color-chart-3: var(--rio-neg);
+  --color-chart-4: var(--rio-ink-2);
+  --color-chart-5: var(--rio-ink-3);
+
+  /* Fonts — next/font/local sets the actual family stack on <html> via
+     the ranade.variable / generalSans.variable classNames in layout.tsx */
+  --font-sans: var(--font-ranade);
+  --font-heading: var(--font-general-sans);
+
+  /* Radius (DESIGN.md §Space & shape) — aliased onto Tailwind's default
+     scale, which already lands on the exact pixel values: rounded-lg=8px,
+     rounded-2xl=16px, rounded-3xl=24px. Buttons use the built-in
+     rounded-full (999px) directly, no alias needed. */
+  --radius-badge: var(--radius-lg);
+  --radius-tile: var(--radius-2xl);
+  --radius-card: var(--radius-3xl);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --rio-bg: #f4ebe2;
+  --rio-surface: #fcf8f4;
+  --rio-surface-alt: #efe4d9;
+  --rio-ink: #241c17;
+  --rio-ink-2: #6b5c51;
+  --rio-ink-3: #a09083;
+  --rio-line: #e4d7c9;
+
+  --rio-accent-ink: #fcf8f4;
+  --rio-pos: #3e9b63;
+  --rio-neg: #c0493f;
+  --rio-warn: #c97a28;
+
+  --rio-alert: #b3261e;
+  --rio-alert-ink: #ffffff;
+  --rio-alert-bg: #fdecea;
+
+  /* Sinhala runs ~1.4x the line-height of Latin (DESIGN.md §Sinhala) — set
+     here so every text-* utility below picks it up once i18n lands. */
+  --leading-scale: 1;
+}
+
+[lang="si"] {
+  --leading-scale: 1.4;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Dark mode is not in v1 (DESIGN.md §Palette). Values are placeholders —
+     structurally present, identical to light — so `.dark` is safe to toggle
+     without a visible effect until real dark tokens are designed. */
+  --rio-bg: #f4ebe2;
+  --rio-surface: #fcf8f4;
+  --rio-surface-alt: #efe4d9;
+  --rio-ink: #241c17;
+  --rio-ink-2: #6b5c51;
+  --rio-ink-3: #a09083;
+  --rio-line: #e4d7c9;
+  --rio-accent-ink: #fcf8f4;
+  --rio-pos: #3e9b63;
+  --rio-neg: #c0493f;
+  --rio-warn: #c97a28;
+  --rio-alert: #b3261e;
+  --rio-alert-ink: #ffffff;
+  --rio-alert-bg: #fdecea;
 }
 
 @layer base {
@@ -122,9 +132,102 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
   }
-  html {
-    @apply font-sans;
+  /* Visible keyboard focus everywhere (DESIGN.md §Floor) */
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
   }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/*
+ * Type scale (DESIGN.md §Type). Each utility bundles face + weight + size +
+ * line-height so the Light-below-20px rule can't be broken by composing
+ * utilities ad hoc — use these classes, not raw text- and font- utilities
+ * composed by hand, for anything that should read as one of these roles.
+ */
+@utility text-display {
+  font-family: var(--font-ranade);
+  font-weight: 300;
+  font-size: 2.75rem;
+  line-height: calc(3rem * var(--leading-scale));
+}
+
+@utility text-h1 {
+  font-family: var(--font-ranade);
+  font-weight: 300;
+  font-size: 1.75rem;
+  line-height: calc(2.125rem * var(--leading-scale));
+}
+
+@utility text-h2 {
+  font-family: var(--font-general-sans);
+  font-weight: 600;
+  font-size: 1.25rem;
+  line-height: calc(1.625rem * var(--leading-scale));
+}
+
+@utility text-h3 {
+  font-family: var(--font-general-sans);
+  font-weight: 600;
+  font-size: 1.0625rem;
+  line-height: calc(1.5rem * var(--leading-scale));
+}
+
+@utility text-body {
+  font-family: var(--font-ranade);
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: calc(1.5rem * var(--leading-scale));
+}
+
+@utility text-body-sm {
+  font-family: var(--font-ranade);
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: calc(1.25rem * var(--leading-scale));
+}
+
+@utility text-label {
+  font-family: var(--font-general-sans);
+  font-weight: 500;
+  font-size: 0.8125rem;
+  line-height: calc(1.125rem * var(--leading-scale));
+  letter-spacing: 0.02em;
+}
+
+@utility text-micro {
+  font-family: var(--font-general-sans);
+  font-weight: 500;
+  font-size: 0.6875rem;
+  line-height: calc(1rem * var(--leading-scale));
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+@utility text-num-lg {
+  font-family: var(--font-ranade);
+  font-weight: 300;
+  font-size: 2.125rem;
+  line-height: calc(2.375rem * var(--leading-scale));
+  font-variant-numeric: tabular-nums;
+}
+
+@utility text-num {
+  font-family: var(--font-ranade);
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: calc(1.375rem * var(--leading-scale));
+  font-variant-numeric: tabular-nums;
 }
