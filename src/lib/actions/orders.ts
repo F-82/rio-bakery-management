@@ -93,3 +93,19 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
     printJobs: printJobs ?? [],
   };
 }
+
+export type VoidOrderResult = { ok: true } | { ok: false; error: string };
+
+/**
+ * Wraps void_order (owner/manager only — enforced inside the RPC itself,
+ * not just by hiding the button; see 20260727054744_fix_void_order_role_check.sql).
+ * Never a hard delete: flips status to voided and reverses stock movements.
+ */
+export async function voidOrder(orderId: string, reason: string): Promise<VoidOrderResult> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("void_order", { p_order_id: orderId, p_reason: reason });
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+  return { ok: true };
+}
