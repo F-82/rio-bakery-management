@@ -64,3 +64,15 @@ No paragraphs. If it needs a paragraph, it belongs in ARCHITECTURE.md.
 - [decision] added settings.is_public; staff read only public keys (loyalty rates marked public, allow_negative_stock private)
 - [decision] current_role() name is reserved in SQL, created quoted as "current_role"()
 - [note] db RLS tests must `set local role authenticated` (pooler login is superuser and bypasses RLS); expected-write failures guarded with savepoints so the tx stays usable
+
+## 2026-07-27
+
+- [done] 05 typed data layer + auth middleware — database.ts generated from staging; lib/supabase/{client,server,middleware}; src/proxy.ts; lib/queries/profile.ts, lib/actions/auth.ts; lib/format.ts (formatLKR/formatQty/formatDate/normalisePhone); 21/21 unit tests pass; lint/typecheck/build clean
+- [decision] Next 16 renamed middleware.ts→proxy.ts (function `proxy`, not `middleware`) — root file is src/proxy.ts; CLAUDE.md's "lib/supabase/middleware.ts" is Supabase's own helper-file convention, unrelated to the Next file name, kept as-is
+- [decision] session refresh uses getUser() not getClaims() — getUser() revalidates directly against Auth and doesn't depend on the project having asymmetric JWT signing keys configured, which staging's status is unconfirmed
+- [decision] formatLKR/formatQty built on Intl.NumberFormat (en-LK), formatDate on Intl.DateTimeFormat pinned to Asia/Colombo — no new formatting dependency; Decimal only converted to number at the display boundary, never for arithmetic
+- [note] LKR currency format renders a non-breaking space (U+00A0) between "LKR" and the amount, not a regular space — tests assert against the literal NBSP
+- [decision] proxy also checks profiles.active and signs out + redirects deactivated staff — flagged because no RLS policy currently checks `active` (helpers only key off business_id/role), so today a deactivated staff member's JWT still passes RLS; this proxy check is a UX guard, not the fix. Real fix is an RLS change, out of scope here
+- [decision] minimal functional (unstyled) /login and authed "/" landing built now so the redirect has a real destination — full design/nav lands in steps 06–07, not duplicated here
+- [note] verified the full auth round trip against rio-staging: unauthenticated → /login (307), authenticated → away from /login (307), authed "/" renders the real owner profile (name + role) via getCurrentProfile(). Used a non-destructive admin magic-link grant to get a real session rather than guessing/rotating the seeded owner's password
+- [decision] pinned @supabase/ssr@0.12.3, @supabase/supabase-js@2.110.8, decimal.js@10.6.0 to the exact resolved versions rather than carets
