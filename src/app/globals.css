@@ -358,4 +358,86 @@
       padding-left: 14rem;
     }
   }
+
+  /*
+   * POS layout (DESIGN.md §"The POS screen is dense on purpose", §Responsive).
+   * One mounted Cart, CSS-only switch between a collapsible bottom sheet
+   * (portrait phone) and a pinned side panel (any landscape, or >=768px) —
+   * same reasoning as .app-nav: losing cart contents on rotation mid-order
+   * would be a severe bug, not just a cosmetic one.
+   *
+   * Grid/cart split: 40% is the shared default (also "tablet"); phone-l and
+   * desktop override it. Deliberately not three separate full rail blocks —
+   * only the ratio differs between those tiers, everything else is shared.
+   */
+  .pos-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    --pos-cart-width: 40%;
+  }
+
+  .pos-grid {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .pos-cart {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    max-height: 4.5rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-line);
+    padding-bottom: env(safe-area-inset-bottom);
+    transition: max-height 0.2s ease;
+  }
+
+  .pos-cart[data-expanded="true"] {
+    max-height: 85dvh;
+    overflow-y: auto;
+  }
+
+  .pos-cart-handle {
+    display: block;
+  }
+
+  @media (orientation: landscape), (min-width: 768px) {
+    .pos-layout {
+      display: grid;
+      grid-template-columns: 1fr var(--pos-cart-width);
+      height: 100%;
+    }
+
+    .pos-cart {
+      position: static;
+      max-height: none;
+      overflow-y: auto;
+      border-top: none;
+      border-left: 1px solid var(--color-line);
+      transition: none;
+    }
+
+    .pos-cart-handle {
+      display: none;
+    }
+  }
+
+  @media (orientation: landscape) and (max-width: 899.98px) {
+    .pos-layout {
+      --pos-cart-width: 45%;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .pos-layout {
+      --pos-cart-width: 35%;
+    }
+  }
 }
