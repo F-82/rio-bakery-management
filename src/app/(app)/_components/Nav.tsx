@@ -12,6 +12,8 @@ type NavProps = {
   // icon component references, which can't cross the server/client boundary
   // as a prop (only rendered elements can). Computed here instead.
   role: Database["public"]["Enums"]["user_role"];
+  /** href -> count, e.g. { "/inventory": lowStockCount }. Renders nothing when a count is 0/undefined. */
+  badgeCounts?: Partial<Record<string, number>>;
 };
 
 function isHrefActive(pathname: string, href: string) {
@@ -23,7 +25,7 @@ function isHrefActive(pathname: string, href: string) {
  * globals.css for the bottom-pill/left-rail switch. Never swapped by a JS
  * breakpoint check, so it can't remount (and lose state) on rotation.
  */
-export function Nav({ role }: NavProps) {
+export function Nav({ role, badgeCounts }: NavProps) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
   const items = getPrimaryNavItems(role);
@@ -52,6 +54,7 @@ export function Nav({ role }: NavProps) {
           }
 
           const isActive = isHrefActive(pathname, item.href);
+          const badgeCount = badgeCounts?.[item.href];
           return (
             <Link
               key={item.href}
@@ -60,8 +63,24 @@ export function Nav({ role }: NavProps) {
               data-active={isActive}
               aria-current={isActive ? "page" : undefined}
             >
-              <item.icon className="size-5" aria-hidden />
-              <span className="app-nav__label text-micro">{item.label}</span>
+              <span className="relative inline-flex">
+                <item.icon className="size-5" aria-hidden />
+                {/* Filled dot with a numeral, --warn — DESIGN.md §Navigation badges. */}
+                {!!badgeCount && (
+                  <span
+                    aria-hidden
+                    className="absolute -top-1.5 -right-2 flex size-4 items-center justify-center rounded-full bg-warn text-[10px] text-accent-ink"
+                  >
+                    {badgeCount > 9 ? "9+" : badgeCount}
+                  </span>
+                )}
+              </span>
+              <span className="app-nav__label text-micro">
+                {item.label}
+                {!!badgeCount && (
+                  <span className="sr-only">, {badgeCount} low stock</span>
+                )}
+              </span>
             </Link>
           );
         })}

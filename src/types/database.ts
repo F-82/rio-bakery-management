@@ -710,6 +710,7 @@ export type Database = {
       }
       is_owner: { Args: never; Returns: boolean }
       is_owner_or_manager: { Args: never; Returns: boolean }
+      record_stock_movement: { Args: { payload: Json }; Returns: Json }
       void_order: {
         Args: { p_order_id: string; p_reason: string }
         Returns: Json
