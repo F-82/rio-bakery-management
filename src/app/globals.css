@@ -231,3 +231,131 @@
   line-height: calc(1.375rem * var(--leading-scale));
   font-variant-numeric: tabular-nums;
 }
+
+/*
+ * App shell nav (DESIGN.md §Responsive, §Navigation). One component, CSS-only
+ * breakpoint switch — never conditionally mounted/unmounted by JS — so
+ * rotating the device can't reset its state or remount the page below it.
+ *
+ * Bottom pill below 768px in portrait; left rail for any landscape viewport
+ * or any width >=768px; icon+label from 1200px up. This collapses DESIGN's
+ * four-row table (phone-p/phone-l/tablet/desktop) into two rules because
+ * phone-l, tablet and desktop all render the same rail shape.
+ */
+@layer components {
+  .app-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    z-index: 40;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-around;
+    height: 4rem;
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-line);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .app-nav__item {
+    display: flex;
+    flex: 1;
+    min-height: 44px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    color: var(--color-ink-2);
+  }
+
+  .app-nav__item[data-active="true"] {
+    color: var(--color-ink);
+  }
+
+  @media (orientation: landscape), (min-width: 768px) {
+    .app-nav {
+      top: 0;
+      bottom: 0;
+      right: auto;
+      left: 0;
+      width: 4rem;
+      height: auto;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: stretch;
+      gap: 0.5rem;
+      border-top: none;
+      border-right: 1px solid var(--color-line);
+      padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    .app-nav__item {
+      flex: none;
+      height: 3.5rem;
+    }
+
+    .app-nav__label {
+      display: none;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .app-nav {
+      width: 14rem;
+    }
+
+    .app-nav__item {
+      flex-direction: row;
+      justify-content: flex-start;
+      gap: 0.75rem;
+      padding-inline: 1.5rem;
+    }
+
+    .app-nav__label {
+      display: block;
+    }
+  }
+
+  /*
+   * Header collapses to 44px in landscape only (DESIGN.md §Responsive "Other
+   * landscape rules") — independent of the nav's own width-based rail
+   * trigger, so a portrait tablet keeps the full-height header.
+   */
+  .app-header {
+    height: 4rem;
+    padding-top: env(safe-area-inset-top);
+  }
+
+  @media (orientation: landscape) {
+    .app-header {
+      height: 44px;
+    }
+  }
+
+  /*
+   * Wraps header + main. Reserves space for the fixed .app-nav so content
+   * never sits underneath it, using the same breakpoints as .app-nav itself.
+   */
+  .app-shell-content {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+
+  @media (orientation: landscape), (min-width: 768px) {
+    .app-shell-content {
+      padding-bottom: 0;
+      padding-left: calc(4rem + env(safe-area-inset-left));
+      padding-right: env(safe-area-inset-right);
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .app-shell-content {
+      padding-left: 14rem;
+    }
+  }
+}
