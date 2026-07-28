@@ -1,8 +1,12 @@
 # Design — Rio Bakers Hut
 
+**v3 — dashboard supersedes v2.** The `/dashboard` route now runs the **warm-minimal soft-UI** system (Outfit, `#e7e7e7` canvas, white `rounded-[28px]` shell, acid yellow + deep green accents). The blue-accent General Sans direction (v2) remains on all other pages and will be migrated to Outfit/warm-minimal in future steps.
+
 **v2 — supersedes the warm-sand direction entirely.** Anything built before the retheme step follows v1 and must be migrated. See STEPS.md §R.
 
-Direction: light neutral canvas, white cards, true-black controls, one luminous blue accent, green for positive. Reference is the travel-planner UI supplied 27 Jul.
+Direction (v2, non-dashboard): light neutral canvas, white cards, true-black controls, one luminous blue accent, green for positive. Reference is the travel-planner UI supplied 27 Jul.
+
+Direction (v3, dashboard): warm-minimal soft-UI. `#e7e7e7` canvas, white `rounded-[28px]` shell, **Outfit** 300/400/500/600, acid yellow `#faff7f` + deep green `#0c9762` accents, black primary actions. Reference is the rowner prototype shipped 29 Jul.
 
 ## Why blue and green, and where red went
 
@@ -82,11 +86,34 @@ Black text sits on it. It is never used behind small text.
 
 **Components reference semantic aliases only.** Never `--blue-600` directly, never a hex. That discipline is what made this retheme a token swap instead of a rewrite — keep it.
 
+
 ## Type
 
-**Ranade is removed.** **General Sans** is the only typeface, self-hosted woff2 via `next/font/local`. Only two static weights are on hand — Medium 500 and Semibold 600 — so every role below runs one of those two; there is no Light or Regular file to reach for.
+### v3 (dashboard, future pages) — Outfit
 
-Losing Ranade means the order number (§Signature) and other display-scale text lose the lighter, more distinctive face they had in v1/early v2. That's an accepted tradeoff of going single-face, not an oversight — if it reads too flat at `display` size, the fix is sourcing a lighter General Sans weight (or a second display face), not reintroducing Ranade piecemeal.
+**Outfit** is the primary typeface, loaded via `next/font/google`. Weights 300/400/500/600 all available.
+
+| Use | Weight |
+|---|---|
+| Hero figures, page titles, all big numbers | 300 `font-light` |
+| Body text, table cells | 400 |
+| Labels, buttons, nav items, chips | 500 `font-medium` |
+| Uppercase micro-labels / eyebrows | 600 `font-semibold` |
+| Bold 700 | never |
+
+Big numbers: `font-light tracking-tight tabular-nums`. Micro-labels: `uppercase tracking-wider text-xs font-semibold`.
+
+Currency pattern — code as a small muted span on the same baseline:
+```tsx
+<div className="flex items-baseline gap-1">
+  <span className="text-xs text-neutral-500">LKR</span>
+  <span className="text-5xl font-light tracking-tight tabular-nums">3,950.00</span>
+</div>
+```
+
+### v2 (all other pages) — General Sans
+
+**Ranade is removed.** **General Sans** is the only typeface, self-hosted woff2 via `next/font/local`. Only two static weights are on hand — Medium 500 and Semibold 600 — so every role below runs one of those two; there is no Light or Regular file to reach for.
 
 | Role | Face | Weight |
 |---|---|---|

@@ -51,9 +51,10 @@ Commit after each completed step in `STEPS.md`, not after each file. Every commi
 - Mutations go through RPC or a server action. Never a raw multi-step client write.
 - Money: `numeric(12,2)` in DB, `Decimal` in app code. Never JS float arithmetic on money.
 - Format money through `formatLKR()` only. Never inline `toFixed`.
-- **No colour outside the semantic tokens.** No hex, no `rgb()`, no `bg-[#…]`, no Tailwind default palette classes. Components use `--accent`, `--pos`, `--neg`, `--warn`, `--alert`, `--ink*`, `--surface*` — never a raw scale value like `--blue-600`. This is what makes a retheme a token swap instead of a rewrite.
-- **No hardcoded colours, fonts, radii or shadows.** Tokens only — no raw hex, no `bg-slate-100`, no inline font stacks. The theme changed once mid-build and will change again.
-- General Sans is the only typeface (Ranade removed). No other font without updating DESIGN.md first.
+- **No colour outside the semantic tokens.** No hex, no `rgb()`, no `hsl()`, no Tailwind arbitrary color values — *except* for the warm-minimal accent tints listed in DESIGN.md §v3 (`rgba(12,151,98,0.10)`, `rgba(250,255,127,0.45)`, `rgba(239,68,68,0.08)` and the yellow wash gradient) and the surface literals (`#e7e7e7`, `#ffffff`, `#f5f5f5`). Those are documented exceptions; anything else needs a token first.
+- **No hardcoded colours, fonts, radii or shadows** outside the documented token/literal set. No `bg-slate-100`, no inline font stacks. The theme changed twice and will change again.
+- **Outfit** is now the primary typeface (`--font-sans`, loaded via `next/font/google`). **General Sans** (`--font-general-sans`) remains available for the legacy v2 pages during migration. No other font without updating DESIGN.md first.
+- Dashboard and new v3 screens use warm-minimal: `font-light` for hero figures, `font-medium` for labels, `font-semibold` for micro-labels. No bold 700+.
 - Red is a state colour. Never chrome, never decoration. See DESIGN.md.
 - Dates in UTC in DB, rendered Asia/Colombo. One `formatDate` helper.
 - No `localStorage` for anything the server owns.

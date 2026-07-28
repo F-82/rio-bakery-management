@@ -262,3 +262,15 @@ Commit: feat(tax): add tax report
 
 - [done] 18 printing — `agent/` Node service with Realtime subscription on `print_jobs`. Implemented `Printer` interface (`ConsolePrinter`, `EscPosPrinter` stub) and renderers for `customer_receipt` (prices) and `kitchen_ticket` (no prices, display order number). `index.ts` daemon handles retry with backoff, startup recovery, and status writeback (`printing`/`done`/`failed`). Verified agent correctly receives jobs and updates the remote staging database.
 Commit: feat(print): add on-site esc/pos print agent
+
+## 2026-07-29
+
+- [decision] v3 warm-minimal UI direction adopted for dashboard, replacing the blue-accent General Sans shell with the rowner prototype (design-v2.md, lovable/). All other pages retain v2 tokens until migrated
+- [decision] Outfit (Google Fonts, next/font/google, weights 300/400/500/600) is now `--font-sans` globally; General Sans kept as `--font-general-sans` for legacy v2 pages during migration
+- [done] rowner dashboard — new `DashboardShell` component: `#e7e7e7` canvas, `rounded-[28px]` white shell, top tab bar, `w-60` desktop sidebar + `w-14` mobile rail, all 11 nav links wired to real routes, yellow wash hero card (live sales via Realtime), 4-column stat pills (Total/Completed/Pending/Cancelled), net profit card with income/expenses pills, low stock card (inventory link when non-zero), bookings card, failed-print panel, mobile CTA strip
+- [decision] dashboard segment gets its own `layout.tsx` that renders only `{children}` — bypasses the shared (app) Header+Nav so the rowner self-contained shell doesn't double-render chrome
+- [decision] `DashboardClient.tsx` preserved untouched; `DashboardShell.tsx` is the new entry point. `dashboard/page.tsx` now imports `DashboardShell`. `DashboardClient` can be removed once the v2→v3 migration is complete
+- [done] globals.css: added `--accent-yellow: #faff7f` and `--accent-green: #0c9762` to `:root` and mapped to Tailwind via `@theme inline`
+- [done] DESIGN.md updated: v3 header, Outfit type spec, v3 direction documented alongside v2
+- [done] CLAUDE.md updated: font rule, colour exceptions documented
+
