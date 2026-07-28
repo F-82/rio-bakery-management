@@ -1,11 +1,22 @@
 import localFont from "next/font/local";
-import { Noto_Sans_Sinhala } from "next/font/google";
+import { Noto_Sans_Sinhala, Outfit } from "next/font/google";
 
 /**
- * The only typeface (DESIGN.md §Type — Ranade removed). Medium (500) stands
- * in for every role that used to run Regular/Light; only Medium and Semibold
- * (600) are the weights we have local files for. Every text-* utility in
- * globals.css maps to one of these two.
+ * Primary typeface — Outfit (rowner warm-minimal design system, design-v2.md §4).
+ * Weights 300/400/500/600 loaded: 300=font-light (hero figures), 400=body,
+ * 500=font-medium (labels, buttons, nav), 600=font-semibold (micro-labels).
+ */
+export const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-outfit",
+  display: "swap",
+});
+
+/**
+ * General Sans — kept for backward compatibility during the gradual transition.
+ * New screens should use Outfit via --font-sans. This will be removed once all
+ * pages adopt the rowner design language.
  */
 export const generalSans = localFont({
   src: [
@@ -18,7 +29,7 @@ export const generalSans = localFont({
 
 export const notoSansSinhala = Noto_Sans_Sinhala({
   subsets: ["sinhala"],
-  weight: ["500", "600"], // Match General Sans weights
+  weight: ["300", "400", "500", "600"],
   variable: "--font-noto-sinhala",
   display: "swap",
 });

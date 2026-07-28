@@ -76,13 +76,17 @@
   --color-chart-4: var(--rio-ink-2);
   --color-chart-5: var(--rio-ink-3);
 
-  /* Fonts — Ranade removed (DESIGN.md §Type). General Sans is the only
-     typeface now; both aliases point at it so `font-sans`/`font-heading`
-     utilities keep working without a per-callsite rename. next/font/local
-     sets the actual family stack on <html> via generalSans.variable in
-     layout.tsx. */
-  --font-sans: var(--font-general-sans);
-  --font-heading: var(--font-general-sans);
+  /* Fonts — Outfit is now the primary typeface (design-v2.md §4, rowner
+     warm-minimal design system). General Sans kept as --font-general-sans
+     for the gradual transition period. next/font/google sets --font-outfit
+     via outfit.variable in layout.tsx. */
+  --font-sans: var(--font-outfit);
+  --font-heading: var(--font-outfit);
+
+  /* Warm-minimal accent tokens (design-v2.md §2) — co-exist with rio tokens.
+     Components may use these directly via bg-[var(--accent-yellow)] etc. */
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-green: var(--accent-green);
 
   /* Radius (DESIGN.md §Space & shape, v2 — went up from v1). Card is 28px,
      which has no matching Tailwind default step (3xl=24px, next is 36px),
@@ -95,6 +99,10 @@
 }
 
 :root {
+  /* Warm-minimal accent colors (rowner design, design-v2.md §2) */
+  --accent-yellow: #faff7f;   /* acid / highlighter yellow — black text on it */
+  --accent-green: #0c9762;    /* deep emerald — white text on it */
+
   --rio-bg: #f1f2f4;
   --rio-surface: #ffffff;
   --rio-surface-2: #f7f8fa;

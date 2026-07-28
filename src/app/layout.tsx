@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { generalSans, notoSansSinhala } from "@/lib/fonts";
+import { outfit, generalSans, notoSansSinhala } from "@/lib/fonts";
 import "./globals.css";
 import { I18nProvider } from "@/components/I18nProvider";
 import { getCurrentProfile } from "@/lib/queries/profile";
@@ -18,7 +18,7 @@ export default async function RootLayout({
   const languagePref = profile?.language_pref || "en";
 
   return (
-    <html lang={languagePref} className={`${generalSans.variable} ${notoSansSinhala.variable} h-full antialiased`}>
+    <html lang={languagePref} className={`${outfit.variable} ${generalSans.variable} ${notoSansSinhala.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <I18nProvider languagePref={languagePref}>
           {children}
@@ -27,3 +27,4 @@ export default async function RootLayout({
     </html>
   );
 }
+
