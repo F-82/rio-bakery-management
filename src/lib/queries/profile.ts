@@ -30,6 +30,7 @@ type CounterKind = Database["public"]["Enums"]["counter_kind"];
 export type ProfileContext = {
   profile: Profile;
   businessName: string;
+  logoUrl: string | null;
   counter: { name: string; kind: CounterKind } | null;
 };
 
@@ -47,7 +48,7 @@ export async function getCurrentProfileContext(): Promise<ProfileContext | null>
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("*, businesses(name), counters(name, kind)")
+    .select("*, businesses(name, logo_url), counters(name, kind)")
     .eq("id", user.id)
     .single();
 
@@ -57,6 +58,7 @@ export async function getCurrentProfileContext(): Promise<ProfileContext | null>
   return {
     profile,
     businessName: businesses?.name ?? "",
+    logoUrl: businesses?.logo_url ?? null,
     counter: counters ? { name: counters.name, kind: counters.kind } : null,
   };
 }

@@ -15,7 +15,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="min-h-dvh bg-bg">
       <Nav role={profile.role} badgeCounts={{ "/inventory": lowStockCount }} />
       <div className="app-shell-content flex min-h-dvh flex-col">
-        <Header name={profile.name} role={profile.role} counter={counter} />
+        <Header name={profile.name} role={profile.role} counter={counter} logoUrl={context.logoUrl} />
         <main className="flex-1">{children}</main>
       </div>
     </div>

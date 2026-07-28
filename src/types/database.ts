@@ -39,6 +39,76 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          business_id: string
+          created_at: string
+          customer_id: string | null
+          customer_name: string
+          date: string
+          id: string
+          notes: string | null
+          party_size: number
+          phone: string
+          source: Database["public"]["Enums"]["booking_source"]
+          status: Database["public"]["Enums"]["booking_status"]
+          time: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          customer_id?: string | null
+          customer_name: string
+          date: string
+          id?: string
+          notes?: string | null
+          party_size: number
+          phone: string
+          source?: Database["public"]["Enums"]["booking_source"]
+          status?: Database["public"]["Enums"]["booking_status"]
+          time: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string
+          date?: string
+          id?: string
+          notes?: string | null
+          party_size?: number
+          phone?: string
+          source?: Database["public"]["Enums"]["booking_source"]
+          status?: Database["public"]["Enums"]["booking_status"]
+          time?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "priority_customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           created_at: string
@@ -885,6 +955,8 @@ export type Database = {
       }
     }
     Enums: {
+      booking_source: "in_person" | "phone" | "online"
+      booking_status: "pending" | "confirmed" | "completed" | "cancelled"
       category_scope: "menu" | "inventory"
       counter_kind: "bakery" | "hot_plate"
       order_status: "open" | "completed" | "voided"
@@ -1030,6 +1102,8 @@ export const Constants = {
   },
   public: {
     Enums: {
+      booking_source: ["in_person", "phone", "online"],
+      booking_status: ["pending", "confirmed", "completed", "cancelled"],
       category_scope: ["menu", "inventory"],
       counter_kind: ["bakery", "hot_plate"],
       order_status: ["open", "completed", "voided"],

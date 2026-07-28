@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Bell } from "lucide-react";
 import { getPageTitle } from "@/lib/nav";
 import { CounterBadge } from "@/components/patterns/CounterBadge";
+import { Logo } from "@/components/brand/Logo";
 import { signOut } from "@/lib/actions/auth";
 import type { Database } from "@/types/database";
 
@@ -12,18 +12,19 @@ type HeaderProps = {
   name: string | null;
   role: Database["public"]["Enums"]["user_role"];
   counter: { name: string; kind: Database["public"]["Enums"]["counter_kind"] } | null;
+  logoUrl?: string | null;
   /** Unread notification count. No notifications feature exists yet, so this stays unset. */
   unreadCount?: number;
 };
 
-export function Header({ name, role, counter, unreadCount }: HeaderProps) {
+export function Header({ name, role, counter, logoUrl, unreadCount }: HeaderProps) {
   const pathname = usePathname();
   const title = getPageTitle(pathname);
 
   return (
     <header className="app-header sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-line bg-surface px-4 print:hidden">
       <div className="flex items-center gap-3">
-        <Image src="/brand/logo.webp" alt="Rio Bakers Hut Logo" width={32} height={32} className="rounded-full" />
+        <Logo size={32} logoUrl={logoUrl} className="rounded-full" />
         <h1 className="text-h1 text-ink">{title}</h1>
       </div>
 

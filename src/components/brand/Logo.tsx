@@ -2,14 +2,26 @@ type LogoProps = {
   /** Edge length in px. The mark is always square. */
   size?: number;
   className?: string;
+  logoUrl?: string | null;
 };
 
 /**
- * Placeholder mark — logo artwork not supplied yet (CLAUDE.md §Assets).
- * Swap the internals once the client sends real artwork; keep the props
- * contract so every call site stays untouched.
+ * Renders the business logo if provided, or the placeholder mark otherwise.
  */
-export function Logo({ size = 32, className }: LogoProps) {
+export function Logo({ size = 32, className, logoUrl }: LogoProps) {
+  if (logoUrl) {
+    return (
+      <img
+        src={logoUrl}
+        width={size}
+        height={size}
+        alt="Rio Bakers Hut"
+        className={className}
+        style={{ objectFit: 'contain' }}
+      />
+    );
+  }
+
   return (
     <svg
       width={size}
