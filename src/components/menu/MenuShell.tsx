@@ -13,9 +13,8 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { signOut } from "@/lib/actions/auth";
 import { fetchMenuItemRecipe } from "@/lib/menu-detail";
-import { uploadMenuItemImage } from "@/lib/menu-image-upload";
 import {
-  createMenuItem, updateMenuItem, replaceMenuItemRecipe,
+  uploadMenuItemImageAction, createMenuItem, updateMenuItem, replaceMenuItemRecipe,
 } from "@/lib/actions/menu";
 import type { MenuCategory, MenuListRow, RecipeInventoryOption, RecipeLine } from "@/lib/queries/menu";
 
@@ -133,12 +132,10 @@ function ItemForm({
   value,
   onChange,
   categories,
-  businessId,
 }: {
   value: DraftItem;
   onChange: (v: DraftItem) => void;
   categories: MenuCategory[];
-  businessId: string;
 }) {
   const set = (patch: Partial<DraftItem>) => onChange({ ...value, ...patch });
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -151,7 +148,9 @@ function ItemForm({
     if (!file) return;
     setUploading(true);
     setUploadError(null);
-    const result = await uploadMenuItemImage(createClient(), businessId, file);
+    const fd = new FormData();
+    fd.append("file", file);
+    const result = await uploadMenuItemImageAction(fd);
     setUploading(false);
     if (!result.ok) { setUploadError(result.error); return; }
     set({ image_url: result.url });
@@ -232,7 +231,7 @@ function ItemForm({
           ref={fileInputRef}
           type="file"
           accept="image/jpeg,image/png,image/webp"
-          className="sr-only"
+          style={{ display: "none" }}
           onChange={handleFile}
           disabled={uploading}
         />

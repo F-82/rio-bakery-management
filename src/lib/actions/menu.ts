@@ -2,7 +2,27 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/queries/profile";
+import { uploadMenuItemImage } from "@/lib/menu-image-upload";
 import type { Database } from "@/types/database";
+
+export type ImageUploadResult = { ok: true; url: string } | { ok: false; error: string };
+
+/**
+ * Server-action wrapper for menu item image uploads.
+ * Runs with the server Supabase session so auth.uid() is always set
+ * correctly — avoids the browser client RLS mismatch with SSR cookies.
+ */
+export async function uploadMenuItemImageAction(formData: FormData): Promise<ImageUploadResult> {
+  const file = formData.get("file");
+  if (!(file instanceof File)) return { ok: false, error: "No file provided." };
+
+  const profile = await getCurrentProfile();
+  if (!profile) return { ok: false, error: "Not authenticated." };
+
+  const supabase = await createClient();
+  return uploadMenuItemImage(supabase, profile.business_id, file);
+}
+
 
 type TaxCategory = Database["public"]["Enums"]["tax_category"];
 
