@@ -19,8 +19,7 @@ export default async function EmployeesPage() {
     <div className="flex flex-col">
       <PageHeader
         title="Employees"
-        description="Manage your team members and their roles."
-        action={isOwner ? <InviteDrawer counters={counters} /> : undefined}
+        actions={isOwner ? <InviteDrawer counters={counters} /> : undefined}
       />
 
       <div className="p-6">

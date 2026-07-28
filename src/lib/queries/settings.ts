@@ -27,7 +27,7 @@ export async function getBusinessSettings() {
 
   // Convert settings array to object for easier consumption
   const settings = settingsRes.data.reduce((acc, curr) => {
-    acc[curr.key] = curr.value;
+    acc[curr.key] = typeof curr.value === 'string' ? curr.value as string : "";
     return acc;
   }, {} as Record<string, string>);
 

@@ -18,27 +18,32 @@ export function BookingsList({ bookings }: { bookings: Booking[] }) {
       </div>
 
       <DataTable
-        data={bookings}
+        rows={bookings}
         columns={[
           {
+            key: "datetime",
             header: "Date / Time",
-            accessor: (b) => `${b.date} at ${b.time.slice(0, 5)}`,
+            render: (b) => `${b.date} at ${b.time.slice(0, 5)}`,
           },
           {
+            key: "customer",
             header: "Customer",
-            accessor: (b) => b.customer_name,
+            render: (b) => b.customer_name,
           },
           {
+            key: "phone",
             header: "Phone",
-            accessor: (b) => b.phone,
+            render: (b) => b.phone,
           },
           {
+            key: "partysize",
             header: "Party Size",
-            accessor: (b) => String(b.party_size),
+            render: (b) => String(b.party_size),
           },
           {
+            key: "status",
             header: "Status",
-            accessor: (b) => (
+            render: (b) => (
               <Badge 
                 variant={b.status === "confirmed" ? "default" : b.status === "cancelled" ? "destructive" : "secondary"}
                 className="capitalize"
@@ -48,8 +53,9 @@ export function BookingsList({ bookings }: { bookings: Booking[] }) {
             ),
           },
           {
+            key: "source",
             header: "Source",
-            accessor: (b) => <span className="capitalize">{b.source.replace("_", " ")}</span>,
+            render: (b) => <span className="capitalize">{b.source.replace("_", " ")}</span>,
           }
         ]}
         getRowKey={(b) => b.id}

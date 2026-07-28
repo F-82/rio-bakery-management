@@ -9,7 +9,6 @@ export default async function BookingsPage() {
     <div className="flex flex-col">
       <PageHeader
         title="Bookings"
-        description="Manage reservations and party bookings."
       />
 
       <div className="p-6">

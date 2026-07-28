@@ -18,27 +18,36 @@ export function EmployeesList({ employees, counters, isOwner }: EmployeesListPro
   return (
     <>
       <DataTable
-        data={employees}
+        rows={employees}
         columns={[
           {
+            key: "name",
             header: "Name",
-            accessor: (e) => e.name ?? "—",
+            render: (e) => <div className="flex items-center gap-2 font-medium">{e.name}</div>,
           },
           {
+            key: "role",
             header: "Role",
-            accessor: (e) => (
+            render: (e) => (
               <Badge variant={e.role === "owner" ? "default" : "secondary"} className="capitalize">
                 {e.role}
               </Badge>
             ),
           },
+
           {
+            key: "counter",
             header: "Counter",
-            accessor: (e) => e.counters?.name ?? "—",
+            render: (e) => (
+              <Badge variant="secondary" className="font-normal text-ink-2">
+                {e.counters?.name || "None"}
+              </Badge>
+            ),
           },
           {
+            key: "status",
             header: "Status",
-            accessor: (e) => (
+            render: (e) => (
               <Badge variant={e.active ? "secondary" : "outline"} className={!e.active ? "text-ink-3" : ""}>
                 {e.active ? "Active" : "Inactive"}
               </Badge>

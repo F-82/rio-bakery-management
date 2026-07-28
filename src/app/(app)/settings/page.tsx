@@ -17,7 +17,6 @@ export default async function SettingsPage() {
     <div className="flex flex-col">
       <PageHeader
         title="Settings"
-        description="Configure your business profile, preferences, and system settings."
       />
 
       <SettingsForms 
