@@ -265,12 +265,13 @@ Commit: feat(print): add on-site esc/pos print agent
 
 ## 2026-07-29
 
-- [decision] v3 warm-minimal UI direction adopted for dashboard, replacing the blue-accent General Sans shell with the rowner prototype (design-v2.md, lovable/). All other pages retain v2 tokens until migrated
-- [decision] Outfit (Google Fonts, next/font/google, weights 300/400/500/600) is now `--font-sans` globally; General Sans kept as `--font-general-sans` for legacy v2 pages during migration
-- [done] rowner dashboard — new `DashboardShell` component: `#e7e7e7` canvas, `rounded-[28px]` white shell, top tab bar, `w-60` desktop sidebar + `w-14` mobile rail, all 11 nav links wired to real routes, yellow wash hero card (live sales via Realtime), 4-column stat pills (Total/Completed/Pending/Cancelled), net profit card with income/expenses pills, low stock card (inventory link when non-zero), bookings card, failed-print panel, mobile CTA strip
-- [decision] dashboard segment gets its own `layout.tsx` that renders only `{children}` — bypasses the shared (app) Header+Nav so the rowner self-contained shell doesn't double-render chrome
-- [decision] `DashboardClient.tsx` preserved untouched; `DashboardShell.tsx` is the new entry point. `dashboard/page.tsx` now imports `DashboardShell`. `DashboardClient` can be removed once the v2→v3 migration is complete
-- [done] globals.css: added `--accent-yellow: #faff7f` and `--accent-green: #0c9762` to `:root` and mapped to Tailwind via `@theme inline`
-- [done] DESIGN.md updated: v3 header, Outfit type spec, v3 direction documented alongside v2
-- [done] CLAUDE.md updated: font rule, colour exceptions documented
-
+- [fix] tsconfig.json — added `lovable` to `exclude`; the lovable/ prototype is a TanStack/Vite project with its own package.json, and the root `tsc` was sweeping it in, producing 92 errors for `@radix-ui/*`, `@tanstack/react-router`, `recharts`, etc.
+- [fix] `.next/dev/types/validator.ts` two residual errors (`Type 'LayoutRoutes' is not assignable to '"/"'`) — caused by a now-deleted `src/app/(app)/dashboard/layout.tsx`; deleting it and clearing the stale `.next/dev/types/` cache restores clean typecheck
+- [decision] Outfit (Google Fonts, next/font/google, weights 300–700) is now `--font-sans` globally — `fonts.ts`, `layout.tsx`, `globals.css` updated. `--accent-yellow: #faff7f` and `--accent-green: #0c9762` added to `:root` and exposed to Tailwind via `@theme inline`
+- [decision] dashboard moved from `(app)/dashboard/` to new `(owner)/dashboard/` route group — `(owner)/layout.tsx` handles auth redirect only, no Nav/Header chrome. Correct Next.js App Router pattern for a route that needs auth but its own full-page visual shell. `(app)/dashboard/page.tsx` deleted to avoid route conflict
+- [done] `DashboardShell.tsx` — full-page rowner shell: `flex flex-col min-h-screen bg-white` (no fixed overlay, no gray canvas), w-56 desktop sidebar + w-14 mobile icon rail, all 11 nav links wired to real routes via `<Link>`, `usePathname()` drives active state, top tab bar (brand glyph, search, bell, sign-out → `signOut()`), yellow wash hero sales card with live LKR via Supabase Realtime, 4 stat pills → `/orders?status=` filters, net profit card with income/expenses pills → `/finance`, low stock card → `/inventory?lowStock=1`, bookings placeholder → `/bookings`, failed-print reprint panel, mobile quick-action strip (`/orders/new` + `/inventory`), promo block → `/settings`
+- [decision] stat pill integer counts use proportional numerals (no `tabular-nums`) — Outfit's `tnum` OpenType feature adds a bottom serif foot to "1" that didn't match the lovable rendered output. Money amounts keep `tabular-nums` for decimal column alignment
+- [done] login — full two-panel redesign: left panel has Rio Bakers Hut logo image in white bubble, red→amber→yellow→blue gradient, bakery hero copy, product feature card; right panel has pill email/password inputs with icons, show/hide toggle, remember-me, forgot-password, black pill submit; removed Google/Apple buttons, "or continue with email" divider, "Don't have an account" footer, "Back to home" link; errors render as styled red pill
+- [done] `signIn` action — post-login redirect changed from `"/"` to `"/dashboard"`
+- [done] `.gitignore` — `lovable/` added; design-only reference, not part of the build
+- Commits: `76db384` build · `7ac9e9c` feat(theme) · `87ebddb` feat(dashboard) · `e5c4277` feat(login) · `5cefa8b` feat(auth) · `46c2575` docs · `d06eb75` chore(gitignore)
