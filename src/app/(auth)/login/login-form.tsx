@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 import { signIn, type SignInState } from "@/lib/actions/auth";
@@ -13,7 +14,10 @@ export function LoginForm() {
 
   return (
     <form action={formAction} className="flex w-full max-w-sm flex-col gap-4">
-      <h1 className="text-xl font-semibold">Rio Bakers Hut</h1>
+      <div className="flex flex-col items-center justify-center mb-2">
+        <Image src="/brand/logo.webp" alt="Rio Bakers Hut Logo" width={80} height={80} className="mb-4" />
+        <h1 className="text-xl font-semibold">Rio Bakers Hut</h1>
+      </div>
 
       {/* text-alert-strong, not text-alert, on both messages below — this page has no
           surface of its own, so the text sits on plain --bg where red-600 is ~4.3:1,

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Bell } from "lucide-react";
 import { getPageTitle } from "@/lib/nav";
@@ -21,7 +22,10 @@ export function Header({ name, role, counter, unreadCount }: HeaderProps) {
 
   return (
     <header className="app-header sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-line bg-surface px-4">
-      <h1 className="text-h2 text-ink">{title}</h1>
+      <div className="flex items-center gap-3">
+        <Image src="/brand/logo.webp" alt="Rio Bakers Hut Logo" width={32} height={32} className="rounded-full" />
+        <h1 className="text-h1 text-ink">{title}</h1>
+      </div>
 
       <div className="flex items-center gap-3">
         {counter && <CounterBadge kind={counter.kind} />}
