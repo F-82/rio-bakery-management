@@ -95,6 +95,12 @@ export type CreateOrderResult = {
   total: string;
   kitchen_ticket: boolean;
   low_stock_warnings: Array<Record<string, unknown>>;
+  loyalty: {
+    points_earned: number;
+    points_redeemed: number;
+    redemption_discount: string;
+    balance: number;
+  } | null;
 };
 
 /** Call create_order in the current transaction (actor must already be set). */

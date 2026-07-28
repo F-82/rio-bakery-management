@@ -13,6 +13,9 @@ try {
 }
 
 export default defineConfig({
+  resolve: {
+    tsconfigPaths: true,
+  },
   test: {
     environment: "node",
     include: ["tests/db/**/*.{test,spec}.ts"],

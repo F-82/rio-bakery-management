@@ -2,6 +2,7 @@ import {
   BarChart3,
   BookOpen,
   CalendarDays,
+  Contact,
   FileText,
   LayoutDashboard,
   MoreHorizontal,
@@ -27,9 +28,14 @@ const inventory: NavLinkItem = { kind: "link", label: "Inventory", href: "/inven
 const finance: NavLinkItem = { kind: "link", label: "Finance", href: "/finance", icon: Wallet };
 const more: NavMoreItem = { kind: "more", label: "More", icon: MoreHorizontal };
 
-/** Menu, Bookings, Employees, Reports, Tax, Settings (DESIGN.md §Navigation). */
+/**
+ * Menu, Bookings, Employees, Reports, Tax, Settings (DESIGN.md §Navigation).
+ * Customers isn't in DESIGN.md's original list — it predates the loyalty
+ * schema (step 12). Added here rather than left unreachable in the UI.
+ */
 export const MORE_SHEET_ITEMS: NavLinkItem[] = [
   menu,
+  { kind: "link", label: "Customers", href: "/customers", icon: Contact },
   { kind: "link", label: "Bookings", href: "/bookings", icon: CalendarDays },
   { kind: "link", label: "Employees", href: "/employees", icon: Users },
   { kind: "link", label: "Reports", href: "/reports", icon: BarChart3 },

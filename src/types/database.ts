@@ -133,6 +133,59 @@ export type Database = {
           },
         ]
       }
+      customers: {
+        Row: {
+          business_id: string
+          created_at: string
+          first_order_at: string | null
+          id: string
+          is_priority: boolean
+          last_order_at: string | null
+          loyalty_points: number
+          name: string | null
+          order_count: number
+          phone_e164: string
+          priority_note: string | null
+          total_spend: number
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          first_order_at?: string | null
+          id?: string
+          is_priority?: boolean
+          last_order_at?: string | null
+          loyalty_points?: number
+          name?: string | null
+          order_count?: number
+          phone_e164: string
+          priority_note?: string | null
+          total_spend?: number
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          first_order_at?: string | null
+          id?: string
+          is_priority?: boolean
+          last_order_at?: string | null
+          loyalty_points?: number
+          name?: string | null
+          order_count?: number
+          phone_e164?: string
+          priority_note?: string | null
+          total_spend?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customers_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_counters: {
         Row: {
           business_id: string
@@ -262,6 +315,58 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_transactions: {
+        Row: {
+          balance_after: number
+          created_at: string
+          customer_id: string
+          id: string
+          order_id: string | null
+          points_earned: number
+          points_redeemed: number
+        }
+        Insert: {
+          balance_after: number
+          created_at?: string
+          customer_id: string
+          id?: string
+          order_id?: string | null
+          points_earned?: number
+          points_redeemed?: number
+        }
+        Update: {
+          balance_after?: number
+          created_at?: string
+          customer_id?: string
+          id?: string
+          order_id?: string | null
+          points_earned?: number
+          points_redeemed?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loyalty_transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "priority_customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loyalty_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
@@ -458,6 +563,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "businesses"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["business_id", "customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["business_id", "id"]
+          },
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["business_id", "customer_id"]
+            isOneToOne: false
+            referencedRelation: "priority_customers"
+            referencedColumns: ["business_id", "id"]
           },
         ]
       }
@@ -698,7 +817,33 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      priority_customers: {
+        Row: {
+          business_id: string | null
+          first_order_at: string | null
+          id: string | null
+          is_priority: boolean | null
+          is_top_spender: boolean | null
+          last_order_at: string | null
+          loyalty_points: number | null
+          name: string | null
+          order_count: number | null
+          phone_e164: string | null
+          priority_note: string | null
+          recent_order_count: number | null
+          recent_spend: number | null
+          total_spend: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customers_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       create_order: { Args: { payload: Json }; Returns: Json }
@@ -707,6 +852,29 @@ export type Database = {
       current_role: {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]
+      }
+      find_or_create_customer: {
+        Args: { payload: Json }
+        Returns: {
+          business_id: string
+          created_at: string
+          first_order_at: string | null
+          id: string
+          is_priority: boolean
+          last_order_at: string | null
+          loyalty_points: number
+          name: string | null
+          order_count: number
+          phone_e164: string
+          priority_note: string | null
+          total_spend: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "customers"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       is_owner: { Args: never; Returns: boolean }
       is_owner_or_manager: { Args: never; Returns: boolean }
