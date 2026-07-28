@@ -1,8 +1,16 @@
+import Link from "next/link";
 import { PageHeader } from "@/components/patterns/PageHeader";
+import { AccentPanel } from "@/components/patterns/AccentPanel";
+import { Button } from "@/components/ui/button";
 import { InventoryFilters } from "@/components/inventory/InventoryFilters";
 import { InventoryList } from "@/components/inventory/InventoryList";
 import { AddItemDrawer } from "@/components/inventory/AddItemDrawer";
-import { getInventoryCategories, getInventoryItems, type InventoryFilter } from "@/lib/queries/inventory";
+import {
+  getInventoryCategories,
+  getInventoryItems,
+  getLowStockCount,
+  type InventoryFilter,
+} from "@/lib/queries/inventory";
 import { getCurrentProfile } from "@/lib/queries/profile";
 
 type InventoryPageProps = {
@@ -22,10 +30,11 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
     search: firstValue(params.search),
   };
 
-  const [items, categories, profile] = await Promise.all([
+  const [items, categories, profile, lowStockCount] = await Promise.all([
     getInventoryItems(filter),
     getInventoryCategories(),
     getCurrentProfile(),
+    getLowStockCount(),
   ]);
 
   // Mirrors inventory_items_write / stock_movements_read RLS: staff get a
@@ -34,8 +43,22 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="p-4 pb-0 sm:p-6 sm:pb-0">
+      <div className="flex flex-col gap-4 p-4 pb-0 sm:p-6 sm:pb-0">
         <PageHeader title="Inventory" actions={canManage ? <AddItemDrawer categories={categories} /> : undefined} />
+        {/* Low-stock summary — the one AccentPanel this screen gets, only when there's something to show (DESIGN.md §Structural language) */}
+        {lowStockCount > 0 && (
+          <AccentPanel className="flex items-center justify-between gap-3">
+            <div>
+              <span className="text-micro text-ink-2">Low stock</span>
+              <p className="text-h1 text-ink">
+                {lowStockCount} item{lowStockCount === 1 ? "" : "s"} need restocking
+              </p>
+            </div>
+            <Button asChild variant="outline">
+              <Link href="/inventory?lowStock=1">View</Link>
+            </Button>
+          </AccentPanel>
+        )}
       </div>
       <InventoryFilters categories={categories} />
       {/* Keyed by the filter so a filter change remounts with fresh rows

@@ -4,7 +4,7 @@ import { useState, type Dispatch } from "react";
 import { Minus, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MoneyText } from "@/components/patterns/MoneyText";
-import { formatLKR } from "@/lib/format";
+import { AccentPanel } from "@/components/patterns/AccentPanel";
 import {
   cartItemCount,
   cartLineTotal,
@@ -130,14 +130,21 @@ export function Cart({
             </p>
           )}
 
-          <Button
-            type="button"
-            size="lg"
-            disabled={cart.lines.length === 0 || isSubmitting}
-            onClick={onConfirm}
-          >
-            {isSubmitting ? "Placing order…" : `Complete order · ${formatLKR(subtotal)}`}
-          </Button>
+          {/* Cart total + confirm — the one AccentPanel this screen gets (DESIGN.md §Structural language) */}
+          <AccentPanel className="flex items-center justify-between gap-3 p-4">
+            <div className="flex flex-col">
+              <span className="text-micro text-ink-2">Total</span>
+              <MoneyText amount={subtotal} size="num-lg" />
+            </div>
+            <Button
+              type="button"
+              size="lg"
+              disabled={cart.lines.length === 0 || isSubmitting}
+              onClick={onConfirm}
+            >
+              {isSubmitting ? "Placing order…" : "Complete order"}
+            </Button>
+          </AccentPanel>
         </div>
       </div>
     </aside>

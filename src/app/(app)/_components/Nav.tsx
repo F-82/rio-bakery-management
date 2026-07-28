@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { getPrimaryNavItems, MORE_SHEET_ITEMS } from "@/lib/nav";
 import { MoreSheet } from "./MoreSheet";
+import { cn } from "@/lib/utils";
 import type { Database } from "@/types/database";
 
 type NavProps = {
@@ -47,7 +48,15 @@ export function Nav({ role, badgeCounts }: NavProps) {
                 aria-expanded={moreOpen}
                 onClick={() => setMoreOpen(true)}
               >
-                <item.icon className="size-5" aria-hidden />
+                {/* Active icon --ink on an --accent-tint rounded square (DESIGN.md §Responsive rail spec) */}
+                <span
+                  className={cn(
+                    "inline-flex size-9 items-center justify-center rounded-tile",
+                    isMoreActive && "bg-accent-tint",
+                  )}
+                >
+                  <item.icon className="size-5" aria-hidden />
+                </span>
                 <span className="app-nav__label text-micro">{item.label}</span>
               </button>
             );
@@ -63,7 +72,12 @@ export function Nav({ role, badgeCounts }: NavProps) {
               data-active={isActive}
               aria-current={isActive ? "page" : undefined}
             >
-              <span className="relative inline-flex">
+              <span
+                className={cn(
+                  "relative inline-flex size-9 items-center justify-center rounded-tile",
+                  isActive && "bg-accent-tint",
+                )}
+              >
                 <item.icon className="size-5" aria-hidden />
                 {/* Filled dot with a numeral, --warn — DESIGN.md §Navigation badges. */}
                 {!!badgeCount && (

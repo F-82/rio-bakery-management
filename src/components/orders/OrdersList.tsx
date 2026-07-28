@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Inbox } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { DataTable, type DataTableColumn } from "@/components/patterns/DataTable";
 import { CounterBadge } from "@/components/patterns/CounterBadge";
 import { MoneyText } from "@/components/patterns/MoneyText";
+import { EmptyState } from "@/components/patterns/EmptyState";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/format";
 import type { OrderListRow, OrdersFilter } from "@/lib/queries/orders";
@@ -136,7 +138,7 @@ export function OrdersList({ initialOrders, filter, counters, canVoid }: OrdersL
   return (
     <div className="p-4">
       {orders.length === 0 ? (
-        <p className="py-8 text-center text-body-sm text-ink-2">No orders match these filters.</p>
+        <EmptyState icon={Inbox} message="No orders match these filters." />
       ) : (
         <DataTable
           columns={columns}

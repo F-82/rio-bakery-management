@@ -155,3 +155,14 @@ Commit: fix(ui): resolve retheme regressions
 - [note] kitchen-sink's dev-mode 500 (DataTable's columns/getRowKey functions crossing the RSC boundary, logged in step 10, confirmed unrelated in the last retheme step) still reproduces identically — verified this step's primitives via production build + typecheck/lint/test/build instead of a live four-breakpoint walkthrough; no browser automation available in this environment
 - [done] typecheck/lint/test (36/36)/build all clean
 Commit: feat(ui): add icon chip, pill tabs and accent panel primitives
+
+- [done] v2 screen pass, shell → POS → orders → inventory, in that order, verified between each
+- [fix] shell: left rail's active icon had no `--accent-tint` rounded square per DESIGN.md's rail spec — it only changed to `--ink` text colour. Added a `size-9 rounded-tile` wrapper around the icon (both the primary nav items and the More button) that gets `bg-accent-tint` when active
+- [done] POS: `Cart`'s total + confirm button now sit inside an `AccentPanel` (`p-4`, overriding the default `p-6` to keep POS's ~60% density) — the one panel this screen gets. `SuccessScreen`'s order number now sits in its own `AccentPanel` at full `p-6` generosity, since the confirm screen isn't the dense one. CategoryTabs deliberately left alone (already confirmed not a TabPills case, T2)
+- [note] no empty state added to `ItemTileGrid` (zero search/filter results) — out of scope for a token/primitive pass, not something DESIGN.md's structural language calls for; flagging as pre-existing polish debt, not fixed here
+- [done] orders: `OrdersFilters` already used `TabPills` (extracted last step). Found `OrdersList`'s zero-results case was still a bare `<p>`, inconsistent with `InventoryList`'s already-correct `EmptyState` usage — switched it to `EmptyState` with `Inbox`. No `AccentPanel` — orders isn't in DESIGN.md's per-screen panel table, confirmed nothing added
+- [done] inventory: added the low-stock-summary `AccentPanel` DESIGN.md calls for, rendered only when `getLowStockCount() > 0`, with a "View" button to `?lowStock=1` (the filter `InventoryList` already supports). `StockEntryForm` already used `TabPills`, `InventoryList`'s empty state already used `IconChip`
+- [note] every screen checked stays at one `AccentPanel` max (grepped: inventory page, POS Cart, POS SuccessScreen, kitchen-sink demo only — no screen has two)
+- [note] breakpoint checks were reasoned from the existing `.app-nav`/`.pos-*`/`.pos-cart` CSS rules (unchanged by this step, previously verified) rather than a live four-breakpoint walkthrough — kitchen-sink's dev-mode 500 (pre-existing, unrelated) still blocks browser verification in this environment
+- [done] typecheck/lint/test (36/36)/build all clean
+Commit: feat(ui): apply v2 theme across shell, pos, orders and inventory

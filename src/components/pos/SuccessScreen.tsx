@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { PrintStatus } from "@/components/patterns/PrintStatus";
+import { AccentPanel } from "@/components/patterns/AccentPanel";
 import type { OrderPrintJob } from "@/lib/actions/orders";
 
 type SuccessScreenProps = {
@@ -24,10 +25,11 @@ const TARGET_LABELS: Record<string, string> = {
 export function SuccessScreen({ orderNumber, printJobs, onReprint, onNewOrder }: SuccessScreenProps) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-6 p-6 text-center">
-      <div>
+      {/* The order number — the one AccentPanel this screen gets (DESIGN.md §Signature) */}
+      <AccentPanel className="flex flex-col items-center gap-1">
         <p className="text-micro text-ink-2">Order placed</p>
         <p className="text-display text-ink">{orderNumber}</p>
-      </div>
+      </AccentPanel>
 
       <div className="flex w-full max-w-sm flex-col gap-2">
         {printJobs.map((job) => (
