@@ -13,8 +13,9 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { signOut } from "@/lib/actions/auth";
 import { fetchMenuItemRecipe } from "@/lib/menu-detail";
+import { uploadMenuItemImage } from "@/lib/menu-image-upload";
 import {
-  createMenuItem, updateMenuItem, setMenuItemAvailability, replaceMenuItemRecipe,
+  createMenuItem, updateMenuItem, replaceMenuItemRecipe,
 } from "@/lib/actions/menu";
 import type { MenuCategory, MenuListRow, RecipeInventoryOption, RecipeLine } from "@/lib/queries/menu";
 
@@ -119,23 +120,42 @@ type DraftItem = {
   requires_kitchen_prep: boolean;
   tax_category: TaxKey;
   available: boolean;
+  image_url: string | null;
 };
 
 const EMPTY_DRAFT: DraftItem = {
   name: "", category_id: "", price: 0,
   requires_kitchen_prep: false, tax_category: "standard", available: true,
+  image_url: null,
 };
 
 function ItemForm({
   value,
   onChange,
   categories,
+  businessId,
 }: {
   value: DraftItem;
   onChange: (v: DraftItem) => void;
   categories: MenuCategory[];
+  businessId: string;
 }) {
   const set = (patch: Partial<DraftItem>) => onChange({ ...value, ...patch });
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUploading(true);
+    setUploadError(null);
+    const result = await uploadMenuItemImage(createClient(), businessId, file);
+    setUploading(false);
+    if (!result.ok) { setUploadError(result.error); return; }
+    set({ image_url: result.url });
+  }
 
   return (
     <div className="space-y-4">
@@ -192,16 +212,31 @@ function ItemForm({
       <Field label="Photo">
         <button
           type="button"
-          className="flex w-full items-center gap-3 rounded-[18px] border border-dashed border-neutral-300 bg-neutral-50 px-4 py-4 text-left hover:bg-neutral-100"
+          disabled={uploading}
+          onClick={() => fileInputRef.current?.click()}
+          className="flex w-full items-center gap-3 rounded-[18px] border border-dashed border-neutral-300 bg-neutral-50 px-4 py-4 text-left hover:bg-neutral-100 disabled:opacity-60"
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-neutral-700 shadow-sm">
-            <ImagePlus className="h-4 w-4" />
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-neutral-700 shadow-sm overflow-hidden">
+            {value.image_url
+              ? <img src={value.image_url} alt="" className="h-full w-full object-cover" />
+              : <ImagePlus className="h-4 w-4" />}
           </span>
           <span>
-            <span className="block text-sm font-medium">Upload a photo</span>
-            <span className="block text-xs text-neutral-500">PNG or JPG, square works best</span>
+            <span className="block text-sm font-medium">
+              {uploading ? "Uploading…" : value.image_url ? "Replace photo" : "Upload a photo"}
+            </span>
+            <span className="block text-xs text-neutral-500">PNG, JPG or WebP · max 5 MB</span>
           </span>
         </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="sr-only"
+          onChange={handleFile}
+          disabled={uploading}
+        />
+        {uploadError && <p className="mt-1.5 text-xs text-red-600">{uploadError}</p>}
       </Field>
 
       <div className="flex items-center justify-between rounded-[18px] bg-neutral-100 px-4 py-3">
@@ -236,11 +271,13 @@ function EditDrawer({
   item,
   categories,
   inventoryOptions,
+  businessId,
   onClose,
   onSaved,
 }: {
   item: MenuListRow | null;
   categories: MenuCategory[];
+  businessId: string;
   inventoryOptions: RecipeInventoryOption[];
   onClose: () => void;
   onSaved: () => void;
@@ -256,6 +293,7 @@ function EditDrawer({
         item={item}
         categories={categories}
         inventoryOptions={inventoryOptions}
+        businessId={businessId}
         onClose={onClose}
         onSaved={onSaved}
       />
@@ -264,11 +302,12 @@ function EditDrawer({
 }
 
 function EditDrawerContent({
-  item, categories, inventoryOptions, onClose, onSaved,
+  item, categories, inventoryOptions, businessId, onClose, onSaved,
 }: {
   item: MenuListRow;
   categories: MenuCategory[];
   inventoryOptions: RecipeInventoryOption[];
+  businessId: string;
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -279,6 +318,7 @@ function EditDrawerContent({
     requires_kitchen_prep: item.requires_kitchen_prep,
     tax_category: item.tax_category as TaxKey,
     available: item.available,
+    image_url: item.image_url ?? null,
   });
   const [recipe, setRecipe] = useState<RecipeLine[]>([]);
   const [loadingRecipe, setLoadingRecipe] = useState(true);
@@ -304,7 +344,7 @@ function EditDrawerContent({
       requiresKitchenPrep: draft.requires_kitchen_prep,
       taxCategory: draft.tax_category,
       available: draft.available,
-      imageUrl: item.image_url ?? null,
+      imageUrl: draft.image_url,
     });
     if (!result.ok) { setError(result.error ?? "Failed to save."); setSaving(false); return; }
 
@@ -435,10 +475,11 @@ function EditDrawerContent({
 // ---------------------------------------------------------------------------
 
 function AddModal({
-  open, categories, onClose, onSaved,
+  open, categories, businessId, onClose, onSaved,
 }: {
   open: boolean;
   categories: MenuCategory[];
+  businessId: string;
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -741,6 +782,7 @@ export function MenuShell({ items, categories, inventoryOptions, canManage, busi
           item={editing}
           categories={categories}
           inventoryOptions={inventoryOptions}
+          businessId={businessId}
           onClose={() => setEditing(null)}
           onSaved={handleSaved}
         />
@@ -751,6 +793,7 @@ export function MenuShell({ items, categories, inventoryOptions, canManage, busi
         <AddModal
           open={adding}
           categories={categories}
+          businessId={businessId}
           onClose={() => setAdding(false)}
           onSaved={handleSaved}
         />
