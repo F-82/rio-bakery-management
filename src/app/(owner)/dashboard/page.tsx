@@ -1,5 +1,9 @@
-import { DashboardClient } from "@/components/dashboard/DashboardClient";
-import { getTodaysExpenseTotal, getTodaysOrders, getTodaysPrintJobs } from "@/lib/queries/dashboard";
+import { DashboardShell } from "@/components/dashboard/DashboardShell";
+import {
+  getTodaysExpenseTotal,
+  getTodaysOrders,
+  getTodaysPrintJobs,
+} from "@/lib/queries/dashboard";
 import { getStockLevels } from "@/lib/queries/inventory";
 
 export default async function DashboardPage() {
@@ -9,11 +13,10 @@ export default async function DashboardPage() {
     getStockLevels(),
   ]);
 
-  // Depends on today's order ids, so it can't join the Promise.all above.
-  const printJobs = await getTodaysPrintJobs(orders.map((order) => order.id));
+  const printJobs = await getTodaysPrintJobs(orders.map((o) => o.id));
 
   return (
-    <DashboardClient
+    <DashboardShell
       initialOrders={orders}
       initialPrintJobs={printJobs}
       initialStockLevels={stockLevels}
