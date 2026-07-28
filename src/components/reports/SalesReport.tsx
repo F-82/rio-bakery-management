@@ -77,7 +77,7 @@ export function SalesReport({ orders, range }: SalesReportProps) {
         <IconChip icon={CircleHelp} />
         <span className="text-micro text-ink-2">{t("Commission &amp; net revenue")}</span>
         <p className="text-body text-ink-2">
-          {t("Platform commission isn&apos;t defined yet (client blocker #6) — no rate exists anywhere in the schema to derive these from. Confirming scope with the client before either card shows a number.")}</p>
+          {t("Platform commission isn't defined yet (client blocker #6) — no rate exists anywhere in the schema to derive these from. Confirming scope with the client before either card shows a number.")}</p>
       </div>
 
       <BreakdownSection icon={Store} title={t("By counter")} rows={counterBreakdown} totalRevenue={summary.revenue} />

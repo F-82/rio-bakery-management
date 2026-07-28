@@ -12,6 +12,8 @@ export type CreateOrderLine = {
 export type CreateOrderInput = {
   counterId: string;
   paymentMethod: "cash" | "card";
+  source?: string;
+  customerId?: string;
   items: CreateOrderLine[];
 };
 
@@ -57,6 +59,8 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
     payload: {
       counter_id: input.counterId,
       payment_method: input.paymentMethod,
+      source: input.source,
+      customer_id: input.customerId,
       items: input.items.map((line) => ({
         menu_item_id: line.menuItemId,
         qty: line.qty,

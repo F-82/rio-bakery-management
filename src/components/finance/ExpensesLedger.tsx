@@ -19,31 +19,53 @@ type ExpensesLedgerProps = {
   canAdd: boolean;
 };
 
-const COLUMNS: DataTableColumn<ExpenseRow>[] = [
-  { key: "date", header: "Date", render: (row) => formatDate(row.date, "date") },
-  { key: "category", header: "Category", render: (row) => row.category },
-  { key: "amount", header: "Amount", align: "right", render: (row) => <MoneyText amount={row.amount} /> },
-  { key: "note", header: "Note", render: (row) => row.note ?? "—" },
-  {
-    key: "deductible",
-    header: "Tax deductible",
-    render: (row) => <Badge variant={row.isTaxDeductible ? "default" : "secondary"}>{row.isTaxDeductible ? "Yes" : "No"}</Badge>,
-  },
-  {
-    key: "receipt",
-    header: "Receipt",
-    render: (row) =>
-      row.receiptUrl ? (
-        <a href={row.receiptUrl} target="_blank" rel="noreferrer" className="text-body-sm text-accent underline">
-          {t("View")}</a>
-      ) : (
-        "—"
-      ),
-  },
-];
-
 export function ExpensesLedger({ expenses, categories, businessId, canAdd }: ExpensesLedgerProps) {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
+
+  const COLUMNS: DataTableColumn<ExpenseRow>[] = [
+    {
+      key: "date",
+      header: t("Date"),
+      render: (row) => formatDate(row.date, "date"),
+    },
+    {
+      key: "category",
+      header: t("Category"),
+      render: (row) => row.category,
+    },
+    {
+      key: "amount",
+      header: t("Amount"),
+      render: (row) => <MoneyText amount={row.amount} />,
+    },
+    {
+      key: "note",
+      header: t("Note"),
+      render: (row) => row.note || "—",
+    },
+    {
+      key: "deductible",
+      header: t("Deductible"),
+      render: (row) => (
+        <Badge variant={row.isTaxDeductible ? "default" : "secondary"}>
+          {row.isTaxDeductible ? t("Yes") : t("No")}
+        </Badge>
+      ),
+    },
+    {
+      key: "receipt",
+      header: t("Receipt"),
+      render: (row) =>
+        row.receiptUrl ? (
+          <a href={row.receiptUrl} target="_blank" rel="noreferrer" className="text-body-sm text-accent underline">
+            {t("View")}
+          </a>
+        ) : (
+          "—"
+        ),
+    },
+  ];
+
   return (
     <div className="flex flex-col gap-4 p-4 sm:p-6">
       <PageHeader

@@ -15,6 +15,8 @@ import {
 } from "@/lib/pos/cart";
 import type { ActiveCounter } from "@/lib/queries/counters";
 import { useTranslation } from "react-i18next";
+import { CustomerSelect, type CustomerInfo } from "./CustomerSelect";
+import { Decimal } from "decimal.js";
 
 type CartProps = {
   cart: CartState;
@@ -24,6 +26,10 @@ type CartProps = {
   onCounterChange: (id: string) => void;
   paymentMethod: "cash" | "card";
   onPaymentMethodChange: (method: "cash" | "card") => void;
+  source: string;
+  onSourceChange: (source: string) => void;
+  customer: CustomerInfo | null;
+  onCustomerChange: (customer: CustomerInfo | null) => void;
   onConfirm: () => void;
   isSubmitting: boolean;
   error: string | null;
@@ -43,14 +49,23 @@ export function Cart({
   onCounterChange,
   paymentMethod,
   onPaymentMethodChange,
+  source,
+  onSourceChange,
+  customer,
+  onCustomerChange,
   onConfirm,
   isSubmitting,
   error,
 }: CartProps) {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
+  const [cashGivenStr, setCashGivenStr] = useState("");
   const itemCount = cartItemCount(cart);
   const subtotal = cartSubtotal(cart);
+
+  const cashGiven = new Decimal(Number.parseFloat(cashGivenStr) || 0);
+  const changeDue = cashGiven.minus(subtotal);
+
 
   return (
     <aside className="pos-cart" data-expanded={expanded} aria-label="Cart">
@@ -101,6 +116,18 @@ export function Cart({
           </div>
 
           <div className="flex flex-col gap-1">
+            <span className="text-micro text-ink-2">{t("Order Type")}</span>
+            <select
+              value={source}
+              onChange={(event) => onSourceChange(event.target.value)}
+              className="h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink"
+            >
+              <option value="in_person">{t("Dine-in")}</option>
+              <option value="takeaway">{t("Takeaway")}</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1">
             <span className="text-micro text-ink-2">{t("Payment")}</span>
             <div className="flex gap-2">
               <Button
@@ -109,19 +136,41 @@ export function Cart({
                 className="flex-1"
                 onClick={() => onPaymentMethodChange("cash")}
               >
-                {t("Cash")}</Button>
+                {t("Cash")}
+              </Button>
               <Button
                 type="button"
                 variant={paymentMethod === "card" ? "default" : "outline"}
                 className="flex-1"
                 onClick={() => onPaymentMethodChange("card")}
               >
-                {t("Card")}</Button>
+                {t("Card")}
+              </Button>
             </div>
           </div>
 
-          <Button type="button" variant="ghost" disabled className="justify-start text-ink-2">
-            {t("Add customer — arrives in step 12")}</Button>
+          {paymentMethod === "cash" && (
+            <div className="flex gap-2 rounded-tile bg-surface-2 p-3">
+              <div className="flex flex-1 flex-col gap-1">
+                <span className="text-micro text-ink-2">{t("Cash Given")}</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={cashGivenStr}
+                  onChange={(e) => setCashGivenStr(e.target.value)}
+                  placeholder="0.00"
+                  className="h-9 w-full rounded-tile border border-line bg-surface px-2 text-body-sm text-ink placeholder:text-ink-3"
+                />
+              </div>
+              <div className="flex flex-1 flex-col gap-1 text-right">
+                <span className="text-micro text-ink-2">{t("Change Due")}</span>
+                <MoneyText amount={changeDue.toNumber()} />
+              </div>
+            </div>
+          )}
+
+          <CustomerSelect selectedCustomer={customer} onSelect={onCustomerChange} />
 
           {error && (
             <p role="alert" className="text-body-sm text-alert">

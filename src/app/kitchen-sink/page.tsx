@@ -76,7 +76,7 @@ export default function KitchenSinkPage() {
             <span className="text-micro text-ink-2">{t("display — 44/48, General Sans Medium")}</span>
           </div>
           <div>
-            <p className="text-h1 text-ink">{t("Today&apos;s orders")}</p>
+            <p className="text-h1 text-ink">{t("Today's orders")}</p>
             <span className="text-micro text-ink-2">{t("h1 — 28/34, General Sans Medium")}</span>
           </div>
           <div>
@@ -89,7 +89,7 @@ export default function KitchenSinkPage() {
           </div>
           <div>
             <p className="text-body text-ink">
-              {t("Kitchen printer didn&apos;t respond. The order is saved.")}</p>
+              {t("Kitchen printer didn't respond. The order is saved.")}</p>
             <span className="text-micro text-ink-2">{t("body — 16/24, General Sans Medium")}</span>
           </div>
           <div>
@@ -162,7 +162,7 @@ export default function KitchenSinkPage() {
 
       <Section title={t("AccentPanel")}>
         <AccentPanel className="flex flex-col gap-1">
-          <span className="text-micro text-ink-2">{t("Today&apos;s sales")}</span>
+          <span className="text-micro text-ink-2">{t("Today's sales")}</span>
           <span className="text-display text-ink">{formatLKR(84200)}</span>
         </AccentPanel>
         <span className="text-micro text-ink-2">

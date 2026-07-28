@@ -11,6 +11,7 @@ import { createOrder, type OrderPrintJob } from "@/lib/actions/orders";
 import { reprintJob } from "@/lib/actions/print";
 import type { MenuCategory, PosMenuItem } from "@/lib/queries/menu";
 import type { ActiveCounter } from "@/lib/queries/counters";
+import type { CustomerInfo } from "./CustomerSelect";
 
 type PosScreenProps = {
   categories: MenuCategory[];
@@ -30,6 +31,8 @@ export function PosScreen({ categories, menuItems, counters, defaultCounterId }:
   const [search, setSearch] = useState("");
   const [counterId, setCounterId] = useState(defaultCounterId ?? counters[0]?.id ?? "");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "card">("cash");
+  const [source, setSource] = useState("in_person");
+  const [customer, setCustomer] = useState<CustomerInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<OrderSuccess | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -67,6 +70,8 @@ export function PosScreen({ categories, menuItems, counters, defaultCounterId }:
       const result = await createOrder({
         counterId,
         paymentMethod,
+        source,
+        customerId: customer?.id,
         items: cart.lines.map((line) => ({
           menuItemId: line.menuItemId,
           qty: line.qty,
@@ -79,6 +84,7 @@ export function PosScreen({ categories, menuItems, counters, defaultCounterId }:
       }
       setSuccess({ orderNumber: result.orderNumber, printJobs: result.printJobs });
       dispatch({ type: "clear" });
+      setCustomer(null);
     });
   }
 
@@ -117,6 +123,10 @@ export function PosScreen({ categories, menuItems, counters, defaultCounterId }:
         onCounterChange={setCounterId}
         paymentMethod={paymentMethod}
         onPaymentMethodChange={setPaymentMethod}
+        source={source}
+        onSourceChange={setSource}
+        customer={customer}
+        onCustomerChange={setCustomer}
         onConfirm={handleConfirm}
         isSubmitting={isPending}
         error={error}

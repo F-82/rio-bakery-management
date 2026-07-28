@@ -178,7 +178,7 @@ export function DashboardClient({
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6">
       <div className="flex flex-col gap-2">
-        <span className="text-micro text-ink-2">{t("Today&apos;s sales")}</span>
+        <span className="text-micro text-ink-2">{t("Today's sales")}</span>
         {/* The one AccentPanel this screen gets (DESIGN.md §Structural language) */}
         <AccentPanel>
           <MoneyText amount={income} size="num-lg" />
@@ -226,7 +226,7 @@ export function DashboardClient({
 
         <div className="flex flex-col gap-2 rounded-card bg-surface p-6">
           <IconChip icon={CalendarDays} />
-          <span className="text-micro text-ink-2">{t("Today&apos;s bookings")}</span>
+          <span className="text-micro text-ink-2">{t("Today's bookings")}</span>
           <p className="text-body text-ink-2">{t("Bookings tracking lands in step 17.")}</p>
         </div>
       </div>

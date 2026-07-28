@@ -100,7 +100,7 @@ function CustomerDetailContent({ customerId, onSaved }: { customerId: string; on
       <div className="flex flex-col gap-2 rounded-tile bg-surface-2 p-3">
         <h3 className="text-h3 text-ink">{t("Priority customer")}</h3>
         <p className="text-body-sm text-ink-2">
-          {t("Filled star = you flagged them. Outline star = they&apos;re a top spender this quarter, no flag needed.")}</p>
+          {t("Filled star = you flagged them. Outline star = they're a top spender this quarter, no flag needed.")}</p>
         <textarea
           value={priorityNote}
           onChange={(event) => setPriorityNote(event.target.value)}

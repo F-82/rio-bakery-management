@@ -88,7 +88,7 @@ function processFile(sourceFile: SourceFile) {
         if (body && body.isKind(SyntaxKind.Block)) {
             const block = body;
             const statements = block.getStatements();
-            const hasT = statements.some(s => s.getText().includes("useTranslation"));
+            const hasT = statements.some((s: any) => s.getText().includes("useTranslation"));
             if (!hasT) {
                 block.insertStatements(0, "const { t } = useTranslation();");
                 hasModifications = true;
