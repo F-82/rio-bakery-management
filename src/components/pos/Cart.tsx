@@ -146,7 +146,7 @@ export function Cart({
 
 function CartLineRow({ line, dispatch }: { line: CartLine; dispatch: Dispatch<CartAction> }) {
   return (
-    <li className="flex flex-col gap-2 rounded-tile bg-surface-alt p-3">
+    <li className="flex flex-col gap-2 rounded-tile bg-surface-2 p-3">
       <div className="flex items-start justify-between gap-2">
         <span className="text-body-sm text-ink">{line.name}</span>
         <button

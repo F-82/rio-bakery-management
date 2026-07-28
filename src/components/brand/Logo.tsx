@@ -27,7 +27,7 @@ export function Logo({ size = 32, className }: LogoProps) {
         fontFamily="var(--font-ranade), serif"
         fontWeight={300}
         fontSize="18"
-        fill="var(--color-accent-ink)"
+        fill="var(--color-on-black)"
       >
         R
       </text>

@@ -1,6 +1,9 @@
+import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { IconChip } from "@/components/patterns/IconChip";
 
 type StatCardProps = {
+  icon: LucideIcon;
   label: string;
   value: string;
   delta?: {
@@ -10,10 +13,11 @@ type StatCardProps = {
   className?: string;
 };
 
-/** label `micro`, value `num-lg`, delta chip `--pos`/`--neg`. Never a gradient. */
-export function StatCard({ label, value, delta, className }: StatCardProps) {
+/** IconChip top-left, label `micro`, value `num-lg`, delta chip `--pos`/`--neg`. Never a gradient. */
+export function StatCard({ icon, label, value, delta, className }: StatCardProps) {
   return (
     <div className={cn("flex min-w-0 flex-col gap-2 rounded-card bg-surface p-6", className)}>
+      <IconChip icon={icon} />
       <span className="text-micro text-ink-2">{label}</span>
       <div className="flex min-w-0 flex-wrap items-baseline gap-2">
         <span className="text-num-lg text-ink truncate">{value}</span>

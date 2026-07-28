@@ -12,7 +12,7 @@ const badgeVariants = cva(
         default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
         secondary:
           "bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80",
-        warn: "bg-warn text-accent-ink [a]:hover:bg-warn/90",
+        warn: "bg-warn text-on-black [a]:hover:bg-warn/90",
         // --alert runs at full saturation — reserved for failed prints and
         // negative stock, not general "destructive" chrome.
         destructive:

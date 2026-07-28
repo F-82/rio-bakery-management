@@ -46,15 +46,17 @@ export function OrdersFilters({ counters, sources }: OrdersFiltersProps) {
 
   return (
     <div className="flex flex-col gap-3 border-b border-line px-4 py-3">
-      <div className="flex gap-2">
+      <div className="inline-flex w-fit gap-1 rounded-full bg-surface-2 p-1" role="tablist" aria-label="Order status">
         {TABS.map((t) => (
           <button
             key={t.value}
             type="button"
+            role="tab"
+            aria-selected={tab === t.value}
             onClick={() => updateParams({ tab: t.value === "active" ? null : t.value, status: null })}
             className={cn(
               "flex h-11 items-center rounded-full px-4 text-label",
-              tab === t.value ? "bg-ink text-accent-ink" : "bg-surface text-ink-2",
+              tab === t.value ? "bg-surface text-ink shadow-elevation" : "text-ink-2",
             )}
           >
             {t.label}

@@ -44,7 +44,7 @@ export function Header({ name, role, counter, unreadCount }: HeaderProps) {
           onClick={() => signOut()}
           className="flex items-center gap-2 rounded-full py-1 pr-3 pl-1 hover:bg-muted"
         >
-          <span className="flex size-8 items-center justify-center rounded-full bg-ink text-body-sm text-accent-ink">
+          <span className="flex size-8 items-center justify-center rounded-full bg-ink text-body-sm text-on-black">
             {(name ?? "?").charAt(0).toUpperCase()}
           </span>
           <span className="hidden text-label text-ink-2 capitalize sm:inline">{role}</span>

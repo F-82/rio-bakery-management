@@ -110,7 +110,7 @@ function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: bo
         <h3 className="text-h3 text-ink">Items</h3>
         <ul className="flex flex-col gap-2">
           {detail.items.map((item) => (
-            <li key={item.id} className="flex items-center justify-between gap-3 rounded-tile bg-surface-alt p-3">
+            <li key={item.id} className="flex items-center justify-between gap-3 rounded-tile bg-surface-2 p-3">
               <div>
                 <p className="text-body-sm text-ink">
                   {formatQty(item.qty)} × {item.name}
@@ -144,7 +144,7 @@ function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: bo
       {canVoid && detail.status !== "voided" && (
         <div className="flex flex-col gap-2 border-t border-line pt-4">
           {!voiding ? (
-            <Button variant="destructive" onClick={() => setVoiding(true)}>
+            <Button variant="destructive-outline" onClick={() => setVoiding(true)}>
               Void order
             </Button>
           ) : (

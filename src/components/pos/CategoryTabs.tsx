@@ -18,7 +18,7 @@ export function CategoryTabs({ categories, activeId, onSelect }: CategoryTabsPro
         onClick={() => onSelect(null)}
         className={cn(
           "flex h-11 shrink-0 items-center rounded-full px-4 text-label whitespace-nowrap",
-          activeId === null ? "bg-ink text-accent-ink" : "bg-surface text-ink-2",
+          activeId === null ? "bg-ink text-on-black" : "bg-surface text-ink-2",
         )}
       >
         All
@@ -30,7 +30,7 @@ export function CategoryTabs({ categories, activeId, onSelect }: CategoryTabsPro
           onClick={() => onSelect(category.id)}
           className={cn(
             "flex h-11 shrink-0 items-center rounded-full px-4 text-label whitespace-nowrap",
-            activeId === category.id ? "bg-ink text-accent-ink" : "bg-surface text-ink-2",
+            activeId === category.id ? "bg-ink text-on-black" : "bg-surface text-ink-2",
           )}
         >
           {category.name}

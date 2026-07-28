@@ -27,7 +27,7 @@ export function PrintStatus({ status, onReprint, className }: PrintStatusProps) 
       <div
         role="alert"
         className={cn(
-          "flex flex-wrap items-center gap-3 rounded-badge bg-alert-bg px-3 py-2",
+          "flex flex-wrap items-center gap-3 rounded-badge border border-alert bg-alert-bg px-3 py-2",
           className,
         )}
       >
@@ -35,7 +35,7 @@ export function PrintStatus({ status, onReprint, className }: PrintStatusProps) 
           Kitchen printer didn&apos;t respond. The order is saved — tap Reprint or hand the ticket
           over.
         </span>
-        <Button variant="destructive" onClick={onReprint}>
+        <Button variant="destructive-outline" onClick={onReprint}>
           Reprint
         </Button>
       </div>

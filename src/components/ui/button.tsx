@@ -19,9 +19,13 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground",
         // --alert runs at full saturation, deliberately breaking the quiet
-        // palette — reserved for destructive actions and print failures.
+        // palette — reserved for the actual confirming action inside a
+        // confirm step/modal. Every other destructive trigger uses
+        // destructive-outline (DESIGN.md §"Blue and red never fight").
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:ring-destructive/40",
+        "destructive-outline":
+          "border-alert text-alert bg-transparent hover:bg-alert-bg aria-expanded:bg-alert-bg",
         link: "text-primary underline-offset-4 hover:underline",
       },
       // Every size meets the 44px minimum tap target (DESIGN.md §Touch).

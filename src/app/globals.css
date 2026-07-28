@@ -12,91 +12,131 @@
  */
 
 @theme inline {
-  /* Rio palette */
+  /* Rio palette — v2, cool neutral with a blue accent (DESIGN.md §Palette) */
   --color-bg: var(--rio-bg);
   --color-surface: var(--rio-surface);
-  --color-surface-alt: var(--rio-surface-alt);
+  --color-surface-2: var(--rio-surface-2);
   --color-ink: var(--rio-ink);
   --color-ink-2: var(--rio-ink-2);
   --color-ink-3: var(--rio-ink-3);
   --color-line: var(--rio-line);
-  --color-accent-ink: var(--rio-accent-ink);
+  --color-black: var(--rio-black);
+  --color-on-black: var(--rio-on-black);
+  --color-accent: var(--rio-accent);
+  --color-accent-soft: var(--rio-accent-soft);
+  --color-accent-tint: var(--rio-accent-tint);
   --color-pos: var(--rio-pos);
   --color-neg: var(--rio-neg);
   --color-warn: var(--rio-warn);
   --color-alert: var(--rio-alert);
   --color-alert-ink: var(--rio-alert-ink);
   --color-alert-bg: var(--rio-alert-bg);
+  --color-focus: var(--rio-focus);
+  --color-scrim: var(--rio-scrim);
 
   /* shadcn semantic aliases, mapped onto the Rio palette so any generated
-     ui/ primitive picks up the right colors without per-component overrides */
+     ui/ primitive picks up the right colors without per-component overrides.
+     --color-accent/-foreground is claimed by the brand blue here — nothing
+     in the app consumed shadcn's generic subtle-hover "accent" slot before
+     this change, so there's no collision to preserve. */
   --color-background: var(--rio-bg);
   --color-foreground: var(--rio-ink);
   --color-card: var(--rio-surface);
   --color-card-foreground: var(--rio-ink);
   --color-popover: var(--rio-surface);
   --color-popover-foreground: var(--rio-ink);
-  --color-primary: var(--rio-ink);
-  --color-primary-foreground: var(--rio-accent-ink);
-  --color-secondary: var(--rio-surface-alt);
+  --color-primary: var(--rio-black);
+  --color-primary-foreground: var(--rio-on-black);
+  --color-secondary: var(--rio-surface-2);
   --color-secondary-foreground: var(--rio-ink);
-  --color-muted: var(--rio-surface-alt);
+  --color-muted: var(--rio-surface-2);
   --color-muted-foreground: var(--rio-ink-2);
-  --color-accent: var(--rio-surface-alt);
-  --color-accent-foreground: var(--rio-ink);
+  --color-accent-foreground: var(--rio-on-black);
   --color-destructive: var(--rio-alert);
   --color-destructive-foreground: var(--rio-alert-ink);
   --color-border: var(--rio-line);
   --color-input: var(--rio-line);
-  --color-ring: var(--rio-ink);
+  --color-ring: var(--rio-focus);
 
   /* Left rail (step 07) and any future chart, mapped now so they don't
      render with unstyled shadcn defaults the moment they're added */
   --color-sidebar: var(--rio-surface);
   --color-sidebar-foreground: var(--rio-ink);
-  --color-sidebar-primary: var(--rio-ink);
-  --color-sidebar-primary-foreground: var(--rio-accent-ink);
-  --color-sidebar-accent: var(--rio-surface-alt);
+  --color-sidebar-primary: var(--rio-black);
+  --color-sidebar-primary-foreground: var(--rio-on-black);
+  --color-sidebar-accent: var(--rio-surface-2);
   --color-sidebar-accent-foreground: var(--rio-ink);
   --color-sidebar-border: var(--rio-line);
-  --color-sidebar-ring: var(--rio-ink);
+  --color-sidebar-ring: var(--rio-focus);
   --color-chart-1: var(--rio-pos);
   --color-chart-2: var(--rio-warn);
   --color-chart-3: var(--rio-neg);
   --color-chart-4: var(--rio-ink-2);
   --color-chart-5: var(--rio-ink-3);
 
-  /* Fonts — next/font/local sets the actual family stack on <html> via
-     the ranade.variable / generalSans.variable classNames in layout.tsx */
+  /* Fonts — unchanged by the v2 retheme. DESIGN.md's Type table keeps
+     Ranade on display/h1/body/body-sm/num-lg/num and General Sans on
+     h2/h3/label/micro; only the palette moved. next/font/local sets the
+     actual family stack on <html> via ranade.variable / generalSans.variable
+     in layout.tsx. */
   --font-sans: var(--font-ranade);
   --font-heading: var(--font-general-sans);
 
-  /* Radius (DESIGN.md §Space & shape) — aliased onto Tailwind's default
-     scale, which already lands on the exact pixel values: rounded-lg=8px,
-     rounded-2xl=16px, rounded-3xl=24px. Buttons use the built-in
+  /* Radius (DESIGN.md §Space & shape, v2 — went up from v1). Card is 28px,
+     which has no matching Tailwind default step (3xl=24px, next is 36px),
+     so it's set directly below instead of aliased. Control/tile and badge
+     still land exactly on Tailwind's own scale. Pill/chip use the built-in
      rounded-full (999px) directly, no alias needed. */
-  --radius-badge: var(--radius-lg);
+  --radius-card: 1.75rem;
   --radius-tile: var(--radius-2xl);
-  --radius-card: var(--radius-3xl);
+  --radius-badge: var(--radius-lg);
 }
 
 :root {
-  --rio-bg: #f4ebe2;
-  --rio-surface: #fcf8f4;
-  --rio-surface-alt: #efe4d9;
-  --rio-ink: #241c17;
-  --rio-ink-2: #6b5c51;
-  --rio-ink-3: #a09083;
-  --rio-line: #e4d7c9;
+  --rio-bg: #f1f2f4;
+  --rio-surface: #ffffff;
+  --rio-surface-2: #f7f8fa;
+  --rio-line: #e5e7eb;
+  --rio-ink: #0a0b0d;
+  --rio-ink-2: #5b6169;
+  --rio-ink-3: #9ba1a9;
+  --rio-black: #000000;
+  --rio-on-black: #ffffff;
 
-  --rio-accent-ink: #fcf8f4;
-  --rio-pos: #3e9b63;
-  --rio-neg: #c0493f;
-  --rio-warn: #c97a28;
+  --rio-blue-700: #0e3fa6;
+  --rio-blue-600: #1657db;
+  --rio-blue-500: #2e74f5;
+  --rio-blue-100: #d8e4ff;
+  --rio-blue-50: #eff4ff;
 
-  --rio-alert: #b3261e;
+  --rio-green-600: #0c9762;
+  --rio-green-500: #12b274;
+  --rio-green-50: #e3f6ed;
+
+  --rio-red-700: #b42318;
+  --rio-red-600: #d92d20;
+  --rio-red-50: #fdecea;
+
+  --rio-amber-600: #c77a11;
+  --rio-amber-50: #fdf3e4;
+
+  --rio-accent: var(--rio-blue-600);
+  --rio-accent-soft: var(--rio-blue-100);
+  --rio-accent-tint: var(--rio-blue-50);
+  --rio-pos: var(--rio-green-600);
+  --rio-neg: var(--rio-red-600);
+  --rio-warn: var(--rio-amber-600);
+  --rio-alert: var(--rio-red-600);
   --rio-alert-ink: #ffffff;
-  --rio-alert-bg: #fdecea;
+  --rio-alert-bg: var(--rio-red-50);
+  --rio-focus: var(--rio-blue-600);
+
+  /* One luminous panel per screen (DESIGN.md §Structural language). Black
+     text sits on it — never used behind small text. */
+  --rio-accent-grad: linear-gradient(158deg, #eff4ff 0%, #c7daff 100%);
+  /* Modal/sheet backdrop. Same rendered value as the old literal bg-black/10
+     it replaces — routed through a token now instead of a bare literal. */
+  --rio-scrim: rgb(0 0 0 / 0.1);
 
   /* Sinhala runs ~1.4x the line-height of Latin (DESIGN.md §Sinhala) — set
      here so every text-* utility below picks it up once i18n lands. */
@@ -108,23 +148,28 @@
 }
 
 .dark {
-  /* Dark mode is not in v1 (DESIGN.md §Palette). Values are placeholders —
+  /* Dark mode is not in v2 (DESIGN.md §Palette). Values are placeholders —
      structurally present, identical to light — so `.dark` is safe to toggle
      without a visible effect until real dark tokens are designed. */
-  --rio-bg: #f4ebe2;
-  --rio-surface: #fcf8f4;
-  --rio-surface-alt: #efe4d9;
-  --rio-ink: #241c17;
-  --rio-ink-2: #6b5c51;
-  --rio-ink-3: #a09083;
-  --rio-line: #e4d7c9;
-  --rio-accent-ink: #fcf8f4;
-  --rio-pos: #3e9b63;
-  --rio-neg: #c0493f;
-  --rio-warn: #c97a28;
-  --rio-alert: #b3261e;
+  --rio-bg: #f1f2f4;
+  --rio-surface: #ffffff;
+  --rio-surface-2: #f7f8fa;
+  --rio-line: #e5e7eb;
+  --rio-ink: #0a0b0d;
+  --rio-ink-2: #5b6169;
+  --rio-ink-3: #9ba1a9;
+  --rio-black: #000000;
+  --rio-on-black: #ffffff;
+  --rio-accent: var(--rio-blue-600);
+  --rio-accent-soft: var(--rio-blue-100);
+  --rio-accent-tint: var(--rio-blue-50);
+  --rio-pos: var(--rio-green-600);
+  --rio-neg: var(--rio-red-600);
+  --rio-warn: var(--rio-amber-600);
+  --rio-alert: var(--rio-red-600);
   --rio-alert-ink: #ffffff;
-  --rio-alert-bg: #fdecea;
+  --rio-alert-bg: var(--rio-red-50);
+  --rio-focus: var(--rio-blue-600);
 }
 
 @layer base {
@@ -230,6 +275,20 @@
   font-size: 1rem;
   line-height: calc(1.375rem * var(--leading-scale));
   font-variant-numeric: tabular-nums;
+}
+
+/* One panel per screen (DESIGN.md §Structural language). Black text only. */
+@utility bg-accent-grad {
+  background: var(--rio-accent-grad);
+}
+
+/*
+ * The single elevation value DESIGN.md allows (§Space & shape: "nothing
+ * heavier") — the active pill in a TabPills track, and nowhere else unless
+ * DESIGN.md adds a use. Everything else separates by tone, not shadow.
+ */
+@utility shadow-elevation {
+  box-shadow: 0 1px 2px rgb(10 11 13 / 0.04);
 }
 
 /*

@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
+import { TrendingUp, ShoppingBag, Wallet, PackageX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Logo } from "@/components/brand/Logo";
 import { StatCard } from "@/components/patterns/StatCard";
+import { IconChip } from "@/components/patterns/IconChip";
 import { PageHeader } from "@/components/patterns/PageHeader";
 import { MoneyText } from "@/components/patterns/MoneyText";
 import { PrintStatus } from "@/components/patterns/PrintStatus";
@@ -112,17 +114,22 @@ export default function KitchenSinkPage() {
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           <Swatch name="bg" className="bg-bg" />
           <Swatch name="surface" className="bg-surface" />
-          <Swatch name="surface-alt" className="bg-surface-alt" />
+          <Swatch name="surface-2" className="bg-surface-2" />
           <Swatch name="ink" className="bg-ink" />
           <Swatch name="ink-2" className="bg-ink-2" />
           <Swatch name="ink-3" className="bg-ink-3" />
+          <Swatch name="black" className="bg-black" />
           <Swatch name="line" className="bg-line" />
+          <Swatch name="accent" className="bg-accent" />
+          <Swatch name="accent-soft" className="bg-accent-soft" />
+          <Swatch name="accent-tint" className="bg-accent-tint" />
           <Swatch name="pos" className="bg-pos" />
           <Swatch name="neg" className="bg-neg" />
           <Swatch name="warn" className="bg-warn" />
           <Swatch name="alert" className="bg-alert" />
           <Swatch name="alert-bg" className="bg-alert-bg" />
         </div>
+        <div className="h-24 w-full rounded-card bg-accent-grad" />
       </Section>
 
       <Section title="Logo">
@@ -134,14 +141,32 @@ export default function KitchenSinkPage() {
         </div>
       </Section>
 
+      <Section title="IconChip">
+        <div className="flex items-center gap-4">
+          <IconChip icon={TrendingUp} />
+          <IconChip icon={ShoppingBag} />
+          <IconChip icon={PackageX} />
+        </div>
+      </Section>
+
       <Section title="Buttons">
         <div className="flex flex-wrap items-center gap-4">
           <Button>Default</Button>
           <Button variant="outline">Outline</Button>
           <Button variant="secondary">Secondary</Button>
           <Button variant="ghost">Ghost</Button>
-          <Button variant="destructive">Void order</Button>
+          <Button variant="destructive-outline">Void order</Button>
           <Button variant="link">Link</Button>
+        </div>
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap items-center gap-4">
+            <Button variant="destructive">Confirm void</Button>
+          </div>
+          <span className="text-micro text-ink-2">
+            filled destructive — the confirming action inside a confirm step only. Every other
+            destructive trigger uses destructive-outline (DESIGN.md §&quot;Blue and red never
+            fight&quot;)
+          </span>
         </div>
         <div className="flex flex-wrap items-center gap-4">
           <Button size="default">44px default</Button>
@@ -161,10 +186,15 @@ export default function KitchenSinkPage() {
 
       <Section title="StatCard">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="Today's sales" value={formatLKR(84200)} delta={{ value: "12%", direction: "up" }} />
-          <StatCard label="Orders" value="47" delta={{ value: "3%", direction: "down" }} />
-          <StatCard label="Avg. order" value={formatLKR(1791)} />
-          <StatCard label="Low stock items" value="4" />
+          <StatCard
+            icon={TrendingUp}
+            label="Today's sales"
+            value={formatLKR(84200)}
+            delta={{ value: "12%", direction: "up" }}
+          />
+          <StatCard icon={ShoppingBag} label="Orders" value="47" delta={{ value: "3%", direction: "down" }} />
+          <StatCard icon={Wallet} label="Avg. order" value={formatLKR(1791)} />
+          <StatCard icon={PackageX} label="Low stock items" value="4" />
         </div>
       </Section>
 

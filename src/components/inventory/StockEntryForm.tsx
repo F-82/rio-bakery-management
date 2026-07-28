@@ -70,8 +70,12 @@ export function StockEntryForm({ inventoryItemId, unit, currentQty, onRecorded }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-tile bg-surface-alt p-3">
-      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Stock entry reason">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-tile bg-surface-2 p-3">
+      <div
+        className="flex flex-wrap gap-1 rounded-full p-1"
+        role="tablist"
+        aria-label="Stock entry reason"
+      >
         {REASONS.map((r) => (
           <button
             key={r.value}
@@ -81,7 +85,7 @@ export function StockEntryForm({ inventoryItemId, unit, currentQty, onRecorded }
             onClick={() => switchReason(r.value)}
             className={cn(
               "flex h-9 items-center rounded-full px-3 text-label",
-              reason === r.value ? "bg-ink text-accent-ink" : "bg-surface text-ink-2",
+              reason === r.value ? "bg-surface text-ink shadow-elevation" : "text-ink-2",
             )}
           >
             {r.label}

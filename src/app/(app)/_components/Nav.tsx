@@ -69,7 +69,7 @@ export function Nav({ role, badgeCounts }: NavProps) {
                 {!!badgeCount && (
                   <span
                     aria-hidden
-                    className="absolute -top-1.5 -right-2 flex size-4 items-center justify-center rounded-full bg-warn text-[10px] text-accent-ink"
+                    className="absolute -top-1.5 -right-2 flex size-4 items-center justify-center rounded-full bg-warn text-[10px] text-on-black"
                   >
                     {badgeCount > 9 ? "9+" : badgeCount}
                   </span>

@@ -20,7 +20,7 @@ export function ItemTile({ item, qtyInCart, onAdd }: ItemTileProps) {
       <span className="truncate text-body-sm text-ink">{item.name}</span>
       <span className="text-num text-ink-2">{formatLKR(item.price)}</span>
       {qtyInCart > 0 && (
-        <span className="absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full bg-ink text-[11px] text-accent-ink">
+        <span className="absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full bg-ink text-[11px] text-on-black">
           {qtyInCart}
         </span>
       )}
