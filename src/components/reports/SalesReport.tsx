@@ -5,12 +5,13 @@ import { IconChip } from "@/components/patterns/IconChip";
 import { MoneyText } from "@/components/patterns/MoneyText";
 import { PageHeader } from "@/components/patterns/PageHeader";
 import { PeriodSelector } from "@/components/finance/PeriodSelector";
-import { ExportActions } from "@/components/reports/ExportActions";
+import { ExportActions } from "@/components/patterns/ExportActions";
 import { BreakdownSection } from "@/components/reports/BreakdownSection";
 import { DetailTable } from "@/components/reports/DetailTable";
 import { formatDate } from "@/lib/format";
 import {
   buildCounterBreakdown,
+  buildDetailCsv,
   buildPaymentBreakdown,
   buildSourceBreakdown,
   summariseSales,
@@ -39,7 +40,9 @@ export function SalesReport({ orders, range }: SalesReportProps) {
     <div className="flex flex-col gap-6 p-4 sm:p-6">
       <PageHeader
         title="Sales report"
-        actions={<ExportActions orders={orders} filename={`sales-report-${range.from}-to-${range.to}.csv`} />}
+        actions={
+          <ExportActions getCsv={() => buildDetailCsv(orders)} filename={`sales-report-${range.from}-to-${range.to}.csv`} />
+        }
       />
 
       {/* Nav/Header are print:hidden (app-shell); this line is the report's own
