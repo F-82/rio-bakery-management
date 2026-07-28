@@ -71,3 +71,16 @@ export async function getLowStockCount(): Promise<number> {
   if (error) throw error;
   return data.filter(isLowStock).length;
 }
+
+/** Raw stock levels for every item — feeds the dashboard's realtime low-stock count (lib/dashboard.ts's countLowStock). */
+export async function getStockLevels(): Promise<{ id: string; qtyOnHand: number; lowStockThreshold: number }[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("inventory_items").select("id, qty_on_hand, low_stock_threshold");
+
+  if (error) throw error;
+  return data.map((row) => ({
+    id: row.id,
+    qtyOnHand: row.qty_on_hand,
+    lowStockThreshold: row.low_stock_threshold,
+  }));
+}
