@@ -2,6 +2,7 @@
 
 import { Download, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 
 type ExportActionsProps = {
   getCsv: () => string;
@@ -10,6 +11,7 @@ type ExportActionsProps = {
 
 /** PDF export is print-to-PDF — a dedicated print stylesheet plus window.print(), no PDF-generation dependency (LOG.md, step 15 decision). */
 export function ExportActions({ getCsv, filename }: ExportActionsProps) {
+    const { t } = useTranslation();
   function handleCsvExport() {
     const csv = getCsv();
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -24,11 +26,9 @@ export function ExportActions({ getCsv, filename }: ExportActionsProps) {
   return (
     <div className="flex items-center gap-2 print:hidden">
       <Button variant="secondary" onClick={handleCsvExport}>
-        <Download aria-hidden /> CSV
-      </Button>
+        <Download aria-hidden /> {t("CSV")}</Button>
       <Button variant="secondary" onClick={() => window.print()}>
-        <Printer aria-hidden /> Print / PDF
-      </Button>
+        <Printer aria-hidden /> {t("Print / PDF")}</Button>
     </div>
   );
 }

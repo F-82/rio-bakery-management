@@ -3,6 +3,7 @@
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { TabPills } from "@/components/patterns/TabPills";
+import { useTranslation } from "react-i18next";
 
 const TABS = [
   { value: "all", label: "All" },
@@ -11,6 +12,7 @@ const TABS = [
 
 /** Filters live in the URL — same reasoning as OrdersFilters/InventoryFilters: a plain server refetch on change. */
 export function CustomerFilters() {
+    const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -33,7 +35,7 @@ export function CustomerFilters() {
         tabs={TABS}
         value={priority ? "priority" : "all"}
         onChange={(value) => updateParams({ priority: value === "priority" ? "1" : null })}
-        label="Customer list"
+        label={t("Customer list")}
       />
       <input
         type="search"
@@ -43,7 +45,7 @@ export function CustomerFilters() {
         onKeyDown={(event) => {
           if (event.key === "Enter") updateParams({ search: search || null });
         }}
-        placeholder="Search by name or phone"
+        placeholder={t("Search by name or phone")}
         className="h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink placeholder:text-ink-3"
       />
     </div>

@@ -1,7 +1,10 @@
+"use client";
+
 import { Decimal } from "decimal.js";
 import { Badge } from "@/components/ui/badge";
 import { formatQty } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 type LowStockBadgeProps = {
   qty: Decimal | number | string;
@@ -15,6 +18,7 @@ type LowStockBadgeProps = {
  * --alert, not zero. Renders nothing when stock isn't low.
  */
 export function LowStockBadge({ qty, threshold, unit, className }: LowStockBadgeProps) {
+    const { t } = useTranslation();
   const qtyValue = qty instanceof Decimal ? qty : new Decimal(qty);
   const thresholdValue = threshold instanceof Decimal ? threshold : new Decimal(threshold);
 
@@ -29,8 +33,7 @@ export function LowStockBadge({ qty, threshold, unit, className }: LowStockBadge
   if (qtyValue.lessThanOrEqualTo(thresholdValue)) {
     return (
       <Badge variant="warn" className={cn(className)}>
-        Low stock
-      </Badge>
+        {t("Low stock")}</Badge>
     );
   }
 

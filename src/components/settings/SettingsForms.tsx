@@ -9,6 +9,7 @@ import {
   updateLanguage 
 } from "@/lib/actions/settings";
 import type { Business } from "@/lib/queries/settings";
+import { useTranslation } from "react-i18next";
 
 type SettingsFormsProps = {
   business: Business;
@@ -18,6 +19,7 @@ type SettingsFormsProps = {
 };
 
 export function SettingsForms({ business, settings, profileId, languagePref }: SettingsFormsProps) {
+    const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<"profile" | "general" | "notifications">("profile");
 
   return (
@@ -48,6 +50,7 @@ export function SettingsForms({ business, settings, profileId, languagePref }: S
 }
 
 function BusinessProfileForm({ business }: { business: Business }) {
+    const { t } = useTranslation();
   const [isPending, startTransition] = useTransition();
   const [name, setName] = useState(business.name);
   const [file, setFile] = useState<File | null>(null);
@@ -77,10 +80,10 @@ function BusinessProfileForm({ business }: { business: Business }) {
 
   return (
     <form onSubmit={handleSave} className="flex max-w-md flex-col gap-6">
-      <h2 className="text-h3">Business Profile</h2>
+      <h2 className="text-h3">{t("Business Profile")}</h2>
       
       <label className="flex flex-col gap-2">
-        <span className="text-label text-ink-2">Business Name</span>
+        <span className="text-label text-ink-2">{t("Business Name")}</span>
         <input
           type="text"
           value={name}
@@ -91,10 +94,10 @@ function BusinessProfileForm({ business }: { business: Business }) {
       </label>
 
       <label className="flex flex-col gap-2">
-        <span className="text-label text-ink-2">Logo</span>
+        <span className="text-label text-ink-2">{t("Logo")}</span>
         <div className="flex items-center gap-4">
           {business.logo_url && !file && (
-            <img src={business.logo_url} alt="Logo" className="size-16 rounded border border-line object-contain" />
+            <img src={business.logo_url} alt={t("Logo")} className="size-16 rounded border border-line object-contain" />
           )}
           <input
             type="file"
@@ -115,6 +118,7 @@ function BusinessProfileForm({ business }: { business: Business }) {
 }
 
 function GeneralSettingsForm({ businessId, settings, profileId, languagePref }: { businessId: string; settings: Record<string, string>; profileId: string; languagePref: string }) {
+    const { t } = useTranslation();
   const [isPending, startTransition] = useTransition();
   const [currency, setCurrency] = useState(settings["currency"] || "LKR");
   const [taxRate, setTaxRate] = useState(settings["tax.rate"] || "0");
@@ -146,23 +150,23 @@ function GeneralSettingsForm({ businessId, settings, profileId, languagePref }: 
 
   return (
     <form onSubmit={handleSave} className="flex max-w-md flex-col gap-6">
-      <h2 className="text-h3">General Settings</h2>
+      <h2 className="text-h3">{t("General Settings")}</h2>
 
       <label className="flex flex-col gap-2">
-        <span className="text-label text-ink-2">Language</span>
+        <span className="text-label text-ink-2">{t("Language")}</span>
         <select
           value={lang}
           onChange={(e) => setLang(e.target.value)}
           className="rounded-tile border border-line bg-surface p-3 text-body"
         >
-          <option value="en">English</option>
-          <option value="si">Sinhala</option>
-          <option value="ta">Tamil</option>
+          <option value="en">{t("English")}</option>
+          <option value="si">{t("Sinhala")}</option>
+          <option value="ta">{t("Tamil")}</option>
         </select>
       </label>
 
       <label className="flex flex-col gap-2">
-        <span className="text-label text-ink-2">Currency</span>
+        <span className="text-label text-ink-2">{t("Currency")}</span>
         <input
           type="text"
           value={currency}
@@ -172,7 +176,7 @@ function GeneralSettingsForm({ businessId, settings, profileId, languagePref }: 
       </label>
 
       <label className="flex flex-col gap-2">
-        <span className="text-label text-ink-2">Default Tax Rate (%)</span>
+        <span className="text-label text-ink-2">{t("Default Tax Rate (%)")}</span>
         <input
           type="number"
           step="0.01"
@@ -183,13 +187,13 @@ function GeneralSettingsForm({ businessId, settings, profileId, languagePref }: 
       </label>
 
       <label className="flex flex-col gap-2">
-        <span className="text-label text-ink-2">Printer IP Address</span>
+        <span className="text-label text-ink-2">{t("Printer IP Address")}</span>
         <input
           type="text"
           value={printerIp}
           onChange={(e) => setPrinterIp(e.target.value)}
           className="rounded-tile border border-line bg-surface p-3 text-body"
-          placeholder="e.g. 192.168.1.100"
+          placeholder={t("e.g. 192.168.1.100")}
         />
       </label>
 
@@ -203,6 +207,7 @@ function GeneralSettingsForm({ businessId, settings, profileId, languagePref }: 
 }
 
 function NotificationsForm({ businessId, settings }: { businessId: string; settings: Record<string, string> }) {
+    const { t } = useTranslation();
   const [isPending, startTransition] = useTransition();
   const [emailAlerts, setEmailAlerts] = useState(settings["notifications.email"] === "true");
   const [smsAlerts, setSmsAlerts] = useState(settings["notifications.sms"] === "true");
@@ -225,7 +230,7 @@ function NotificationsForm({ businessId, settings }: { businessId: string; setti
 
   return (
     <form onSubmit={handleSave} className="flex max-w-md flex-col gap-6">
-      <h2 className="text-h3">Notifications</h2>
+      <h2 className="text-h3">{t("Notifications")}</h2>
 
       <label className="flex items-center gap-3">
         <input
@@ -234,7 +239,7 @@ function NotificationsForm({ businessId, settings }: { businessId: string; setti
           onChange={(e) => setEmailAlerts(e.target.checked)}
           className="size-5 rounded border-line text-accent"
         />
-        <span className="text-body">Email Alerts</span>
+        <span className="text-body">{t("Email Alerts")}</span>
       </label>
 
       <label className="flex items-center gap-3">
@@ -244,7 +249,7 @@ function NotificationsForm({ businessId, settings }: { businessId: string; setti
           onChange={(e) => setSmsAlerts(e.target.checked)}
           className="size-5 rounded border-line text-accent"
         />
-        <span className="text-body">SMS Alerts</span>
+        <span className="text-body">{t("SMS Alerts")}</span>
       </label>
 
       {error && <p className="text-alert-strong text-body-sm">{error}</p>}

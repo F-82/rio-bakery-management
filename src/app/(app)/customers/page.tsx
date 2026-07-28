@@ -5,6 +5,7 @@ import { AddCustomerDrawer } from "@/components/customers/AddCustomerDrawer";
 import { LoyaltySettingsCard } from "@/components/customers/LoyaltySettingsCard";
 import { getCustomers, getPriorityCustomers, getLoyaltySettings, type CustomerFilter } from "@/lib/queries/customers";
 import { getCurrentProfile } from "@/lib/queries/profile";
+import { getTranslation } from "@/lib/i18n-server";
 
 type CustomersPageProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -15,6 +16,7 @@ function firstValue(value: string | string[] | undefined): string | undefined {
 }
 
 export default async function CustomersPage({ searchParams }: CustomersPageProps) {
+    const { t } = await getTranslation();
   const params = await searchParams;
 
   const filter: CustomerFilter = {
@@ -37,7 +39,7 @@ export default async function CustomersPage({ searchParams }: CustomersPageProps
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-4 p-4 pb-0 sm:p-6 sm:pb-0">
-        <PageHeader title="Customers" actions={canManage ? <AddCustomerDrawer /> : undefined} />
+        <PageHeader title={t("Customers")} actions={canManage ? <AddCustomerDrawer /> : undefined} />
       </div>
       <CustomerFilters />
       {/* Keyed by the filter so a filter change remounts with fresh rows instead of syncing new props into local state via an effect. */}

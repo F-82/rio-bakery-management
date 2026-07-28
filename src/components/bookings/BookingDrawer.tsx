@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Button } from "@/components/ui/button";
 import { createBooking, updateBooking, deleteBooking } from "@/lib/actions/bookings";
 import type { Booking, BookingStatus, BookingSource } from "@/lib/queries/bookings";
+import { useTranslation } from "react-i18next";
 
 type BookingDrawerProps = {
   booking: Booking | null;
@@ -13,6 +14,7 @@ type BookingDrawerProps = {
 };
 
 export function BookingDrawer({ booking, isOpen, onClose }: BookingDrawerProps) {
+    const { t } = useTranslation();
   const [isPending, startTransition] = useTransition();
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
@@ -26,6 +28,7 @@ export function BookingDrawer({ booking, isOpen, onClose }: BookingDrawerProps) 
 
   useEffect(() => {
     if (booking) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDate(booking.date);
       setTime(booking.time.slice(0, 5));
       setPartySize(String(booking.party_size));
@@ -96,7 +99,7 @@ export function BookingDrawer({ booking, isOpen, onClose }: BookingDrawerProps) 
         <form onSubmit={handleSave} className="mt-6 flex flex-col gap-5">
           <div className="flex gap-4">
             <label className="flex flex-1 flex-col gap-2">
-              <span className="text-label text-ink-2">Date</span>
+              <span className="text-label text-ink-2">{t("Date")}</span>
               <input
                 type="date"
                 required
@@ -106,7 +109,7 @@ export function BookingDrawer({ booking, isOpen, onClose }: BookingDrawerProps) 
               />
             </label>
             <label className="flex flex-1 flex-col gap-2">
-              <span className="text-label text-ink-2">Time</span>
+              <span className="text-label text-ink-2">{t("Time")}</span>
               <input
                 type="time"
                 required
@@ -118,7 +121,7 @@ export function BookingDrawer({ booking, isOpen, onClose }: BookingDrawerProps) 
           </div>
 
           <label className="flex flex-col gap-2">
-            <span className="text-label text-ink-2">Party Size</span>
+            <span className="text-label text-ink-2">{t("Party Size")}</span>
             <input
               type="number"
               min="1"
@@ -130,7 +133,7 @@ export function BookingDrawer({ booking, isOpen, onClose }: BookingDrawerProps) 
           </label>
 
           <label className="flex flex-col gap-2">
-            <span className="text-label text-ink-2">Customer Name</span>
+            <span className="text-label text-ink-2">{t("Customer Name")}</span>
             <input
               type="text"
               required
@@ -141,7 +144,7 @@ export function BookingDrawer({ booking, isOpen, onClose }: BookingDrawerProps) 
           </label>
 
           <label className="flex flex-col gap-2">
-            <span className="text-label text-ink-2">Phone</span>
+            <span className="text-label text-ink-2">{t("Phone")}</span>
             <input
               type="tel"
               required
@@ -153,35 +156,35 @@ export function BookingDrawer({ booking, isOpen, onClose }: BookingDrawerProps) 
 
           <div className="flex gap-4">
             <label className="flex flex-1 flex-col gap-2">
-              <span className="text-label text-ink-2">Status</span>
+              <span className="text-label text-ink-2">{t("Status")}</span>
               <select
                 value={status}
-                onChange={(e) => setStatus(e.target.value as any)}
+                onChange={(e) => setStatus(e.target.value as BookingStatus)}
                 className="rounded-tile border border-line bg-surface p-3 text-body capitalize"
               >
-                <option value="pending">Pending</option>
-                <option value="confirmed">Confirmed</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
+                <option value="pending">{t("Pending")}</option>
+                <option value="confirmed">{t("Confirmed")}</option>
+                <option value="completed">{t("Completed")}</option>
+                <option value="cancelled">{t("Cancelled")}</option>
               </select>
             </label>
             
             <label className="flex flex-1 flex-col gap-2">
-              <span className="text-label text-ink-2">Source</span>
+              <span className="text-label text-ink-2">{t("Source")}</span>
               <select
                 value={source}
-                onChange={(e) => setSource(e.target.value as any)}
+                onChange={(e) => setSource(e.target.value as BookingSource)}
                 className="rounded-tile border border-line bg-surface p-3 text-body capitalize"
               >
-                <option value="in_person">In Person</option>
-                <option value="phone">Phone</option>
-                <option value="online">Online</option>
+                <option value="in_person">{t("In Person")}</option>
+                <option value="phone">{t("Phone")}</option>
+                <option value="online">{t("Online")}</option>
               </select>
             </label>
           </div>
 
           <label className="flex flex-col gap-2">
-            <span className="text-label text-ink-2">Notes</span>
+            <span className="text-label text-ink-2">{t("Notes")}</span>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -198,8 +201,7 @@ export function BookingDrawer({ booking, isOpen, onClose }: BookingDrawerProps) 
             </Button>
             {booking && (
               <Button type="button" variant="destructive" onClick={handleDelete} disabled={isPending}>
-                Delete
-              </Button>
+                {t("Delete")}</Button>
             )}
           </div>
         </form>

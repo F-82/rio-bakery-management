@@ -4,8 +4,10 @@ import { getCurrentProfile } from "@/lib/queries/profile";
 import { PageHeader } from "@/components/patterns/PageHeader";
 import { EmployeesList } from "@/components/employees/EmployeesList";
 import { InviteDrawer } from "@/components/employees/InviteDrawer";
+import { getTranslation } from "@/lib/i18n-server";
 
 export default async function EmployeesPage() {
+    const { t } = await getTranslation();
   const profile = await getCurrentProfile();
   
   const [employees, counters] = await Promise.all([
@@ -18,7 +20,7 @@ export default async function EmployeesPage() {
   return (
     <div className="flex flex-col">
       <PageHeader
-        title="Employees"
+        title={t("Employees")}
         actions={isOwner ? <InviteDrawer counters={counters} /> : undefined}
       />
 

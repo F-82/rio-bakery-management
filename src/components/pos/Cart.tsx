@@ -14,6 +14,7 @@ import {
   type CartState,
 } from "@/lib/pos/cart";
 import type { ActiveCounter } from "@/lib/queries/counters";
+import { useTranslation } from "react-i18next";
 
 type CartProps = {
   cart: CartState;
@@ -46,6 +47,7 @@ export function Cart({
   isSubmitting,
   error,
 }: CartProps) {
+    const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const itemCount = cartItemCount(cart);
   const subtotal = cartSubtotal(cart);
@@ -59,20 +61,20 @@ export function Cart({
         aria-expanded={expanded}
       >
         <span className="text-label text-ink-2">
-          {itemCount} item{itemCount === 1 ? "" : "s"}
+          {itemCount} {t("item")}{itemCount === 1 ? "" : "s"}
         </span>
         <MoneyText amount={subtotal} size="num-lg" />
       </button>
 
       <div className="flex min-h-0 flex-1 flex-col">
         <div className="hidden shrink-0 items-center justify-between px-4 py-3 md:flex landscape:flex">
-          <span className="text-h3 text-ink">Cart</span>
+          <span className="text-h3 text-ink">{t("Cart")}</span>
           <MoneyText amount={subtotal} size="num-lg" />
         </div>
 
         <div className="flex-1 overflow-y-auto px-4">
           {cart.lines.length === 0 ? (
-            <p className="py-8 text-center text-body-sm text-ink-2">Tap a menu item to add it.</p>
+            <p className="py-8 text-center text-body-sm text-ink-2">{t("Tap a menu item to add it.")}</p>
           ) : (
             <ul className="flex flex-col gap-3 py-3">
               {cart.lines.map((line) => (
@@ -84,7 +86,7 @@ export function Cart({
 
         <div className="flex shrink-0 flex-col gap-3 border-t border-line px-4 py-3">
           <div className="flex flex-col gap-1">
-            <span className="text-micro text-ink-2">Counter</span>
+            <span className="text-micro text-ink-2">{t("Counter")}</span>
             <select
               value={counterId}
               onChange={(event) => onCounterChange(event.target.value)}
@@ -99,7 +101,7 @@ export function Cart({
           </div>
 
           <div className="flex flex-col gap-1">
-            <span className="text-micro text-ink-2">Payment</span>
+            <span className="text-micro text-ink-2">{t("Payment")}</span>
             <div className="flex gap-2">
               <Button
                 type="button"
@@ -107,22 +109,19 @@ export function Cart({
                 className="flex-1"
                 onClick={() => onPaymentMethodChange("cash")}
               >
-                Cash
-              </Button>
+                {t("Cash")}</Button>
               <Button
                 type="button"
                 variant={paymentMethod === "card" ? "default" : "outline"}
                 className="flex-1"
                 onClick={() => onPaymentMethodChange("card")}
               >
-                Card
-              </Button>
+                {t("Card")}</Button>
             </div>
           </div>
 
           <Button type="button" variant="ghost" disabled className="justify-start text-ink-2">
-            Add customer — arrives in step 12
-          </Button>
+            {t("Add customer — arrives in step 12")}</Button>
 
           {error && (
             <p role="alert" className="text-body-sm text-alert">
@@ -133,7 +132,7 @@ export function Cart({
           {/* Cart total + confirm — the one AccentPanel this screen gets (DESIGN.md §Structural language).
               The "Total" label sits outside the panel — the gradient is never behind small text (DESIGN.md §Palette). */}
           <div className="flex flex-col gap-1">
-            <span className="text-micro text-ink-2">Total</span>
+            <span className="text-micro text-ink-2">{t("Total")}</span>
             <AccentPanel className="flex items-center justify-between gap-3 p-4">
               <MoneyText amount={subtotal} size="num-lg" />
               <Button
@@ -153,6 +152,7 @@ export function Cart({
 }
 
 function CartLineRow({ line, dispatch }: { line: CartLine; dispatch: Dispatch<CartAction> }) {
+    const { t } = useTranslation();
   return (
     <li className="flex flex-col gap-2 rounded-tile bg-surface-2 p-3">
       <div className="flex items-start justify-between gap-2">
@@ -196,7 +196,7 @@ function CartLineRow({ line, dispatch }: { line: CartLine; dispatch: Dispatch<Ca
         onChange={(event) =>
           dispatch({ type: "setNotes", menuItemId: line.menuItemId, notes: event.target.value })
         }
-        placeholder="Add a note"
+        placeholder={t("Add a note")}
         className="h-11 rounded-tile border border-line bg-surface px-2 text-body-sm text-ink placeholder:text-ink-3"
       />
     </li>

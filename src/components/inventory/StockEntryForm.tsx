@@ -4,6 +4,7 @@ import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { TabPills } from "@/components/patterns/TabPills";
 import { recordStockMovement, type StockMovementReason } from "@/lib/actions/inventory";
+import { useTranslation } from "react-i18next";
 
 type StockEntryFormProps = {
   inventoryItemId: string;
@@ -30,6 +31,7 @@ const inputClass = "h-11 rounded-tile border border-line bg-surface px-3 text-bo
  * freshest qty_on_hand to be race-safe.
  */
 export function StockEntryForm({ inventoryItemId, unit, currentQty, onRecorded }: StockEntryFormProps) {
+    const { t } = useTranslation();
   const formId = useId();
   const [reason, setReason] = useState<StockMovementReason>("purchase");
   const [qty, setQty] = useState("");
@@ -71,7 +73,7 @@ export function StockEntryForm({ inventoryItemId, unit, currentQty, onRecorded }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-tile bg-surface-2 p-3">
-      <TabPills tabs={REASONS} value={reason} onChange={switchReason} label="Stock entry reason" className="flex-wrap" />
+      <TabPills tabs={REASONS} value={reason} onChange={switchReason} label={t("Stock entry reason")} className="flex-wrap" />
 
       <div className="flex flex-col gap-1">
         <label className="text-label text-ink-2" htmlFor={`${formId}-qty`}>
@@ -94,8 +96,7 @@ export function StockEntryForm({ inventoryItemId, unit, currentQty, onRecorded }
 
       <div className="flex flex-col gap-1">
         <label className="text-label text-ink-2" htmlFor={`${formId}-note`}>
-          Note (optional)
-        </label>
+          {t("Note (optional)")}</label>
         <input
           id={`${formId}-note`}
           type="text"

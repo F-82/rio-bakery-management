@@ -15,6 +15,7 @@ import {
   type LoyaltyLedgerRow,
 } from "@/lib/customer-detail";
 import { setCustomerPriority } from "@/lib/actions/customers";
+import { useTranslation } from "react-i18next";
 
 type CustomerDetailDrawerProps = {
   customerId: string | null;
@@ -23,11 +24,12 @@ type CustomerDetailDrawerProps = {
 };
 
 export function CustomerDetailDrawer({ customerId, onClose, onSaved }: CustomerDetailDrawerProps) {
+    const { t } = useTranslation();
   return (
     <Sheet open={customerId !== null} onOpenChange={(open) => !open && onClose()}>
       <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
         <SheetHeader>
-          <SheetTitle className="sr-only">Customer detail</SheetTitle>
+          <SheetTitle className="sr-only">{t("Customer detail")}</SheetTitle>
         </SheetHeader>
         {/* Keyed by id so switching customers remounts fresh state instead of a reset effect. */}
         {customerId && <CustomerDetailContent key={customerId} customerId={customerId} onSaved={onSaved} />}
@@ -37,6 +39,7 @@ export function CustomerDetailDrawer({ customerId, onClose, onSaved }: CustomerD
 }
 
 function CustomerDetailContent({ customerId, onSaved }: { customerId: string; onSaved: () => void }) {
+    const { t } = useTranslation();
   const [customer, setCustomer] = useState<CustomerDetailData | null>(null);
   const [orders, setOrders] = useState<CustomerOrderRow[]>([]);
   const [ledger, setLedger] = useState<LoyaltyLedgerRow[]>([]);
@@ -75,8 +78,8 @@ function CustomerDetailContent({ customerId, onSaved }: { customerId: string; on
     onSaved();
   }
 
-  if (loading) return <p className="px-4 py-8 text-body-sm text-ink-2">Loading…</p>;
-  if (!customer) return <p className="px-4 py-8 text-body-sm text-ink-2">Customer not found.</p>;
+  if (loading) return <p className="px-4 py-8 text-body-sm text-ink-2">{t("Loading…")}</p>;
+  if (!customer) return <p className="px-4 py-8 text-body-sm text-ink-2">{t("Customer not found.")}</p>;
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-6">
@@ -89,20 +92,19 @@ function CustomerDetailContent({ customerId, onSaved }: { customerId: string; on
       </div>
 
       <div className="grid grid-cols-3 gap-3">
-        <Stat label="Points" value={String(customer.loyalty_points)} />
-        <Stat label="Spend" value={<MoneyText amount={customer.total_spend} />} />
-        <Stat label="Orders" value={String(customer.order_count)} />
+        <Stat label={t("Points")} value={String(customer.loyalty_points)} />
+        <Stat label={t("Spend")} value={<MoneyText amount={customer.total_spend} />} />
+        <Stat label={t("Orders")} value={String(customer.order_count)} />
       </div>
 
       <div className="flex flex-col gap-2 rounded-tile bg-surface-2 p-3">
-        <h3 className="text-h3 text-ink">Priority customer</h3>
+        <h3 className="text-h3 text-ink">{t("Priority customer")}</h3>
         <p className="text-body-sm text-ink-2">
-          Filled star = you flagged them. Outline star = they&apos;re a top spender this quarter, no flag needed.
-        </p>
+          {t("Filled star = you flagged them. Outline star = they&apos;re a top spender this quarter, no flag needed.")}</p>
         <textarea
           value={priorityNote}
           onChange={(event) => setPriorityNote(event.target.value)}
-          placeholder="Note — why this customer is a regular"
+          placeholder={t("Note — why this customer is a regular")}
           disabled={savingPriority}
           className="min-h-16 rounded-tile border border-line bg-surface px-3 py-2 text-body-sm text-ink placeholder:text-ink-3"
         />
@@ -126,9 +128,9 @@ function CustomerDetailContent({ customerId, onSaved }: { customerId: string; on
       </div>
 
       <div className="flex flex-col gap-2">
-        <h3 className="text-h3 text-ink">Order history</h3>
+        <h3 className="text-h3 text-ink">{t("Order history")}</h3>
         {orders.length === 0 ? (
-          <p className="text-body-sm text-ink-2">No orders yet.</p>
+          <p className="text-body-sm text-ink-2">{t("No orders yet.")}</p>
         ) : (
           <ul className="flex flex-col gap-2">
             {orders.map((order) => (
@@ -145,9 +147,9 @@ function CustomerDetailContent({ customerId, onSaved }: { customerId: string; on
       </div>
 
       <div className="flex flex-col gap-2">
-        <h3 className="text-h3 text-ink">Points ledger</h3>
+        <h3 className="text-h3 text-ink">{t("Points ledger")}</h3>
         {ledger.length === 0 ? (
-          <p className="text-body-sm text-ink-2">No points activity yet.</p>
+          <p className="text-body-sm text-ink-2">{t("No points activity yet.")}</p>
         ) : (
           <ul className="flex flex-col gap-2">
             {ledger.map((entry) => (
@@ -163,7 +165,7 @@ function CustomerDetailContent({ customerId, onSaved }: { customerId: string; on
                   {entry.pointsRedeemed > 0 && (
                     <p className={cn("text-num", "text-alert")}>-{entry.pointsRedeemed}</p>
                   )}
-                  <p className="text-micro text-ink-2">balance {entry.balanceAfter}</p>
+                  <p className="text-micro text-ink-2">{t("balance")}{entry.balanceAfter}</p>
                 </div>
               </li>
             ))}
@@ -175,6 +177,7 @@ function CustomerDetailContent({ customerId, onSaved }: { customerId: string; on
 }
 
 function Stat({ label, value }: { label: string; value: React.ReactNode }) {
+    const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-1 rounded-tile bg-surface-2 p-3">
       <span className="text-micro text-ink-2">{label}</span>

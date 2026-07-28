@@ -6,6 +6,7 @@ import { ImageUpload } from "./ImageUpload";
 import type { MenuCategory, MenuListRow } from "@/lib/queries/menu";
 import type { MenuItemInput, MenuItemResult } from "@/lib/actions/menu";
 import type { Database } from "@/types/database";
+import { useTranslation } from "react-i18next";
 
 type TaxCategory = Database["public"]["Enums"]["tax_category"];
 
@@ -36,6 +37,7 @@ export function MenuItemForm({
   onSuccess,
   submitLabel,
 }: MenuItemFormProps) {
+    const { t } = useTranslation();
   const formId = useId();
   const [name, setName] = useState(initial?.name ?? "");
   const [categoryId, setCategoryId] = useState(initial?.category_id ?? "");
@@ -75,8 +77,7 @@ export function MenuItemForm({
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <label className={labelClass} htmlFor={`${formId}-name`}>
-          Name
-        </label>
+          {t("Name")}</label>
         <input
           id={`${formId}-name`}
           type="text"
@@ -89,15 +90,14 @@ export function MenuItemForm({
 
       <div className="flex flex-col gap-1">
         <label className={labelClass} htmlFor={`${formId}-category`}>
-          Category
-        </label>
+          {t("Category")}</label>
         <select
           id={`${formId}-category`}
           value={categoryId}
           onChange={(event) => setCategoryId(event.target.value)}
           className={inputClass}
         >
-          <option value="">No category</option>
+          <option value="">{t("No category")}</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.name}
@@ -109,8 +109,7 @@ export function MenuItemForm({
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
           <label className={labelClass} htmlFor={`${formId}-price`}>
-            Price (LKR)
-          </label>
+            {t("Price (LKR)")}</label>
           <input
             id={`${formId}-price`}
             type="number"
@@ -125,8 +124,7 @@ export function MenuItemForm({
 
         <div className="flex flex-col gap-1">
           <label className={labelClass} htmlFor={`${formId}-tax`}>
-            Tax category
-          </label>
+            {t("Tax category")}</label>
           <select
             id={`${formId}-tax`}
             value={taxCategory}
@@ -146,8 +144,7 @@ export function MenuItemForm({
 
       <label className="flex items-center gap-2 text-body-sm text-ink">
         <input type="checkbox" checked={available} onChange={(event) => setAvailable(event.target.checked)} />
-        Available
-      </label>
+        {t("Available")}</label>
 
       <div className="flex flex-col gap-1 rounded-tile bg-surface-2 p-3">
         <label className="flex items-center gap-2 text-body-sm text-ink">
@@ -156,12 +153,9 @@ export function MenuItemForm({
             checked={requiresKitchenPrep}
             onChange={(event) => setRequiresKitchenPrep(event.target.checked)}
           />
-          Send to the kitchen printer
-        </label>
+          {t("Send to the kitchen printer")}</label>
         <p className="text-micro text-ink-2">
-          Turn on for anything cooked or warmed to order. This decides whether the chef ever sees the
-          order — leave it off for anything sold as-is, like a bottled drink or a pre-made pastry.
-        </p>
+          {t("Turn on for anything cooked or warmed to order. This decides whether the chef ever sees the order — leave it off for anything sold as-is, like a bottled drink or a pre-made pastry.")}</p>
       </div>
 
       {error && (

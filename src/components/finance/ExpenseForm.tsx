@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ReceiptUpload } from "./ReceiptUpload";
 import { createExpense, type ExpenseInput, type ExpenseResult } from "@/lib/actions/finance";
 import { colomboToday } from "@/lib/dashboard";
+import { useTranslation } from "react-i18next";
 
 type ExpenseFormProps = {
   businessId: string;
@@ -17,6 +18,7 @@ const labelClass = "text-label text-ink-2";
 
 /** Add-expense form — the ledger has no edit flow yet (STEPS.md §14 only asks for the ledger and this form). */
 export function ExpenseForm({ businessId, categories, onSuccess }: ExpenseFormProps) {
+    const { t } = useTranslation();
   const formId = useId();
   const [date, setDate] = useState(colomboToday());
   const [category, setCategory] = useState("");
@@ -57,8 +59,7 @@ export function ExpenseForm({ businessId, categories, onSuccess }: ExpenseFormPr
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
           <label className={labelClass} htmlFor={`${formId}-date`}>
-            Date
-          </label>
+            {t("Date")}</label>
           <input
             id={`${formId}-date`}
             type="date"
@@ -71,8 +72,7 @@ export function ExpenseForm({ businessId, categories, onSuccess }: ExpenseFormPr
 
         <div className="flex flex-col gap-1">
           <label className={labelClass} htmlFor={`${formId}-amount`}>
-            Amount (LKR)
-          </label>
+            {t("Amount (LKR)")}</label>
           <input
             id={`${formId}-amount`}
             type="number"
@@ -88,8 +88,7 @@ export function ExpenseForm({ businessId, categories, onSuccess }: ExpenseFormPr
 
       <div className="flex flex-col gap-1">
         <label className={labelClass} htmlFor={`${formId}-category`}>
-          Category
-        </label>
+          {t("Category")}</label>
         <input
           id={`${formId}-category`}
           type="text"
@@ -108,8 +107,7 @@ export function ExpenseForm({ businessId, categories, onSuccess }: ExpenseFormPr
 
       <div className="flex flex-col gap-1">
         <label className={labelClass} htmlFor={`${formId}-note`}>
-          Note
-        </label>
+          {t("Note")}</label>
         <textarea
           id={`${formId}-note`}
           value={note}
@@ -134,8 +132,7 @@ export function ExpenseForm({ businessId, categories, onSuccess }: ExpenseFormPr
           checked={isTaxDeductible}
           onChange={(event) => setIsTaxDeductible(event.target.checked)}
         />
-        Tax deductible
-      </label>
+        {t("Tax deductible")}</label>
 
       {error && (
         <p role="alert" className="text-body-sm text-alert">

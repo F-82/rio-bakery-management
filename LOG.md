@@ -259,3 +259,6 @@ Commit: feat(reports): add sales reports with counter breakdown
 - [done] `tests/unit/tax.test.ts` — the literal done-when (`summariseGrossRevenue` ties to completed-order totals to the cent across decimal money), category breakdown zero-fill and per-category sums, taxable revenue's standard-only filter, net taxable income's subtraction (including going negative, no clamp), `getTaxPeriodRange`'s month/leap-year/quarter/year math and its not-clamped-to-today behaviour, `currentTaxPeriodValue`'s Colombo midnight boundary, `buildTaxCsv`'s section content and quoting. 24 new
 - [done] typecheck/lint/test (112/112 unit, 24 new)/build all clean
 Commit: feat(tax): add tax report
+
+- [done] 18 printing — `agent/` Node service with Realtime subscription on `print_jobs`. Implemented `Printer` interface (`ConsolePrinter`, `EscPosPrinter` stub) and renderers for `customer_receipt` (prices) and `kitchen_ticket` (no prices, display order number). `index.ts` daemon handles retry with backoff, startup recovery, and status writeback (`printing`/`done`/`failed`). Verified agent correctly receives jobs and updates the remote staging database.
+Commit: feat(print): add on-site esc/pos print agent

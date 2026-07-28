@@ -3,6 +3,7 @@
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import type { MenuCategory } from "@/lib/queries/menu";
+import { useTranslation } from "react-i18next";
 
 type MenuFiltersProps = {
   categories: MenuCategory[];
@@ -10,6 +11,7 @@ type MenuFiltersProps = {
 
 /** Filters live in the URL — shareable, and a plain server refetch on change (same reasoning as InventoryFilters). */
 export function MenuFilters({ categories }: MenuFiltersProps) {
+    const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -36,8 +38,7 @@ export function MenuFilters({ categories }: MenuFiltersProps) {
             checked={availableOnly}
             onChange={(event) => updateParams({ available: event.target.checked ? "1" : null })}
           />
-          Available only
-        </label>
+          {t("Available only")}</label>
 
         <select
           value={categoryId}
@@ -45,7 +46,7 @@ export function MenuFilters({ categories }: MenuFiltersProps) {
           className="h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink"
           aria-label="Category"
         >
-          <option value="">All categories</option>
+          <option value="">{t("All categories")}</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.name}
@@ -62,7 +63,7 @@ export function MenuFilters({ categories }: MenuFiltersProps) {
         onKeyDown={(event) => {
           if (event.key === "Enter") updateParams({ search: search || null });
         }}
-        placeholder="Search by item name"
+        placeholder={t("Search by item name")}
         className="h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink placeholder:text-ink-3"
       />
     </div>

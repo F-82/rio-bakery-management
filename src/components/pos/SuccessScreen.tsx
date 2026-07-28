@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PrintStatus } from "@/components/patterns/PrintStatus";
 import { AccentPanel } from "@/components/patterns/AccentPanel";
 import type { OrderPrintJob } from "@/lib/actions/orders";
+import { useTranslation } from "react-i18next";
 
 type SuccessScreenProps = {
   orderNumber: string;
@@ -23,12 +24,13 @@ const TARGET_LABELS: Record<string, string> = {
  * the kitchen ticket, and as the leading column of the orders list.
  */
 export function SuccessScreen({ orderNumber, printJobs, onReprint, onNewOrder }: SuccessScreenProps) {
+    const { t } = useTranslation();
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-6 p-6 text-center">
       {/* The order number — the one AccentPanel this screen gets (DESIGN.md §Signature). "Order
           placed" sits outside the panel — the gradient is never behind small text (DESIGN.md §Palette). */}
       <div className="flex flex-col items-center gap-1">
-        <p className="text-micro text-ink-2">Order placed</p>
+        <p className="text-micro text-ink-2">{t("Order placed")}</p>
         <AccentPanel>
           <p className="text-display text-ink">{orderNumber}</p>
         </AccentPanel>
@@ -47,8 +49,7 @@ export function SuccessScreen({ orderNumber, printJobs, onReprint, onNewOrder }:
       </div>
 
       <Button size="lg" onClick={onNewOrder}>
-        New order
-      </Button>
+        {t("New order")}</Button>
     </div>
   );
 }

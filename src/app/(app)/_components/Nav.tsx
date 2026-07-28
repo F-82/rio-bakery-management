@@ -7,6 +7,7 @@ import { getPrimaryNavItems, MORE_SHEET_ITEMS } from "@/lib/nav";
 import { MoreSheet } from "./MoreSheet";
 import { cn } from "@/lib/utils";
 import type { Database } from "@/types/database";
+import { useTranslation } from "react-i18next";
 
 type NavProps = {
   // A role string, not the precomputed item list — the list embeds lucide
@@ -27,6 +28,7 @@ function isHrefActive(pathname: string, href: string) {
  * breakpoint check, so it can't remount (and lose state) on rotation.
  */
 export function Nav({ role, badgeCounts }: NavProps) {
+    const { t } = useTranslation();
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
   const items = getPrimaryNavItems(role);
@@ -92,7 +94,7 @@ export function Nav({ role, badgeCounts }: NavProps) {
               <span className="app-nav__label text-micro">
                 {item.label}
                 {!!badgeCount && (
-                  <span className="sr-only">, {badgeCount} low stock</span>
+                  <span className="sr-only">, {badgeCount} {t("low stock")}</span>
                 )}
               </span>
             </Link>

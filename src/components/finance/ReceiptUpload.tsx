@@ -5,6 +5,7 @@ import { FileText, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { uploadExpenseReceipt } from "@/lib/receipt-upload";
+import { useTranslation } from "react-i18next";
 
 type ReceiptUploadProps = {
   businessId: string;
@@ -14,6 +15,7 @@ type ReceiptUploadProps = {
 
 /** Uploads directly to the private "receipts" bucket on file select — the form submits the resulting path like any other field. */
 export function ReceiptUpload({ businessId, fileName, onChange }: ReceiptUploadProps) {
+    const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +39,7 @@ export function ReceiptUpload({ businessId, fileName, onChange }: ReceiptUploadP
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-label text-ink-2">Receipt</span>
+      <span className="text-label text-ink-2">{t("Receipt")}</span>
       <div className="flex items-center gap-3">
         <div className="flex size-11 shrink-0 items-center justify-center rounded-tile bg-surface-2">
           <FileText className="size-4 text-ink-3" aria-hidden />

@@ -10,6 +10,7 @@ import { updateMenuItem } from "@/lib/actions/menu";
 import type { MenuCategory, MenuListRow, RecipeInventoryOption, RecipeLine } from "@/lib/queries/menu";
 import { MenuItemForm } from "./MenuItemForm";
 import { RecipeBuilder } from "./RecipeBuilder";
+import { useTranslation } from "react-i18next";
 
 type MenuItemDetailDrawerProps = {
   item: MenuListRow | null;
@@ -28,11 +29,12 @@ export function MenuItemDetailDrawer({
   onClose,
   onSaved,
 }: MenuItemDetailDrawerProps) {
+    const { t } = useTranslation();
   return (
     <Sheet open={item !== null} onOpenChange={(open) => !open && onClose()}>
       <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
         <SheetHeader>
-          <SheetTitle className="sr-only">Menu item detail</SheetTitle>
+          <SheetTitle className="sr-only">{t("Menu item detail")}</SheetTitle>
         </SheetHeader>
         {/* Keyed by item id so switching items remounts fresh state instead
             of a reset effect for the recipe. */}
@@ -67,6 +69,7 @@ function MenuItemDetailContent({
   onSaved: () => void;
   onClose: () => void;
 }) {
+    const { t } = useTranslation();
   const [recipe, setRecipe] = useState<RecipeLine[]>([]);
   const [loadingRecipe, setLoadingRecipe] = useState(true);
 
@@ -93,14 +96,14 @@ function MenuItemDetailContent({
           <Badge variant={item.available ? "secondary" : "outline"}>
             {item.available ? "Available" : "Unavailable"}
           </Badge>
-          {item.requires_kitchen_prep && <Badge variant="outline">Kitchen prep</Badge>}
+          {item.requires_kitchen_prep && <Badge variant="outline">{t("Kitchen prep")}</Badge>}
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
-        <h3 className="text-h3 text-ink">Recipe</h3>
+        <h3 className="text-h3 text-ink">{t("Recipe")}</h3>
         {loadingRecipe ? (
-          <p className="text-body-sm text-ink-2">Loading…</p>
+          <p className="text-body-sm text-ink-2">{t("Loading…")}</p>
         ) : (
           <RecipeBuilder
             menuItemId={item.id}
@@ -112,7 +115,7 @@ function MenuItemDetailContent({
       </div>
 
       <div className="flex flex-col gap-2 border-t border-line pt-4">
-        <h3 className="text-h3 text-ink">Edit item</h3>
+        <h3 className="text-h3 text-ink">{t("Edit item")}</h3>
         <MenuItemForm
           initial={item}
           businessId={businessId}

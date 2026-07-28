@@ -1,6 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type SearchInputProps = {
   value: string;
@@ -8,6 +9,7 @@ type SearchInputProps = {
 };
 
 export function SearchInput({ value, onChange }: SearchInputProps) {
+    const { t } = useTranslation();
   return (
     <div className="relative px-3 py-2">
       <Search
@@ -18,7 +20,7 @@ export function SearchInput({ value, onChange }: SearchInputProps) {
         type="search"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        placeholder="Search menu"
+        placeholder={t("Search menu")}
         className="flex h-11 w-full items-center rounded-tile border border-line bg-surface pr-3 pl-9 text-body-sm text-ink placeholder:text-ink-3"
       />
     </div>

@@ -1,3 +1,7 @@
+"use client";
+
+import { useTranslation } from "react-i18next";
+
 type LogoProps = {
   /** Edge length in px. The mark is always square. */
   size?: number;
@@ -9,13 +13,14 @@ type LogoProps = {
  * Renders the business logo if provided, or the placeholder mark otherwise.
  */
 export function Logo({ size = 32, className, logoUrl }: LogoProps) {
+    const { t } = useTranslation();
   if (logoUrl) {
     return (
       <img
         src={logoUrl}
         width={size}
         height={size}
-        alt="Rio Bakers Hut"
+        alt={t("Rio Bakers Hut")}
         className={className}
         style={{ objectFit: 'contain' }}
       />
@@ -41,8 +46,7 @@ export function Logo({ size = 32, className, logoUrl }: LogoProps) {
         fontSize="18"
         fill="var(--color-on-black)"
       >
-        R
-      </text>
+        {t("R")}</text>
     </svg>
   );
 }

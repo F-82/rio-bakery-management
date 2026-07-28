@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
-import { FinanceTabs, getFinanceTab } from "@/components/finance/FinanceTabs";
+import { getTranslation } from "@/lib/i18n-server";
+import { FinanceTabs } from "@/components/finance/FinanceTabs";
+import { getFinanceTab } from "@/lib/finance";
 import { FinanceOverview } from "@/components/finance/FinanceOverview";
 import { ExpensesLedger } from "@/components/finance/ExpensesLedger";
 import { PlatformEarningsTab } from "@/components/finance/PlatformEarningsTab";

@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { currentTaxPeriodValue, type TaxGranularity } from "@/lib/tax";
+import { useTranslation } from "react-i18next";
 
 const YEARS_BACK = 5;
 const QUARTER_VALUE = /^(\d{4})-Q([1-4])$/;
@@ -20,6 +21,7 @@ function currentYear(): number {
  * type="date">`); this follows the same restraint.
  */
 export function PeriodPicker({ granularity }: { granularity: TaxGranularity }) {
+    const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -71,7 +73,7 @@ export function PeriodPicker({ granularity }: { granularity: TaxGranularity }) {
         >
           {["1", "2", "3", "4"].map((q) => (
             <option key={q} value={q}>
-              Q{q}
+              {t("Q")}{q}
             </option>
           ))}
         </select>

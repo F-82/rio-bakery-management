@@ -11,6 +11,7 @@ import { updateInventoryItem } from "@/lib/actions/inventory";
 import type { InventoryCategory, InventoryListRow } from "@/lib/queries/inventory";
 import { ItemForm } from "./ItemForm";
 import { StockEntryForm } from "./StockEntryForm";
+import { useTranslation } from "react-i18next";
 
 type ItemDetailDrawerProps = {
   item: InventoryListRow | null;
@@ -21,11 +22,12 @@ type ItemDetailDrawerProps = {
 };
 
 export function ItemDetailDrawer({ item, categories, canManage, onClose, onSaved }: ItemDetailDrawerProps) {
+    const { t } = useTranslation();
   return (
     <Sheet open={item !== null} onOpenChange={(open) => !open && onClose()}>
       <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
         <SheetHeader>
-          <SheetTitle className="sr-only">Item detail</SheetTitle>
+          <SheetTitle className="sr-only">{t("Item detail")}</SheetTitle>
         </SheetHeader>
         {/* Keyed by item id so switching items remounts fresh state instead
             of a reset effect for qty/history. */}
@@ -66,6 +68,7 @@ function ItemDetailContent({
   onSaved: () => void;
   onClose: () => void;
 }) {
+    const { t } = useTranslation();
   const [qtyOnHand, setQtyOnHand] = useState(item.qty_on_hand);
   const [movements, setMovements] = useState<StockMovementRow[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(canManage);
@@ -105,7 +108,7 @@ function ItemDetailContent({
 
       {canManage && (
         <div className="flex flex-col gap-2">
-          <h3 className="text-h3 text-ink">Record stock movement</h3>
+          <h3 className="text-h3 text-ink">{t("Record stock movement")}</h3>
           <StockEntryForm
             inventoryItemId={item.id}
             unit={item.base_unit}
@@ -117,11 +120,11 @@ function ItemDetailContent({
 
       {canManage && (
         <div className="flex flex-col gap-2">
-          <h3 className="text-h3 text-ink">Movement history</h3>
+          <h3 className="text-h3 text-ink">{t("Movement history")}</h3>
           {loadingHistory ? (
-            <p className="text-body-sm text-ink-2">Loading…</p>
+            <p className="text-body-sm text-ink-2">{t("Loading…")}</p>
           ) : movements.length === 0 ? (
-            <p className="text-body-sm text-ink-2">No movements yet.</p>
+            <p className="text-body-sm text-ink-2">{t("No movements yet.")}</p>
           ) : (
             <ul className="flex flex-col gap-2">
               {movements.map((movement) => (
@@ -150,7 +153,7 @@ function ItemDetailContent({
 
       {canManage && (
         <div className="flex flex-col gap-2 border-t border-line pt-4">
-          <h3 className="text-h3 text-ink">Edit item</h3>
+          <h3 className="text-h3 text-ink">{t("Edit item")}</h3>
           <ItemForm
             initial={item}
             categories={categories}

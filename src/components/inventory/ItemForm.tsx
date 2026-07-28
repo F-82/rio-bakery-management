@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import type { InventoryCategory, InventoryListRow } from "@/lib/queries/inventory";
 import type { InventoryItemInput, InventoryItemResult } from "@/lib/actions/inventory";
 import type { Database } from "@/types/database";
+import { useTranslation } from "react-i18next";
 
 type StockType = Database["public"]["Enums"]["stock_type"];
 
@@ -27,6 +28,7 @@ const labelClass = "text-label text-ink-2";
 
 /** Fields shared by "Add item" and the edit tab of the item detail drawer. */
 export function ItemForm({ initial, categories, onSubmit, onSuccess, submitLabel }: ItemFormProps) {
+    const { t } = useTranslation();
   const formId = useId();
   const [name, setName] = useState(initial?.name ?? "");
   const [categoryId, setCategoryId] = useState(initial?.category_id ?? "");
@@ -68,8 +70,7 @@ export function ItemForm({ initial, categories, onSubmit, onSuccess, submitLabel
     <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <label className={labelClass} htmlFor={`${formId}-name`}>
-          Name
-        </label>
+          {t("Name")}</label>
         <input
           id={`${formId}-name`}
           type="text"
@@ -82,15 +83,14 @@ export function ItemForm({ initial, categories, onSubmit, onSuccess, submitLabel
 
       <div className="flex flex-col gap-1">
         <label className={labelClass} htmlFor={`${formId}-category`}>
-          Category
-        </label>
+          {t("Category")}</label>
         <select
           id={`${formId}-category`}
           value={categoryId}
           onChange={(event) => setCategoryId(event.target.value)}
           className={inputClass}
         >
-          <option value="">No category</option>
+          <option value="">{t("No category")}</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.name}
@@ -102,8 +102,7 @@ export function ItemForm({ initial, categories, onSubmit, onSuccess, submitLabel
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
           <label className={labelClass} htmlFor={`${formId}-stock-type`}>
-            Stock type
-          </label>
+            {t("Stock type")}</label>
           <select
             id={`${formId}-stock-type`}
             value={stockType}
@@ -120,14 +119,13 @@ export function ItemForm({ initial, categories, onSubmit, onSuccess, submitLabel
 
         <div className="flex flex-col gap-1">
           <label className={labelClass} htmlFor={`${formId}-base-unit`}>
-            Base unit
-          </label>
+            {t("Base unit")}</label>
           <input
             id={`${formId}-base-unit`}
             type="text"
             value={baseUnit}
             onChange={(event) => setBaseUnit(event.target.value)}
-            placeholder="g, ml, unit…"
+            placeholder={t("g, ml, unit…")}
             className={inputClass}
             required
           />
@@ -137,8 +135,7 @@ export function ItemForm({ initial, categories, onSubmit, onSuccess, submitLabel
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
           <label className={labelClass} htmlFor={`${formId}-threshold`}>
-            Low stock threshold
-          </label>
+            {t("Low stock threshold")}</label>
           <input
             id={`${formId}-threshold`}
             type="number"
@@ -152,8 +149,7 @@ export function ItemForm({ initial, categories, onSubmit, onSuccess, submitLabel
 
         <div className="flex flex-col gap-1">
           <label className={labelClass} htmlFor={`${formId}-cost`}>
-            Unit cost (LKR)
-          </label>
+            {t("Unit cost (LKR)")}</label>
           <input
             id={`${formId}-cost`}
             type="number"
@@ -168,8 +164,7 @@ export function ItemForm({ initial, categories, onSubmit, onSuccess, submitLabel
 
       <div className="flex flex-col gap-1">
         <label className={labelClass} htmlFor={`${formId}-barcode`}>
-          Barcode (optional)
-        </label>
+          {t("Barcode (optional)")}</label>
         <input
           id={`${formId}-barcode`}
           type="text"
@@ -181,8 +176,7 @@ export function ItemForm({ initial, categories, onSubmit, onSuccess, submitLabel
 
       <label className="flex items-center gap-2 text-body-sm text-ink">
         <input type="checkbox" checked={active} onChange={(event) => setActive(event.target.checked)} />
-        Active
-      </label>
+        {t("Active")}</label>
 
       {error && (
         <p role="alert" className="text-body-sm text-alert">

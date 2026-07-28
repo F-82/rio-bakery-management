@@ -2,8 +2,8 @@
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { TabPills } from "@/components/patterns/TabPills";
-
-export type FinanceTab = "overview" | "expenses" | "platform";
+import { useTranslation } from "react-i18next";
+import { FinanceTab, DEFAULT_TAB, getFinanceTab } from "@/lib/finance";
 
 const TABS = [
   { value: "overview", label: "Overview" },
@@ -11,14 +11,8 @@ const TABS = [
   { value: "platform", label: "Platform earnings" },
 ] as const;
 
-const DEFAULT_TAB: FinanceTab = "overview";
-
-export function getFinanceTab(searchParams: { tab?: string }): FinanceTab {
-  const tab = searchParams.tab;
-  return tab === "expenses" || tab === "platform" ? tab : DEFAULT_TAB;
-}
-
 export function FinanceTabs() {
+    const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -35,7 +29,7 @@ export function FinanceTabs() {
 
   return (
     <div className="border-b border-line px-4 py-3 sm:px-6">
-      <TabPills tabs={TABS} value={tab} onChange={handleChange} label="Finance section" />
+      <TabPills tabs={TABS} value={tab} onChange={handleChange} label={t("Finance section")} />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { findOrCreateCustomer } from "@/lib/actions/customers";
+import { useTranslation } from "react-i18next";
 
 const inputClass = "h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink";
 const labelClass = "text-label text-ink-2";
@@ -16,6 +17,7 @@ const labelClass = "text-label text-ink-2";
  * quietly opens the existing customer's record instead (STEPS.md §12 trap).
  */
 export function AddCustomerDrawer() {
+    const { t } = useTranslation();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const formId = useId();
@@ -60,18 +62,16 @@ export function AddCustomerDrawer() {
         }}
       >
         <Plus className="size-4" aria-hidden />
-        Add customer
-      </Button>
+        {t("Add customer")}</Button>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
           <SheetHeader>
-            <SheetTitle>Add customer</SheetTitle>
+            <SheetTitle>{t("Add customer")}</SheetTitle>
           </SheetHeader>
           <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4 px-4 pb-6">
             <div className="flex flex-col gap-1">
               <label className={labelClass} htmlFor={`${formId}-name`}>
-                Name (optional)
-              </label>
+                {t("Name (optional)")}</label>
               <input
                 id={`${formId}-name`}
                 type="text"
@@ -83,8 +83,7 @@ export function AddCustomerDrawer() {
 
             <div className="flex flex-col gap-1">
               <label className={labelClass} htmlFor={`${formId}-phone`}>
-                Phone
-              </label>
+                {t("Phone")}</label>
               <input
                 id={`${formId}-phone`}
                 type="tel"

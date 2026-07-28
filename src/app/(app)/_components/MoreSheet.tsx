@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { MORE_SHEET_ITEMS } from "@/lib/nav";
+import { useTranslation } from "react-i18next";
 
 const LANDSCAPE_QUERY = "(orientation: landscape)";
 
@@ -32,13 +33,14 @@ type MoreSheetProps = {
 };
 
 export function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
+    const { t } = useTranslation();
   const isLandscape = useIsLandscape();
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side={isLandscape ? "right" : "bottom"}>
         <SheetHeader>
-          <SheetTitle>More</SheetTitle>
+          <SheetTitle>{t("More")}</SheetTitle>
         </SheetHeader>
         <nav className="flex flex-col gap-1 px-4 pb-4" aria-label="More">
           {MORE_SHEET_ITEMS.map((item) => (

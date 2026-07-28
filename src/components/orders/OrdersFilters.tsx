@@ -4,6 +4,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { TabPills } from "@/components/patterns/TabPills";
 import type { ActiveCounter } from "@/lib/queries/counters";
+import { useTranslation } from "react-i18next";
 
 type OrdersFiltersProps = {
   counters: ActiveCounter[];
@@ -22,6 +23,7 @@ const TABS = [
  * step 12 (same deferral as the POS screen's customer lookup).
  */
 export function OrdersFilters({ counters, sources }: OrdersFiltersProps) {
+    const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -50,7 +52,7 @@ export function OrdersFilters({ counters, sources }: OrdersFiltersProps) {
         tabs={TABS}
         value={tab}
         onChange={(value) => updateParams({ tab: value === "active" ? null : value, status: null })}
-        label="Order status"
+        label={t("Order status")}
       />
 
       <div className="flex flex-wrap gap-2">
@@ -61,9 +63,9 @@ export function OrdersFilters({ counters, sources }: OrdersFiltersProps) {
             className="h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink"
             aria-label="Status"
           >
-            <option value="">All statuses</option>
-            <option value="open">Open</option>
-            <option value="completed">Completed</option>
+            <option value="">{t("All statuses")}</option>
+            <option value="open">{t("Open")}</option>
+            <option value="completed">{t("Completed")}</option>
           </select>
         )}
 
@@ -73,7 +75,7 @@ export function OrdersFilters({ counters, sources }: OrdersFiltersProps) {
           className="h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink"
           aria-label="Counter"
         >
-          <option value="">All counters</option>
+          <option value="">{t("All counters")}</option>
           {counters.map((counter) => (
             <option key={counter.id} value={counter.id}>
               {counter.name}
@@ -87,7 +89,7 @@ export function OrdersFilters({ counters, sources }: OrdersFiltersProps) {
           className="h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink"
           aria-label="Source"
         >
-          <option value="">All sources</option>
+          <option value="">{t("All sources")}</option>
           {sources.map((value) => (
             <option key={value} value={value}>
               {value}
@@ -101,9 +103,9 @@ export function OrdersFilters({ counters, sources }: OrdersFiltersProps) {
           className="h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink"
           aria-label="Payment method"
         >
-          <option value="">All payments</option>
-          <option value="cash">Cash</option>
-          <option value="card">Card</option>
+          <option value="">{t("All payments")}</option>
+          <option value="cash">{t("Cash")}</option>
+          <option value="card">{t("Card")}</option>
         </select>
 
         <input
@@ -130,7 +132,7 @@ export function OrdersFilters({ counters, sources }: OrdersFiltersProps) {
         onKeyDown={(event) => {
           if (event.key === "Enter") updateParams({ search: search || null });
         }}
-        placeholder="Search by order number"
+        placeholder={t("Search by order number")}
         className="h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink placeholder:text-ink-3"
       />
     </div>

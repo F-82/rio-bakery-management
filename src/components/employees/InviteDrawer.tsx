@@ -4,12 +4,14 @@ import { useState, useTransition } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { inviteEmployee } from "@/lib/actions/employees";
+import { useTranslation } from "react-i18next";
 
 type InviteDrawerProps = {
   counters: { id: string; name: string }[];
 };
 
 export function InviteDrawer({ counters }: InviteDrawerProps) {
+    const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [email, setEmail] = useState("");
@@ -38,58 +40,58 @@ export function InviteDrawer({ counters }: InviteDrawerProps) {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button>Invite Employee</Button>
+        <Button>{t("Invite Employee")}</Button>
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Invite Employee</SheetTitle>
+          <SheetTitle>{t("Invite Employee")}</SheetTitle>
         </SheetHeader>
         <form onSubmit={handleInvite} className="mt-6 flex flex-col gap-6">
           <label className="flex flex-col gap-2">
-            <span className="text-label text-ink-2">Email Address</span>
+            <span className="text-label text-ink-2">{t("Email Address")}</span>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="rounded-tile border border-line bg-surface p-3 text-body"
-              placeholder="staff@example.com"
+              placeholder={t("staff@example.com")}
             />
           </label>
 
           <label className="flex flex-col gap-2">
-            <span className="text-label text-ink-2">Name</span>
+            <span className="text-label text-ink-2">{t("Name")}</span>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="rounded-tile border border-line bg-surface p-3 text-body"
-              placeholder="e.g. Nimal"
+              placeholder={t("e.g. Nimal")}
             />
           </label>
 
           <label className="flex flex-col gap-2">
-            <span className="text-label text-ink-2">Role</span>
+            <span className="text-label text-ink-2">{t("Role")}</span>
             <select
               value={role}
-              onChange={(e) => setRole(e.target.value as any)}
+              onChange={(e) => setRole(e.target.value as "owner" | "manager" | "staff")}
               className="rounded-tile border border-line bg-surface p-3 text-body"
             >
-              <option value="owner">Owner</option>
-              <option value="manager">Manager</option>
-              <option value="staff">Staff</option>
+              <option value="owner">{t("Owner")}</option>
+              <option value="manager">{t("Manager")}</option>
+              <option value="staff">{t("Staff")}</option>
             </select>
           </label>
 
           <label className="flex flex-col gap-2">
-            <span className="text-label text-ink-2">Counter Assignment</span>
+            <span className="text-label text-ink-2">{t("Counter Assignment")}</span>
             <select
               value={counterId}
               onChange={(e) => setCounterId(e.target.value)}
               className="rounded-tile border border-line bg-surface p-3 text-body"
             >
-              <option value="">None (Floating)</option>
+              <option value="">{t("None (Floating)")}</option>
               {counters.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}

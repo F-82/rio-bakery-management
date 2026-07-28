@@ -21,6 +21,7 @@ import {
   type DashboardPrintJob,
   type StockLevel,
 } from "@/lib/dashboard";
+import { useTranslation } from "react-i18next";
 
 type DashboardClientProps = {
   initialOrders: DashboardOrder[];
@@ -48,6 +49,7 @@ export function DashboardClient({
   initialStockLevels,
   expensesToday,
 }: DashboardClientProps) {
+    const { t } = useTranslation();
   const [orders, setOrders] = useState(() => new Map(initialOrders.map((order) => [order.id, order])));
   const [printJobs, setPrintJobs] = useState(() => new Map(initialPrintJobs.map((job) => [job.id, job])));
   const [stockLevels, setStockLevels] = useState(
@@ -176,7 +178,7 @@ export function DashboardClient({
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6">
       <div className="flex flex-col gap-2">
-        <span className="text-micro text-ink-2">Today&apos;s sales</span>
+        <span className="text-micro text-ink-2">{t("Today&apos;s sales")}</span>
         {/* The one AccentPanel this screen gets (DESIGN.md §Structural language) */}
         <AccentPanel>
           <MoneyText amount={income} size="num-lg" />
@@ -184,23 +186,23 @@ export function DashboardClient({
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <StatCard icon={Receipt} label="Total orders" value={String(ordersSummary.total)} />
-        <StatCard icon={CheckCircle2} label="Completed" value={String(ordersSummary.completed)} />
-        <StatCard icon={Clock} label="Pending" value={String(ordersSummary.pending)} />
-        <StatCard icon={XCircle} label="Cancelled" value={String(ordersSummary.cancelled)} />
+        <StatCard icon={Receipt} label={t("Total orders")} value={String(ordersSummary.total)} />
+        <StatCard icon={CheckCircle2} label={t("Completed")} value={String(ordersSummary.completed)} />
+        <StatCard icon={Clock} label={t("Pending")} value={String(ordersSummary.pending)} />
+        <StatCard icon={XCircle} label={t("Cancelled")} value={String(ordersSummary.cancelled)} />
       </div>
 
       <div className="flex flex-col gap-3 rounded-card bg-surface p-6">
         <IconChip icon={TrendingUp} />
-        <span className="text-micro text-ink-2">Net profit today (estimated)</span>
+        <span className="text-micro text-ink-2">{t("Net profit today (estimated)")}</span>
         <MoneyText amount={netProfit} size="num-lg" />
         <div className="mt-2 flex flex-col gap-2 border-t border-line pt-3">
           <div className="flex items-center justify-between">
-            <span className="text-label text-ink-2">Income</span>
+            <span className="text-label text-ink-2">{t("Income")}</span>
             <MoneyText amount={income} />
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-label text-ink-2">Expenses</span>
+            <span className="text-label text-ink-2">{t("Expenses")}</span>
             <MoneyText amount={expensesToday} />
           </div>
         </div>
@@ -209,14 +211,14 @@ export function DashboardClient({
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-2 rounded-card bg-surface p-6">
           <IconChip icon={Package} />
-          <span className="text-micro text-ink-2">Low stock</span>
+          <span className="text-micro text-ink-2">{t("Low stock")}</span>
           <div className="flex items-center justify-between gap-3">
             <span className="text-num-lg text-ink">
               {lowStockCount === 0 ? "All stocked up" : `${lowStockCount} item${lowStockCount === 1 ? "" : "s"}`}
             </span>
             {lowStockCount > 0 && (
               <Button asChild variant="outline">
-                <Link href="/inventory?lowStock=1">View</Link>
+                <Link href="/inventory?lowStock=1">{t("View")}</Link>
               </Button>
             )}
           </div>
@@ -224,14 +226,14 @@ export function DashboardClient({
 
         <div className="flex flex-col gap-2 rounded-card bg-surface p-6">
           <IconChip icon={CalendarDays} />
-          <span className="text-micro text-ink-2">Today&apos;s bookings</span>
-          <p className="text-body text-ink-2">Bookings tracking lands in step 17.</p>
+          <span className="text-micro text-ink-2">{t("Today&apos;s bookings")}</span>
+          <p className="text-body text-ink-2">{t("Bookings tracking lands in step 17.")}</p>
         </div>
       </div>
 
       {unresolvedFailures.length > 0 && (
         <div className="flex flex-col gap-3">
-          <span className="text-micro text-ink-2">Failed prints</span>
+          <span className="text-micro text-ink-2">{t("Failed prints")}</span>
           <div className="flex flex-col gap-2">
             {unresolvedFailures.map((failure) => (
               <div

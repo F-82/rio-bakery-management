@@ -111,3 +111,11 @@ export function buildRevenueByDay(orders: FinanceOrder[], range: DateRange): Rev
   }
   return days;
 }
+
+export type FinanceTab = "overview" | "expenses" | "platform";
+export const DEFAULT_TAB: FinanceTab = "overview";
+
+export function getFinanceTab(searchParams: { tab?: string }): FinanceTab {
+  const tab = searchParams.tab;
+  return tab === "expenses" || tab === "platform" ? tab : DEFAULT_TAB;
+}

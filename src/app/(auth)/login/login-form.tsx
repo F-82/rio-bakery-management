@@ -4,10 +4,12 @@ import Image from "next/image";
 import { useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 import { signIn, type SignInState } from "@/lib/actions/auth";
+import { useTranslation } from "react-i18next";
 
 const initialState: SignInState = { error: null };
 
 export function LoginForm() {
+    const { t } = useTranslation();
   const [state, formAction, pending] = useActionState(signIn, initialState);
   const searchParams = useSearchParams();
   const deactivated = searchParams.get("error") === "inactive";
@@ -15,8 +17,8 @@ export function LoginForm() {
   return (
     <form action={formAction} className="flex w-full max-w-sm flex-col gap-4">
       <div className="flex flex-col items-center justify-center mb-2">
-        <Image src="/brand/logo.webp" alt="Rio Bakers Hut Logo" width={80} height={80} className="mb-4" />
-        <h1 className="text-xl font-semibold">Rio Bakers Hut</h1>
+        <Image src="/brand/logo.webp" alt={t("Rio Bakers Hut Logo")} width={80} height={80} className="mb-4" />
+        <h1 className="text-xl font-semibold">{t("Rio Bakers Hut")}</h1>
       </div>
 
       {/* text-alert-strong, not text-alert, on both messages below — this page has no
@@ -24,8 +26,7 @@ export function LoginForm() {
           under the 4.5:1 floor */}
       {deactivated && (
         <p role="alert" className="text-sm text-alert-strong">
-          Your account has been deactivated. Contact your manager.
-        </p>
+          {t("Your account has been deactivated. Contact your manager.")}</p>
       )}
       {state.error && (
         <p role="alert" className="text-sm text-alert-strong">
@@ -34,8 +35,7 @@ export function LoginForm() {
       )}
 
       <label className="flex flex-col gap-1 text-sm">
-        Email
-        <input
+        {t("Email")}<input
           type="email"
           name="email"
           required
@@ -45,8 +45,7 @@ export function LoginForm() {
       </label>
 
       <label className="flex flex-col gap-1 text-sm">
-        Password
-        <input
+        {t("Password")}<input
           type="password"
           name="password"
           required

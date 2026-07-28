@@ -11,6 +11,7 @@ import { createClient } from "@/lib/supabase/client";
 import { fetchOrderDetail, type OrderDetail } from "@/lib/order-detail";
 import { voidOrder } from "@/lib/actions/orders";
 import { reprintJob } from "@/lib/actions/print";
+import { useTranslation } from "react-i18next";
 
 type OrderDetailDrawerProps = {
   orderId: string | null;
@@ -19,11 +20,12 @@ type OrderDetailDrawerProps = {
 };
 
 export function OrderDetailDrawer({ orderId, canVoid, onClose }: OrderDetailDrawerProps) {
+    const { t } = useTranslation();
   return (
     <Sheet open={orderId !== null} onOpenChange={(open) => !open && onClose()}>
       <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
         <SheetHeader>
-          <SheetTitle className="sr-only">Order detail</SheetTitle>
+          <SheetTitle className="sr-only">{t("Order detail")}</SheetTitle>
         </SheetHeader>
         {/* Keyed by orderId so switching orders remounts fresh state instead
             of needing a manual reset effect for voiding/voidReason/etc. */}
@@ -39,6 +41,7 @@ const TARGET_LABELS: Record<string, string> = {
 };
 
 function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: boolean }) {
+    const { t } = useTranslation();
   const [detail, setDetail] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [voiding, setVoiding] = useState(false);
@@ -83,16 +86,16 @@ function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: bo
   }
 
   if (loading) {
-    return <p className="px-4 text-body-sm text-ink-2">Loading…</p>;
+    return <p className="px-4 text-body-sm text-ink-2">{t("Loading…")}</p>;
   }
   if (!detail) {
-    return <p className="px-4 text-body-sm text-ink-2">Order not found.</p>;
+    return <p className="px-4 text-body-sm text-ink-2">{t("Order not found.")}</p>;
   }
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-6">
       <div>
-        <p className="text-micro text-ink-2">Order</p>
+        <p className="text-micro text-ink-2">{t("Order")}</p>
         <p className="text-display text-ink">{detail.orderNumber}</p>
         <div className="mt-2 flex items-center gap-2">
           {detail.counter && <CounterBadge kind={detail.counter.kind} />}
@@ -100,14 +103,14 @@ function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: bo
         </div>
         {detail.status === "voided" && (
           <p role="status" className="mt-2 text-body-sm text-alert">
-            Voided {detail.voidedAt && formatDate(detail.voidedAt, "datetime")}
+            {t("Voided")}{detail.voidedAt && formatDate(detail.voidedAt, "datetime")}
             {detail.voidReason ? ` — ${detail.voidReason}` : ""}
           </p>
         )}
       </div>
 
       <div className="flex flex-col gap-2">
-        <h3 className="text-h3 text-ink">Items</h3>
+        <h3 className="text-h3 text-ink">{t("Items")}</h3>
         <ul className="flex flex-col gap-2">
           {detail.items.map((item) => (
             <li key={item.id} className="flex items-center justify-between gap-3 rounded-tile bg-surface-2 p-3">
@@ -122,15 +125,15 @@ function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: bo
           ))}
         </ul>
         <div className="flex items-center justify-between border-t border-line pt-2">
-          <span className="text-label text-ink-2">Total</span>
+          <span className="text-label text-ink-2">{t("Total")}</span>
           <MoneyText amount={detail.total} size="num-lg" />
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
-        <h3 className="text-h3 text-ink">Print history</h3>
+        <h3 className="text-h3 text-ink">{t("Print history")}</h3>
         {detail.printJobs.length === 0 ? (
-          <p className="text-body-sm text-ink-2">No print jobs.</p>
+          <p className="text-body-sm text-ink-2">{t("No print jobs.")}</p>
         ) : (
           detail.printJobs.map((job) => (
             <div key={job.id} className="flex items-center justify-between gap-3 rounded-tile bg-surface p-3">
@@ -145,21 +148,19 @@ function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: bo
         <div className="flex flex-col gap-2 border-t border-line pt-4">
           {!voiding ? (
             <Button variant="destructive-outline" onClick={() => setVoiding(true)}>
-              Void order
-            </Button>
+              {t("Void order")}</Button>
           ) : (
             <div className="flex flex-col gap-2 rounded-tile bg-alert-bg p-3">
               {/* text-alert-strong, not text-alert — red-600 on --alert-bg is ~4.2:1, under the 4.5:1 floor (T3) */}
               <label className="text-label text-alert-strong" htmlFor="void-reason">
-                Reason for voiding
-              </label>
+                {t("Reason for voiding")}</label>
               <input
                 id="void-reason"
                 type="text"
                 value={voidReason}
                 onChange={(event) => setVoidReason(event.target.value)}
                 className="h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink"
-                placeholder="e.g. customer changed their mind"
+                placeholder={t("e.g. customer changed their mind")}
               />
               {voidError && (
                 <p role="alert" className="text-body-sm text-alert-strong">
@@ -168,16 +169,14 @@ function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: bo
               )}
               <div className="flex gap-2">
                 <Button variant="outline" className="flex-1" onClick={() => setVoiding(false)}>
-                  Cancel
-                </Button>
+                  {t("Cancel")}</Button>
                 <Button
                   variant="destructive"
                   className="flex-1"
                   disabled={!voidReason.trim()}
                   onClick={handleVoid}
                 >
-                  Confirm void
-                </Button>
+                  {t("Confirm void")}</Button>
               </div>
             </div>
           )}

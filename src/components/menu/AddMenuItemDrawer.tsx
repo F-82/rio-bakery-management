@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { createMenuItem } from "@/lib/actions/menu";
 import type { MenuCategory } from "@/lib/queries/menu";
 import { MenuItemForm } from "./MenuItemForm";
+import { useTranslation } from "react-i18next";
 
 type AddMenuItemDrawerProps = {
   businessId: string;
@@ -15,6 +16,7 @@ type AddMenuItemDrawerProps = {
 };
 
 export function AddMenuItemDrawer({ businessId, categories }: AddMenuItemDrawerProps) {
+    const { t } = useTranslation();
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
@@ -22,12 +24,11 @@ export function AddMenuItemDrawer({ businessId, categories }: AddMenuItemDrawerP
     <>
       <Button onClick={() => setOpen(true)}>
         <Plus className="size-4" aria-hidden />
-        Add item
-      </Button>
+        {t("Add item")}</Button>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
           <SheetHeader>
-            <SheetTitle>Add menu item</SheetTitle>
+            <SheetTitle>{t("Add menu item")}</SheetTitle>
           </SheetHeader>
           <div className="px-4 pb-6">
             {/* Keyed so the form resets to blank each time the sheet reopens. */}

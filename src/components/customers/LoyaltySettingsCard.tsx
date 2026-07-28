@@ -4,6 +4,7 @@ import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { updateLoyaltyRates } from "@/lib/actions/settings";
 import type { LoyaltySettings } from "@/lib/queries/customers";
+import { useTranslation } from "react-i18next";
 
 const inputClass = "h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink";
 const labelClass = "text-label text-ink-2";
@@ -14,6 +15,7 @@ const labelClass = "text-label text-ink-2";
  * needing sign-off — at earn 1/LKR, redeem 1 LKR/point is a 100% discount.
  */
 export function LoyaltySettingsCard({ initial }: { initial: LoyaltySettings }) {
+    const { t } = useTranslation();
   const formId = useId();
   const [earnRate, setEarnRate] = useState(String(initial.earnPointsPerLkr));
   const [redeemRate, setRedeemRate] = useState(String(initial.redeemLkrPerPoint));
@@ -43,15 +45,14 @@ export function LoyaltySettingsCard({ initial }: { initial: LoyaltySettings }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 rounded-card bg-surface p-6">
       <div>
-        <h3 className="text-h3 text-ink">Loyalty rates</h3>
-        <p className="text-body-sm text-ink-2">How fast customers earn points, and what a point is worth back.</p>
+        <h3 className="text-h3 text-ink">{t("Loyalty rates")}</h3>
+        <p className="text-body-sm text-ink-2">{t("How fast customers earn points, and what a point is worth back.")}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
           <label className={labelClass} htmlFor={`${formId}-earn`}>
-            Points earned per LKR
-          </label>
+            {t("Points earned per LKR")}</label>
           <input
             id={`${formId}-earn`}
             type="number"
@@ -64,8 +65,7 @@ export function LoyaltySettingsCard({ initial }: { initial: LoyaltySettings }) {
         </div>
         <div className="flex flex-col gap-1">
           <label className={labelClass} htmlFor={`${formId}-redeem`}>
-            LKR per point redeemed
-          </label>
+            {t("LKR per point redeemed")}</label>
           <input
             id={`${formId}-redeem`}
             type="number"
@@ -91,7 +91,7 @@ export function LoyaltySettingsCard({ initial }: { initial: LoyaltySettings }) {
           {error}
         </p>
       )}
-      {saved && <p className="text-body-sm text-pos">Saved.</p>}
+      {saved && <p className="text-body-sm text-pos">{t("Saved.")}</p>}
 
       <Button type="submit" disabled={submitting} className="self-start">
         {submitting ? "Saving…" : "Save rates"}

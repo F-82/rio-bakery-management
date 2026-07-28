@@ -11,6 +11,7 @@ import { formatLKR } from "@/lib/format";
 import { setMenuItemAvailability } from "@/lib/actions/menu";
 import type { MenuCategory, MenuListRow, RecipeInventoryOption } from "@/lib/queries/menu";
 import { MenuItemDetailDrawer } from "./MenuItemDetailDrawer";
+import { useTranslation } from "react-i18next";
 
 type MenuListProps = {
   items: MenuListRow[];
@@ -27,6 +28,7 @@ const TAX_CATEGORY_LABELS: Record<string, string> = {
 };
 
 function AvailabilityToggle({ item, onChanged }: { item: MenuListRow; onChanged: () => void }) {
+    const { t } = useTranslation();
   const [pending, setPending] = useState(false);
 
   async function handleClick(event: React.MouseEvent) {
@@ -51,6 +53,7 @@ function AvailabilityToggle({ item, onChanged }: { item: MenuListRow; onChanged:
 }
 
 export function MenuList({ items, businessId, categories, inventoryOptions, canManage }: MenuListProps) {
+    const { t } = useTranslation();
   const router = useRouter();
   const [selectedItem, setSelectedItem] = useState<MenuListRow | null>(null);
 
@@ -85,7 +88,7 @@ export function MenuList({ items, businessId, categories, inventoryOptions, canM
       key: "prep",
       header: "Kitchen prep",
       render: (row) =>
-        row.requires_kitchen_prep ? <Badge variant="secondary">Prep</Badge> : <span className="text-ink-2">—</span>,
+        row.requires_kitchen_prep ? <Badge variant="secondary">{t("Prep")}</Badge> : <span className="text-ink-2">—</span>,
     },
     {
       key: "tax_category",

@@ -1,3 +1,5 @@
+"use client";
+
 import { Landmark, PieChart, Receipt, TrendingUp, Wallet } from "lucide-react";
 import { AccentPanel } from "@/components/patterns/AccentPanel";
 import { StatCard } from "@/components/patterns/StatCard";
@@ -23,6 +25,7 @@ import {
   type TaxGranularity,
   type TaxOrder,
 } from "@/lib/tax";
+import { useTranslation } from "react-i18next";
 
 type TaxReportProps = {
   granularity: TaxGranularity;
@@ -38,6 +41,7 @@ type TaxReportProps = {
  * setting or "reported revenue" field exists anywhere below this line.
  */
 export function TaxReport({ granularity, range, orders, categoryLines, expenses }: TaxReportProps) {
+    const { t } = useTranslation();
   const grossRevenue = summariseGrossRevenue(orders);
   const categoryBreakdown = buildTaxCategoryBreakdown(categoryLines);
   const taxableRevenue = summariseTaxableRevenue(categoryLines);
@@ -47,7 +51,7 @@ export function TaxReport({ granularity, range, orders, categoryLines, expenses 
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6">
       <PageHeader
-        title="Tax report"
+        title={t("Tax report")}
         actions={
           <ExportActions
             getCsv={() =>
@@ -61,7 +65,7 @@ export function TaxReport({ granularity, range, orders, categoryLines, expenses 
       {/* Nav/Header are print:hidden (app-shell); this line is the report's own
           heading once those chrome elements disappear from the printed page. */}
       <div className="hidden print:block">
-        <h1 className="text-h1 text-ink">Tax report</h1>
+        <h1 className="text-h1 text-ink">{t("Tax report")}</h1>
         <p className="text-body-sm text-ink-2">
           {formatDate(range.from, "date")} – {formatDate(range.to, "date")}
         </p>
@@ -73,7 +77,7 @@ export function TaxReport({ granularity, range, orders, categoryLines, expenses 
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="text-micro text-ink-2">Gross revenue</span>
+        <span className="text-micro text-ink-2">{t("Gross revenue")}</span>
         {/* The one AccentPanel this screen gets (DESIGN.md §Structural language) */}
         <AccentPanel>
           <MoneyText amount={grossRevenue} size="num-lg" />
@@ -81,15 +85,15 @@ export function TaxReport({ granularity, range, orders, categoryLines, expenses 
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard icon={Landmark} label="Taxable revenue" value={formatLKR(taxableRevenue)} />
-        <StatCard icon={Wallet} label="Deductible expenses" value={formatLKR(deductibleExpenses)} />
-        <StatCard icon={TrendingUp} label="Net taxable income" value={formatLKR(netTaxableIncome)} />
+        <StatCard icon={Landmark} label={t("Taxable revenue")} value={formatLKR(taxableRevenue)} />
+        <StatCard icon={Wallet} label={t("Deductible expenses")} value={formatLKR(deductibleExpenses)} />
+        <StatCard icon={TrendingUp} label={t("Net taxable income")} value={formatLKR(netTaxableIncome)} />
       </div>
 
       <div className="flex flex-col gap-4 rounded-card bg-surface p-6">
         <div className="flex items-center gap-3">
           <IconChip icon={PieChart} />
-          <span className="text-h3 text-ink">Revenue by tax category</span>
+          <span className="text-h3 text-ink">{t("Revenue by tax category")}</span>
         </div>
         <CategoryBreakdownTable rows={categoryBreakdown} grossRevenue={grossRevenue} />
       </div>
@@ -97,7 +101,7 @@ export function TaxReport({ granularity, range, orders, categoryLines, expenses 
       <div className="flex flex-col gap-4 rounded-card bg-surface p-6">
         <div className="flex items-center gap-3">
           <IconChip icon={Receipt} />
-          <span className="text-h3 text-ink">Deductible expenses</span>
+          <span className="text-h3 text-ink">{t("Deductible expenses")}</span>
         </div>
         <DeductibleExpensesTable expenses={expenses} />
       </div>

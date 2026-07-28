@@ -5,6 +5,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { replaceMenuItemRecipe } from "@/lib/actions/menu";
 import type { RecipeInventoryOption, RecipeLine } from "@/lib/queries/menu";
+import { useTranslation } from "react-i18next";
 
 type DraftLine = { inventoryItemId: string; qty: string };
 
@@ -28,6 +29,7 @@ const inputClass = "h-11 rounded-tile border border-line bg-surface px-3 text-bo
  * an input.
  */
 export function RecipeBuilder({ menuItemId, initialLines, inventoryOptions, onSaved }: RecipeBuilderProps) {
+    const { t } = useTranslation();
   const [lines, setLines] = useState<DraftLine[]>(toDraft(initialLines));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -71,7 +73,7 @@ export function RecipeBuilder({ menuItemId, initialLines, inventoryOptions, onSa
 
   return (
     <div className="flex flex-col gap-3">
-      {lines.length === 0 && <p className="text-body-sm text-ink-2">No ingredients linked yet.</p>}
+      {lines.length === 0 && <p className="text-body-sm text-ink-2">{t("No ingredients linked yet.")}</p>}
 
       {lines.map((line, index) => (
         <div key={index} className="flex items-center gap-2">
@@ -81,7 +83,7 @@ export function RecipeBuilder({ menuItemId, initialLines, inventoryOptions, onSa
             className={`${inputClass} flex-1`}
             aria-label="Ingredient"
           >
-            <option value="">Select ingredient</option>
+            <option value="">{t("Select ingredient")}</option>
             {inventoryOptions.map((option) => (
               <option
                 key={option.id}
@@ -98,7 +100,7 @@ export function RecipeBuilder({ menuItemId, initialLines, inventoryOptions, onSa
             min="0"
             value={line.qty}
             onChange={(event) => updateLine(index, { qty: event.target.value })}
-            placeholder="Qty"
+            placeholder={t("Qty")}
             className={`${inputClass} w-24`}
             aria-label="Quantity"
           />
@@ -122,8 +124,7 @@ export function RecipeBuilder({ menuItemId, initialLines, inventoryOptions, onSa
         disabled={lines.length >= inventoryOptions.length}
       >
         <Plus className="size-4" aria-hidden />
-        Add ingredient
-      </Button>
+        {t("Add ingredient")}</Button>
 
       {error && (
         <p role="alert" className="text-body-sm text-alert">

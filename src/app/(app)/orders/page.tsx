@@ -6,6 +6,7 @@ import { OrdersList } from "@/components/orders/OrdersList";
 import { getOrders, getOrderSources, type OrdersFilter } from "@/lib/queries/orders";
 import { getActiveCounters } from "@/lib/queries/counters";
 import { getCurrentProfile } from "@/lib/queries/profile";
+import { getTranslation } from "@/lib/i18n-server";
 
 type OrdersPageProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -16,6 +17,7 @@ function firstValue(value: string | string[] | undefined): string | undefined {
 }
 
 export default async function OrdersPage({ searchParams }: OrdersPageProps) {
+    const { t } = await getTranslation();
   const params = await searchParams;
 
   const filter: OrdersFilter = {
@@ -44,10 +46,10 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
     <div className="flex flex-col gap-4">
       <div className="p-4 pb-0 sm:p-6 sm:pb-0">
         <PageHeader
-          title="Orders"
+          title={t("Orders")}
           actions={
             <Button asChild>
-              <Link href="/orders/new">New order</Link>
+              <Link href="/orders/new">{t("New order")}</Link>
             </Button>
           }
         />

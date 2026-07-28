@@ -6,15 +6,17 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Booking } from "@/lib/queries/bookings";
 import { BookingDrawer } from "./BookingDrawer";
+import { useTranslation } from "react-i18next";
 
 export function BookingsList({ bookings }: { bookings: Booking[] }) {
+    const { t } = useTranslation();
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isNewDrawerOpen, setIsNewDrawerOpen] = useState(false);
 
   return (
     <>
       <div className="mb-4 flex justify-end">
-        <Button onClick={() => setIsNewDrawerOpen(true)}>New Booking</Button>
+        <Button onClick={() => setIsNewDrawerOpen(true)}>{t("New Booking")}</Button>
       </div>
 
       <DataTable

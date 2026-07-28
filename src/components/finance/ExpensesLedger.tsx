@@ -1,3 +1,5 @@
+"use client";
+
 import { Wallet } from "lucide-react";
 import { DataTable, type DataTableColumn } from "@/components/patterns/DataTable";
 import { EmptyState } from "@/components/patterns/EmptyState";
@@ -7,6 +9,7 @@ import { PageHeader } from "@/components/patterns/PageHeader";
 import { AddExpenseDrawer } from "./AddExpenseDrawer";
 import { formatDate } from "@/lib/format";
 import type { ExpenseRow } from "@/lib/queries/finance";
+import { useTranslation } from "react-i18next";
 
 type ExpensesLedgerProps = {
   expenses: ExpenseRow[];
@@ -32,8 +35,7 @@ const COLUMNS: DataTableColumn<ExpenseRow>[] = [
     render: (row) =>
       row.receiptUrl ? (
         <a href={row.receiptUrl} target="_blank" rel="noreferrer" className="text-body-sm text-accent underline">
-          View
-        </a>
+          {t("View")}</a>
       ) : (
         "—"
       ),
@@ -41,10 +43,11 @@ const COLUMNS: DataTableColumn<ExpenseRow>[] = [
 ];
 
 export function ExpensesLedger({ expenses, categories, businessId, canAdd }: ExpensesLedgerProps) {
+    const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-4 p-4 sm:p-6">
       <PageHeader
-        title="Expenses"
+        title={t("Expenses")}
         actions={canAdd ? <AddExpenseDrawer businessId={businessId} categories={categories} /> : undefined}
       />
       {expenses.length === 0 ? (

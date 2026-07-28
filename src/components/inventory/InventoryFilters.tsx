@@ -3,6 +3,7 @@
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import type { InventoryCategory } from "@/lib/queries/inventory";
+import { useTranslation } from "react-i18next";
 
 type InventoryFiltersProps = {
   categories: InventoryCategory[];
@@ -10,6 +11,7 @@ type InventoryFiltersProps = {
 
 /** Filters live in the URL — shareable, and a plain server refetch on change (same reasoning as OrdersFilters). */
 export function InventoryFilters({ categories }: InventoryFiltersProps) {
+    const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -36,8 +38,7 @@ export function InventoryFilters({ categories }: InventoryFiltersProps) {
             checked={lowStock}
             onChange={(event) => updateParams({ lowStock: event.target.checked ? "1" : null })}
           />
-          Low stock only
-        </label>
+          {t("Low stock only")}</label>
 
         <select
           value={categoryId}
@@ -45,7 +46,7 @@ export function InventoryFilters({ categories }: InventoryFiltersProps) {
           className="h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink"
           aria-label="Category"
         >
-          <option value="">All categories</option>
+          <option value="">{t("All categories")}</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.name}
@@ -62,7 +63,7 @@ export function InventoryFilters({ categories }: InventoryFiltersProps) {
         onKeyDown={(event) => {
           if (event.key === "Enter") updateParams({ search: search || null });
         }}
-        placeholder="Search by item name"
+        placeholder={t("Search by item name")}
         className="h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink placeholder:text-ink-3"
       />
     </div>

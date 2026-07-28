@@ -9,6 +9,7 @@ import {
   type MenuItemFilter,
 } from "@/lib/queries/menu";
 import { getCurrentProfile } from "@/lib/queries/profile";
+import { getTranslation } from "@/lib/i18n-server";
 
 type MenuPageProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -19,6 +20,7 @@ function firstValue(value: string | string[] | undefined): string | undefined {
 }
 
 export default async function MenuPage({ searchParams }: MenuPageProps) {
+    const { t } = await getTranslation();
   const params = await searchParams;
 
   const filter: MenuItemFilter = {
@@ -42,7 +44,7 @@ export default async function MenuPage({ searchParams }: MenuPageProps) {
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-4 p-4 pb-0 sm:p-6 sm:pb-0">
         <PageHeader
-          title="Menu"
+          title={t("Menu")}
           actions={
             canManage && profile ? (
               <AddMenuItemDrawer businessId={profile.business_id} categories={categories} />

@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import type { MenuCategory } from "@/lib/queries/menu";
+import { useTranslation } from "react-i18next";
 
 type CategoryTabsProps = {
   categories: MenuCategory[];
@@ -11,6 +12,7 @@ type CategoryTabsProps = {
 
 /** Pinned top, horizontal scroll. `activeId` null means "All". */
 export function CategoryTabs({ categories, activeId, onSelect }: CategoryTabsProps) {
+    const { t } = useTranslation();
   return (
     <div className="sticky top-0 z-10 flex gap-2 overflow-x-auto border-b border-line bg-bg px-3 py-2">
       <button
@@ -21,8 +23,7 @@ export function CategoryTabs({ categories, activeId, onSelect }: CategoryTabsPro
           activeId === null ? "bg-ink text-on-black" : "bg-surface text-ink-2",
         )}
       >
-        All
-      </button>
+        {t("All")}</button>
       {categories.map((category) => (
         <button
           key={category.id}

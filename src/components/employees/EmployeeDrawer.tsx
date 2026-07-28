@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Button } from "@/components/ui/button";
 import { updateEmployeeRole, updateEmployeeStatus } from "@/lib/actions/employees";
 import type { EmployeeProfile } from "@/lib/queries/employees";
+import { useTranslation } from "react-i18next";
 
 type EmployeeDrawerProps = {
   profileId: string | null;
@@ -14,6 +15,7 @@ type EmployeeDrawerProps = {
 };
 
 export function EmployeeDrawer({ profileId, employee, counters, onClose }: EmployeeDrawerProps) {
+    const { t } = useTranslation();
   const [isPending, startTransition] = useTransition();
   const [role, setRole] = useState<"owner" | "manager" | "staff">("staff");
   const [counterId, setCounterId] = useState<string>("");
@@ -21,6 +23,7 @@ export function EmployeeDrawer({ profileId, employee, counters, onClose }: Emplo
 
   useEffect(() => {
     if (employee) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRole(employee.role);
       setCounterId(employee.counter_id ?? "");
       setActive(employee.active);
@@ -40,7 +43,7 @@ export function EmployeeDrawer({ profileId, employee, counters, onClose }: Emplo
     <Sheet open={!!profileId} onOpenChange={(open) => !open && onClose()}>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Edit Employee</SheetTitle>
+          <SheetTitle>{t("Edit Employee")}</SheetTitle>
         </SheetHeader>
         {employee && (
           <div className="mt-6 flex flex-col gap-6">
@@ -51,26 +54,26 @@ export function EmployeeDrawer({ profileId, employee, counters, onClose }: Emplo
 
             <div className="flex flex-col gap-4">
               <label className="flex flex-col gap-2">
-                <span className="text-label text-ink-2">Role</span>
+                <span className="text-label text-ink-2">{t("Role")}</span>
                 <select
                   value={role}
-                  onChange={(e) => setRole(e.target.value as any)}
+                  onChange={(e) => setRole(e.target.value as "owner" | "manager" | "staff")}
                   className="rounded-tile border border-line bg-surface p-3 text-body"
                 >
-                  <option value="owner">Owner</option>
-                  <option value="manager">Manager</option>
-                  <option value="staff">Staff</option>
+                  <option value="owner">{t("Owner")}</option>
+                  <option value="manager">{t("Manager")}</option>
+                  <option value="staff">{t("Staff")}</option>
                 </select>
               </label>
 
               <label className="flex flex-col gap-2">
-                <span className="text-label text-ink-2">Counter Assignment</span>
+                <span className="text-label text-ink-2">{t("Counter Assignment")}</span>
                 <select
                   value={counterId}
                   onChange={(e) => setCounterId(e.target.value)}
                   className="rounded-tile border border-line bg-surface p-3 text-body"
                 >
-                  <option value="">None (Floating)</option>
+                  <option value="">{t("None (Floating)")}</option>
                   {counters.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
@@ -86,7 +89,7 @@ export function EmployeeDrawer({ profileId, employee, counters, onClose }: Emplo
                   onChange={(e) => setActive(e.target.checked)}
                   className="size-5 rounded border-line text-accent"
                 />
-                <span className="text-body">Account active</span>
+                <span className="text-body">{t("Account active")}</span>
               </label>
             </div>
 

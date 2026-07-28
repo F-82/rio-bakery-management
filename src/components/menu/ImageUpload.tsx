@@ -5,6 +5,7 @@ import { ImageOff, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { uploadMenuItemImage } from "@/lib/menu-image-upload";
+import { useTranslation } from "react-i18next";
 
 type ImageUploadProps = {
   businessId: string;
@@ -14,6 +15,7 @@ type ImageUploadProps = {
 
 /** Uploads directly to Storage on file select — the form submits the resulting URL like any other field. */
 export function ImageUpload({ businessId, value, onChange }: ImageUploadProps) {
+    const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +39,7 @@ export function ImageUpload({ businessId, value, onChange }: ImageUploadProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-label text-ink-2">Photo</span>
+      <span className="text-label text-ink-2">{t("Photo")}</span>
       <div className="flex items-center gap-3">
         <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-tile bg-surface-2">
           {value ? (

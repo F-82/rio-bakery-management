@@ -1,3 +1,5 @@
+"use client";
+
 import { notFound } from "next/navigation";
 import { TrendingUp, ShoppingBag, Wallet, PackageX } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +17,7 @@ import { PriorityStar } from "@/components/patterns/PriorityStar";
 import { DataTable, type DataTableColumn } from "@/components/patterns/DataTable";
 import { formatLKR, formatQty } from "@/lib/format";
 import { EmptyStateDemo, PrintStatusFailedDemo, TabPillsDemo } from "./demo-interactions";
+import { useTranslation } from "react-i18next";
 
 type Row = { id: string; item: string; counter: "bakery" | "hot_plate"; qty: number; total: number };
 
@@ -32,6 +35,7 @@ const columns: DataTableColumn<Row>[] = [
 ];
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
+    const { t } = useTranslation();
   return (
     <section className="flex flex-col gap-4 border-b border-line pb-12">
       <h2 className="text-h2 text-ink">{title}</h2>
@@ -41,6 +45,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function Swatch({ name, className }: { name: string; className: string }) {
+    const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-2">
       <div className={`h-16 w-full rounded-tile border border-line ${className}`} />
@@ -51,67 +56,66 @@ function Swatch({ name, className }: { name: string; className: string }) {
 
 /** Dev-only design system reference. Never reachable in production. */
 export default function KitchenSinkPage() {
+    const { t } = useTranslation();
   if (process.env.NODE_ENV === "production") notFound();
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-12 p-6 sm:p-8 lg:p-12">
       <PageHeader
-        title="Kitchen sink"
+        title={t("Kitchen sink")}
         actions={
           <Button variant="outline" size="default">
-            Dev only
-          </Button>
+            {t("Dev only")}</Button>
         }
       />
 
-      <Section title="Type scale">
+      <Section title={t("Type scale")}>
         <div className="flex flex-col gap-6">
           <div>
             <p className="text-display text-ink">047</p>
-            <span className="text-micro text-ink-2">display — 44/48, General Sans Medium</span>
+            <span className="text-micro text-ink-2">{t("display — 44/48, General Sans Medium")}</span>
           </div>
           <div>
-            <p className="text-h1 text-ink">Today&apos;s orders</p>
-            <span className="text-micro text-ink-2">h1 — 28/34, General Sans Medium</span>
+            <p className="text-h1 text-ink">{t("Today&apos;s orders")}</p>
+            <span className="text-micro text-ink-2">{t("h1 — 28/34, General Sans Medium")}</span>
           </div>
           <div>
-            <p className="text-h2 text-ink">Inventory</p>
-            <span className="text-micro text-ink-2">h2 — 20/26, General Sans Semibold</span>
+            <p className="text-h2 text-ink">{t("Inventory")}</p>
+            <span className="text-micro text-ink-2">{t("h2 — 20/26, General Sans Semibold")}</span>
           </div>
           <div>
-            <p className="text-h3 text-ink">Low stock</p>
-            <span className="text-micro text-ink-2">h3 — 17/24, General Sans Semibold</span>
+            <p className="text-h3 text-ink">{t("Low stock")}</p>
+            <span className="text-micro text-ink-2">{t("h3 — 17/24, General Sans Semibold")}</span>
           </div>
           <div>
             <p className="text-body text-ink">
-              Kitchen printer didn&apos;t respond. The order is saved.
-            </p>
-            <span className="text-micro text-ink-2">body — 16/24, General Sans Medium</span>
+              {t("Kitchen printer didn&apos;t respond. The order is saved.")}</p>
+            <span className="text-micro text-ink-2">{t("body — 16/24, General Sans Medium")}</span>
           </div>
           <div>
-            <p className="text-body-sm text-ink">Butter croissant × 3</p>
-            <span className="text-micro text-ink-2">body-sm — 14/20, General Sans Medium</span>
+            <p className="text-body-sm text-ink">{t("Butter croissant × 3")}</p>
+            <span className="text-micro text-ink-2">{t("body-sm — 14/20, General Sans Medium")}</span>
           </div>
           <div>
-            <p className="text-label text-ink">Order status</p>
-            <span className="text-micro text-ink-2">label — 13/18, General Sans Medium</span>
+            <p className="text-label text-ink">{t("Order status")}</p>
+            <span className="text-micro text-ink-2">{t("label — 13/18, General Sans Medium")}</span>
           </div>
           <div>
-            <p className="text-micro text-ink">Bakery counter</p>
-            <span className="text-micro text-ink-2">micro — 11/16 uppercase, General Sans Medium</span>
+            <p className="text-micro text-ink">{t("Bakery counter")}</p>
+            <span className="text-micro text-ink-2">{t("micro — 11/16 uppercase, General Sans Medium")}</span>
           </div>
           <div>
             <p className="text-num-lg text-ink">{formatLKR(12450)}</p>
-            <span className="text-micro text-ink-2">num-lg — 34/38 tabular, General Sans Medium</span>
+            <span className="text-micro text-ink-2">{t("num-lg — 34/38 tabular, General Sans Medium")}</span>
           </div>
           <div>
             <p className="text-num text-ink">{formatLKR(950)}</p>
-            <span className="text-micro text-ink-2">num — 16/22 tabular, General Sans Medium</span>
+            <span className="text-micro text-ink-2">{t("num — 16/22 tabular, General Sans Medium")}</span>
           </div>
         </div>
       </Section>
 
-      <Section title="Palette">
+      <Section title={t("Palette")}>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           <Swatch name="bg" className="bg-bg" />
           <Swatch name="surface" className="bg-surface" />
@@ -135,7 +139,7 @@ export default function KitchenSinkPage() {
         <div className="h-24 w-full rounded-card bg-accent-grad" />
       </Section>
 
-      <Section title="Logo">
+      <Section title={t("Logo")}>
         <div className="flex items-end gap-6">
           <Logo size={24} />
           <Logo size={32} />
@@ -144,7 +148,7 @@ export default function KitchenSinkPage() {
         </div>
       </Section>
 
-      <Section title="IconChip">
+      <Section title={t("IconChip")}>
         <div className="flex items-center gap-4">
           <IconChip icon={TrendingUp} />
           <IconChip icon={ShoppingBag} />
@@ -152,70 +156,66 @@ export default function KitchenSinkPage() {
         </div>
       </Section>
 
-      <Section title="TabPills">
+      <Section title={t("TabPills")}>
         <TabPillsDemo />
       </Section>
 
-      <Section title="AccentPanel">
+      <Section title={t("AccentPanel")}>
         <AccentPanel className="flex flex-col gap-1">
-          <span className="text-micro text-ink-2">Today&apos;s sales</span>
+          <span className="text-micro text-ink-2">{t("Today&apos;s sales")}</span>
           <span className="text-display text-ink">{formatLKR(84200)}</span>
         </AccentPanel>
         <span className="text-micro text-ink-2">
-          --accent-grad, radius 28, black text. One per screen, maximum.
-        </span>
+          {t("--accent-grad, radius 28, black text. One per screen, maximum.")}</span>
       </Section>
 
-      <Section title="Buttons">
+      <Section title={t("Buttons")}>
         <div className="flex flex-wrap items-center gap-4">
-          <Button>Default</Button>
-          <Button variant="outline">Outline</Button>
-          <Button variant="secondary">Secondary</Button>
-          <Button variant="ghost">Ghost</Button>
-          <Button variant="destructive-outline">Void order</Button>
-          <Button variant="link">Link</Button>
+          <Button>{t("Default")}</Button>
+          <Button variant="outline">{t("Outline")}</Button>
+          <Button variant="secondary">{t("Secondary")}</Button>
+          <Button variant="ghost">{t("Ghost")}</Button>
+          <Button variant="destructive-outline">{t("Void order")}</Button>
+          <Button variant="link">{t("Link")}</Button>
         </div>
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center gap-4">
-            <Button variant="destructive">Confirm void</Button>
+            <Button variant="destructive">{t("Confirm void")}</Button>
           </div>
           <span className="text-micro text-ink-2">
-            filled destructive — the confirming action inside a confirm step only. Every other
-            destructive trigger uses destructive-outline (DESIGN.md §&quot;Blue and red never
-            fight&quot;)
-          </span>
+            {t("filled destructive — the confirming action inside a confirm step only. Every other destructive trigger uses destructive-outline (DESIGN.md §&quot;Blue and red never fight&quot;)")}</span>
         </div>
         <div className="flex flex-wrap items-center gap-4">
-          <Button size="default">44px default</Button>
-          <Button size="lg">56px primary action bar</Button>
+          <Button size="default">{t("44px default")}</Button>
+          <Button size="lg">{t("56px primary action bar")}</Button>
         </div>
       </Section>
 
-      <Section title="Badges">
+      <Section title={t("Badges")}>
         <div className="flex flex-wrap items-center gap-4">
-          <Badge>Default</Badge>
-          <Badge variant="secondary">Secondary</Badge>
-          <Badge variant="warn">Warn</Badge>
-          <Badge variant="destructive">Destructive</Badge>
-          <Badge variant="outline">Outline</Badge>
+          <Badge>{t("Default")}</Badge>
+          <Badge variant="secondary">{t("Secondary")}</Badge>
+          <Badge variant="warn">{t("Warn")}</Badge>
+          <Badge variant="destructive">{t("Destructive")}</Badge>
+          <Badge variant="outline">{t("Outline")}</Badge>
         </div>
       </Section>
 
-      <Section title="StatCard">
+      <Section title={t("StatCard")}>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             icon={TrendingUp}
-            label="Today's sales"
+            label={t("Today's sales")}
             value={formatLKR(84200)}
             delta={{ value: "12%", direction: "up" }}
           />
-          <StatCard icon={ShoppingBag} label="Orders" value="47" delta={{ value: "3%", direction: "down" }} />
-          <StatCard icon={Wallet} label="Avg. order" value={formatLKR(1791)} />
-          <StatCard icon={PackageX} label="Low stock items" value="4" />
+          <StatCard icon={ShoppingBag} label={t("Orders")} value="47" delta={{ value: "3%", direction: "down" }} />
+          <StatCard icon={Wallet} label={t("Avg. order")} value={formatLKR(1791)} />
+          <StatCard icon={PackageX} label={t("Low stock items")} value="4" />
         </div>
       </Section>
 
-      <Section title="MoneyText">
+      <Section title={t("MoneyText")}>
         <div className="flex items-baseline gap-6">
           <MoneyText amount={950} />
           <MoneyText amount={12450} size="num-lg" />
@@ -223,7 +223,7 @@ export default function KitchenSinkPage() {
         </div>
       </Section>
 
-      <Section title="PrintStatus">
+      <Section title={t("PrintStatus")}>
         <div className="flex flex-col gap-3">
           <PrintStatus status="queued" />
           <PrintStatus status="printing" />
@@ -232,43 +232,43 @@ export default function KitchenSinkPage() {
         </div>
       </Section>
 
-      <Section title="CounterBadge">
+      <Section title={t("CounterBadge")}>
         <div className="flex gap-3">
           <CounterBadge kind="bakery" />
           <CounterBadge kind="hot_plate" />
         </div>
       </Section>
 
-      <Section title="LowStockBadge">
+      <Section title={t("LowStockBadge")}>
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-body-sm text-ink-2">Plenty (10, threshold 5):</span>
+            <span className="text-body-sm text-ink-2">{t("Plenty (10, threshold 5):")}</span>
             <LowStockBadge qty={10} threshold={5} unit="kg" />
-            <span className="text-body-sm text-ink-2">(nothing rendered)</span>
+            <span className="text-body-sm text-ink-2">{t("(nothing rendered)")}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-body-sm text-ink-2">Low (3, threshold 5):</span>
+            <span className="text-body-sm text-ink-2">{t("Low (3, threshold 5):")}</span>
             <LowStockBadge qty={3} threshold={5} unit="kg" />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-body-sm text-ink-2">Negative (-2, threshold 5):</span>
+            <span className="text-body-sm text-ink-2">{t("Negative (-2, threshold 5):")}</span>
             <LowStockBadge qty={-2} threshold={5} unit="kg" />
           </div>
         </div>
       </Section>
 
-      <Section title="PriorityStar">
+      <Section title={t("PriorityStar")}>
         <div className="flex items-center gap-4">
           <PriorityStar variant="manual" />
           <PriorityStar variant="derived" />
         </div>
       </Section>
 
-      <Section title="EmptyState">
+      <Section title={t("EmptyState")}>
         <EmptyStateDemo />
       </Section>
 
-      <Section title="DataTable">
+      <Section title={t("DataTable")}>
         <DataTable columns={columns} rows={rows} getRowKey={(r) => r.id} />
       </Section>
     </div>
