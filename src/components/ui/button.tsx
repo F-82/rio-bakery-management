@@ -24,8 +24,11 @@ const buttonVariants = cva(
         // destructive-outline (DESIGN.md §"Blue and red never fight").
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:ring-destructive/40",
+        // text-alert-strong, not text-alert — red-600 on --alert-bg is
+        // ~4.2:1, under the 4.5:1 floor, and hover/aria-expanded switch this
+        // variant's background to --alert-bg (T3, DESIGN.md §Palette note).
         "destructive-outline":
-          "border-alert text-alert bg-transparent hover:bg-alert-bg aria-expanded:bg-alert-bg",
+          "border-alert text-alert-strong bg-transparent hover:bg-alert-bg aria-expanded:bg-alert-bg",
         link: "text-primary underline-offset-4 hover:underline",
       },
       // Every size meets the 44px minimum tap target (DESIGN.md §Touch).

@@ -130,21 +130,22 @@ export function Cart({
             </p>
           )}
 
-          {/* Cart total + confirm — the one AccentPanel this screen gets (DESIGN.md §Structural language) */}
-          <AccentPanel className="flex items-center justify-between gap-3 p-4">
-            <div className="flex flex-col">
-              <span className="text-micro text-ink-2">Total</span>
+          {/* Cart total + confirm — the one AccentPanel this screen gets (DESIGN.md §Structural language).
+              The "Total" label sits outside the panel — the gradient is never behind small text (DESIGN.md §Palette). */}
+          <div className="flex flex-col gap-1">
+            <span className="text-micro text-ink-2">Total</span>
+            <AccentPanel className="flex items-center justify-between gap-3 p-4">
               <MoneyText amount={subtotal} size="num-lg" />
-            </div>
-            <Button
-              type="button"
-              size="lg"
-              disabled={cart.lines.length === 0 || isSubmitting}
-              onClick={onConfirm}
-            >
-              {isSubmitting ? "Placing order…" : "Complete order"}
-            </Button>
-          </AccentPanel>
+              <Button
+                type="button"
+                size="lg"
+                disabled={cart.lines.length === 0 || isSubmitting}
+                onClick={onConfirm}
+              >
+                {isSubmitting ? "Placing order…" : "Complete order"}
+              </Button>
+            </AccentPanel>
+          </div>
         </div>
       </div>
     </aside>

@@ -149,7 +149,8 @@ function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: bo
             </Button>
           ) : (
             <div className="flex flex-col gap-2 rounded-tile bg-alert-bg p-3">
-              <label className="text-label text-alert" htmlFor="void-reason">
+              {/* text-alert-strong, not text-alert — red-600 on --alert-bg is ~4.2:1, under the 4.5:1 floor (T3) */}
+              <label className="text-label text-alert-strong" htmlFor="void-reason">
                 Reason for voiding
               </label>
               <input
@@ -161,7 +162,7 @@ function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: bo
                 placeholder="e.g. customer changed their mind"
               />
               {voidError && (
-                <p role="alert" className="text-body-sm text-alert">
+                <p role="alert" className="text-body-sm text-alert-strong">
                   {voidError}
                 </p>
               )}

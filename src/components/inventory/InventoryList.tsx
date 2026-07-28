@@ -45,7 +45,11 @@ export function InventoryList({ items, categories, canManage }: InventoryListPro
       header: "On hand",
       render: (row) => (
         <div className="flex items-center justify-end gap-2">
-          <span className={cn("text-num", row.qty_on_hand < 0 ? "text-alert" : "text-ink")}>
+          {/* text-alert-strong, not text-alert — the desktop table row has no
+              surface of its own, so this text sits on plain --bg where
+              red-600 is ~4.3:1, under the 4.5:1 floor (mobile's card row has
+              bg-surface and would be fine either way) */}
+          <span className={cn("text-num", row.qty_on_hand < 0 ? "text-alert-strong" : "text-ink")}>
             {formatQty(row.qty_on_hand, row.base_unit)}
           </span>
           <LowStockBadge qty={row.qty_on_hand} threshold={row.low_stock_threshold} />

@@ -25,11 +25,14 @@ const TARGET_LABELS: Record<string, string> = {
 export function SuccessScreen({ orderNumber, printJobs, onReprint, onNewOrder }: SuccessScreenProps) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-6 p-6 text-center">
-      {/* The order number — the one AccentPanel this screen gets (DESIGN.md §Signature) */}
-      <AccentPanel className="flex flex-col items-center gap-1">
+      {/* The order number — the one AccentPanel this screen gets (DESIGN.md §Signature). "Order
+          placed" sits outside the panel — the gradient is never behind small text (DESIGN.md §Palette). */}
+      <div className="flex flex-col items-center gap-1">
         <p className="text-micro text-ink-2">Order placed</p>
-        <p className="text-display text-ink">{orderNumber}</p>
-      </AccentPanel>
+        <AccentPanel>
+          <p className="text-display text-ink">{orderNumber}</p>
+        </AccentPanel>
+      </div>
 
       <div className="flex w-full max-w-sm flex-col gap-2">
         {printJobs.map((job) => (

@@ -45,19 +45,21 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-4 p-4 pb-0 sm:p-6 sm:pb-0">
         <PageHeader title="Inventory" actions={canManage ? <AddItemDrawer categories={categories} /> : undefined} />
-        {/* Low-stock summary — the one AccentPanel this screen gets, only when there's something to show (DESIGN.md §Structural language) */}
+        {/* Low-stock summary — the one AccentPanel this screen gets, only when there's something to
+            show (DESIGN.md §Structural language). "Low stock" sits outside the panel — the gradient
+            is never behind small text (DESIGN.md §Palette). */}
         {lowStockCount > 0 && (
-          <AccentPanel className="flex items-center justify-between gap-3">
-            <div>
-              <span className="text-micro text-ink-2">Low stock</span>
+          <div className="flex flex-col gap-2">
+            <span className="text-micro text-ink-2">Low stock</span>
+            <AccentPanel className="flex items-center justify-between gap-3">
               <p className="text-h1 text-ink">
                 {lowStockCount} item{lowStockCount === 1 ? "" : "s"} need restocking
               </p>
-            </div>
-            <Button asChild variant="outline">
-              <Link href="/inventory?lowStock=1">View</Link>
-            </Button>
-          </AccentPanel>
+              <Button asChild variant="outline">
+                <Link href="/inventory?lowStock=1">View</Link>
+              </Button>
+            </AccentPanel>
+          </div>
         )}
       </div>
       <InventoryFilters categories={categories} />

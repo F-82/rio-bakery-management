@@ -35,7 +35,11 @@ Red isn't demoted — it's given the one job where its intensity is an asset ins
 --blue-100:   #D8E4FF;   /* soft panel */
 --blue-50:    #EFF4FF;   /* tint, selected row */
 
-/* green — positive. CONFIRM against neuralshift.lk and swap this one value */
+/* green — positive. CONFIRM against neuralshift.lk and swap this one value.
+   Also fails contrast as small text — 3.7:1 direct on --surface, ~3.3:1 on
+   its own 10%-opacity tint, both under the 4.5:1 floor. No darker green is
+   defined to fall back to (unlike --alert-strong for red), so this is
+   blocked on the real brand hex, not fixable by picking a token today. */
 --green-600:  #0C9762;
 --green-500:  #12B274;
 --green-50:   #E3F6ED;
@@ -59,6 +63,13 @@ Red isn't demoted — it's given the one job where its intensity is an asset ins
 --alert:       var(--red-600);
 --alert-bg:    var(--red-50);
 --focus:       var(--blue-600);
+
+/* --red-600 clears 4.5:1 on plain --bg/--surface but drops to ~4.2-4.3:1 on
+   --alert-bg and on plain --bg where a row/page has no --surface of its own
+   — both under the floor. Use these instead of --alert/--neg for text in
+   those two situations; never for icons, borders or filled buttons. */
+--alert-strong: var(--red-700);
+--neg-strong:   var(--red-700);
 ```
 
 Accent gradient, for the one luminous panel:

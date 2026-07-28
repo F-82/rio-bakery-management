@@ -15,13 +15,16 @@ export function LoginForm() {
     <form action={formAction} className="flex w-full max-w-sm flex-col gap-4">
       <h1 className="text-xl font-semibold">Rio Bakers Hut</h1>
 
+      {/* text-alert-strong, not text-alert, on both messages below — this page has no
+          surface of its own, so the text sits on plain --bg where red-600 is ~4.3:1,
+          under the 4.5:1 floor */}
       {deactivated && (
-        <p role="alert" className="text-sm text-alert">
+        <p role="alert" className="text-sm text-alert-strong">
           Your account has been deactivated. Contact your manager.
         </p>
       )}
       {state.error && (
-        <p role="alert" className="text-sm text-alert">
+        <p role="alert" className="text-sm text-alert-strong">
           {state.error}
         </p>
       )}
