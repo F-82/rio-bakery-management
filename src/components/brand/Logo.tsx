@@ -24,8 +24,8 @@ export function Logo({ size = 32, className }: LogoProps) {
         x="16"
         y="22"
         textAnchor="middle"
-        fontFamily="var(--font-ranade), serif"
-        fontWeight={300}
+        fontFamily="var(--font-general-sans), sans-serif"
+        fontWeight={500}
         fontSize="18"
         fill="var(--color-on-black)"
       >

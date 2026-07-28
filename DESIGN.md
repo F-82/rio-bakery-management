@@ -73,39 +73,36 @@ Black text sits on it. It is never used behind small text.
 
 ## Type
 
-Existing stack stays: **Ranade** (display, numerals) + **General Sans** (headers, UI). Both self-hosted woff2 via `next/font/local`.
+**Ranade is removed.** **General Sans** is the only typeface, self-hosted woff2 via `next/font/local`. Only two static weights are on hand — Medium 500 and Semibold 600 — so every role below runs one of those two; there is no Light or Regular file to reach for.
 
-The reference specifies Outfit. General Sans occupies the same geometric-sans register and is already wired, and Ranade at display size gives the order number more character than Outfit would. If you want Outfit anyway it's a single change — swap the two `next/font/local` declarations and the two font-family vars, nothing else moves.
+Losing Ranade means the order number (§Signature) and other display-scale text lose the lighter, more distinctive face they had in v1/early v2. That's an accepted tradeoff of going single-face, not an oversight — if it reads too flat at `display` size, the fix is sourcing a lighter General Sans weight (or a second display face), not reintroducing Ranade piecemeal.
 
 | Role | Face | Weight |
 |---|---|---|
-| Display, numerals | Ranade | Light 300 |
-| Body, dense rows | Ranade | Regular 400 |
+| Display, numerals, body, dense rows | General Sans | Medium 500 |
 | Headers, buttons, labels | General Sans | Semibold 600 |
 | Micro-labels, eyebrows | General Sans | Medium 500 |
-
-**Ranade Light floor is 20px.** Below that, Regular. It disappears at 14px on a bright counter screen.
 
 ### Scale
 
 | Token | Size / LH | Face |
 |---|---|---|
-| `display` | 44 / 48 | Ranade Light |
-| `h1` | 28 / 34 | Ranade Light |
+| `display` | 44 / 48 | General Sans Medium |
+| `h1` | 28 / 34 | General Sans Medium |
 | `h2` | 20 / 26 | General Sans Semibold |
 | `h3` | 17 / 24 | General Sans Semibold |
-| `body` | 16 / 24 | Ranade Regular |
-| `body-sm` | 14 / 20 | Ranade Regular |
+| `body` | 16 / 24 | General Sans Medium |
+| `body-sm` | 14 / 20 | General Sans Medium |
 | `label` | 13 / 18 | General Sans Medium, +0.02em |
 | `micro` | 11 / 16 | General Sans Medium, +0.06em, uppercase |
-| `num-lg` | 34 / 38 | Ranade Light, tabular |
-| `num` | 16 / 22 | Ranade Regular, tabular |
+| `num-lg` | 34 / 38 | General Sans Medium, tabular |
+| `num` | 16 / 22 | General Sans Medium, tabular |
 
 `font-variant-numeric: tabular-nums` on all money and quantity. Columns align or they're wrong.
 
 ### Sinhala
 
-Neither face carries Sinhala. Fallback `Noto Sans Sinhala`, self-hosted, subset. Needs **~1.4× Latin line-height** — set `[lang="si"]` overrides in the token layer now, not in step 19.
+This face doesn't carry Sinhala. Fallback `Noto Sans Sinhala`, self-hosted, subset. Needs **~1.4× Latin line-height** — set `[lang="si"]` overrides in the token layer now, not in step 19.
 
 ## Space & shape
 
@@ -205,7 +202,7 @@ Cart feedback is instant and local. Optimistic add, no spinner, no round trip be
 
 **The order number.** Rio calls numbers across a counter, so the number is what the design should make unmissable.
 
-Ranade Light at `display` size on the `--accent-grad` panel — the only place Light runs at full size, and the only luminous panel on that screen. Identical treatment on the confirm screen, the customer receipt, the kitchen ticket, and as the leading column of the orders list. `047` is recognisable whether it's on a thermal slip in the chef's hand or on the till.
+General Sans Medium at `display` size on the `--accent-grad` panel — the only luminous panel on that screen. Identical treatment on the confirm screen, the customer receipt, the kitchen ticket, and as the leading column of the orders list. `047` is recognisable whether it's on a thermal slip in the chef's hand or on the till.
 
 Functional as well as visual: it's what matches a KOT to a waiting customer.
 

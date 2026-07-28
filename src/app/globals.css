@@ -76,12 +76,12 @@
   --color-chart-4: var(--rio-ink-2);
   --color-chart-5: var(--rio-ink-3);
 
-  /* Fonts — unchanged by the v2 retheme. DESIGN.md's Type table keeps
-     Ranade on display/h1/body/body-sm/num-lg/num and General Sans on
-     h2/h3/label/micro; only the palette moved. next/font/local sets the
-     actual family stack on <html> via ranade.variable / generalSans.variable
-     in layout.tsx. */
-  --font-sans: var(--font-ranade);
+  /* Fonts — Ranade removed (DESIGN.md §Type). General Sans is the only
+     typeface now; both aliases point at it so `font-sans`/`font-heading`
+     utilities keep working without a per-callsite rename. next/font/local
+     sets the actual family stack on <html> via generalSans.variable in
+     layout.tsx. */
+  --font-sans: var(--font-general-sans);
   --font-heading: var(--font-general-sans);
 
   /* Radius (DESIGN.md §Space & shape, v2 — went up from v1). Card is 28px,
@@ -208,21 +208,22 @@
 }
 
 /*
- * Type scale (DESIGN.md §Type). Each utility bundles face + weight + size +
- * line-height so the Light-below-20px rule can't be broken by composing
- * utilities ad hoc — use these classes, not raw text- and font- utilities
+ * Type scale (DESIGN.md §Type). Ranade is gone — General Sans is the only
+ * face, at whichever of its two loaded weights (Medium 500 / Semibold 600)
+ * DESIGN.md's table assigns. Each utility still bundles face + weight + size
+ * + line-height — use these classes, not raw text- and font- utilities
  * composed by hand, for anything that should read as one of these roles.
  */
 @utility text-display {
-  font-family: var(--font-ranade);
-  font-weight: 300;
+  font-family: var(--font-general-sans);
+  font-weight: 500;
   font-size: 2.75rem;
   line-height: calc(3rem * var(--leading-scale));
 }
 
 @utility text-h1 {
-  font-family: var(--font-ranade);
-  font-weight: 300;
+  font-family: var(--font-general-sans);
+  font-weight: 500;
   font-size: 1.75rem;
   line-height: calc(2.125rem * var(--leading-scale));
 }
@@ -242,15 +243,15 @@
 }
 
 @utility text-body {
-  font-family: var(--font-ranade);
-  font-weight: 400;
+  font-family: var(--font-general-sans);
+  font-weight: 500;
   font-size: 1rem;
   line-height: calc(1.5rem * var(--leading-scale));
 }
 
 @utility text-body-sm {
-  font-family: var(--font-ranade);
-  font-weight: 400;
+  font-family: var(--font-general-sans);
+  font-weight: 500;
   font-size: 0.875rem;
   line-height: calc(1.25rem * var(--leading-scale));
 }
@@ -273,16 +274,16 @@
 }
 
 @utility text-num-lg {
-  font-family: var(--font-ranade);
-  font-weight: 300;
+  font-family: var(--font-general-sans);
+  font-weight: 500;
   font-size: 2.125rem;
   line-height: calc(2.375rem * var(--leading-scale));
   font-variant-numeric: tabular-nums;
 }
 
 @utility text-num {
-  font-family: var(--font-ranade);
-  font-weight: 400;
+  font-family: var(--font-general-sans);
+  font-weight: 500;
   font-size: 1rem;
   line-height: calc(1.375rem * var(--leading-scale));
   font-variant-numeric: tabular-nums;

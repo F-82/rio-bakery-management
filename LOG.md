@@ -166,3 +166,10 @@ Commit: feat(ui): add icon chip, pill tabs and accent panel primitives
 - [note] breakpoint checks were reasoned from the existing `.app-nav`/`.pos-*`/`.pos-cart` CSS rules (unchanged by this step, previously verified) rather than a live four-breakpoint walkthrough — kitchen-sink's dev-mode 500 (pre-existing, unrelated) still blocks browser verification in this environment
 - [done] typecheck/lint/test (36/36)/build all clean
 Commit: feat(ui): apply v2 theme across shell, pos, orders and inventory
+
+- [decision] Ranade removed entirely, per direct request — General Sans is now the only typeface. Deleted `src/fonts/ranade/`, the `ranade` export in `lib/fonts.ts`, and its `next/font/local` wiring in `layout.tsx`
+- [blocked] only Medium (500) and Semibold (600) General Sans weight files exist locally — no Regular or Light. Every role Ranade used to cover (`display`, `h1`, `body`, `body-sm`, `num-lg`, `num`) now runs General Sans Medium, the lightest weight actually available, rather than a true Light/Regular. The order number and other display-scale text read heavier/flatter than the Ranade version as a result — an accepted tradeoff of the removal, not a bug. Sourcing a lighter General Sans weight (or a second display face) is the fix if that's not acceptable, logged in DESIGN.md §Type
+- [note] dropped the "Ranade Light floor is 20px" rule from DESIGN.md and CLAUDE.md — there's no Light weight left for it to apply to
+- [done] updated DESIGN.md (§Type, §Signature, §Sinhala), CLAUDE.md's font rule, and STEPS.md's live review-checklist item (§Review prompt #13) to match. Left STEPS.md's historical step 06 and T2 prompt text alone — those record what was actually asked/run at the time
+- [done] typecheck/lint/test (36/36)/build all clean
+Commit: refactor(ui): remove ranade typeface, general sans only

@@ -68,11 +68,11 @@ export default function KitchenSinkPage() {
         <div className="flex flex-col gap-6">
           <div>
             <p className="text-display text-ink">047</p>
-            <span className="text-micro text-ink-2">display — 44/48, Ranade Light</span>
+            <span className="text-micro text-ink-2">display — 44/48, General Sans Medium</span>
           </div>
           <div>
             <p className="text-h1 text-ink">Today&apos;s orders</p>
-            <span className="text-micro text-ink-2">h1 — 28/34, Ranade Light</span>
+            <span className="text-micro text-ink-2">h1 — 28/34, General Sans Medium</span>
           </div>
           <div>
             <p className="text-h2 text-ink">Inventory</p>
@@ -86,11 +86,11 @@ export default function KitchenSinkPage() {
             <p className="text-body text-ink">
               Kitchen printer didn&apos;t respond. The order is saved.
             </p>
-            <span className="text-micro text-ink-2">body — 16/24, Ranade Regular</span>
+            <span className="text-micro text-ink-2">body — 16/24, General Sans Medium</span>
           </div>
           <div>
             <p className="text-body-sm text-ink">Butter croissant × 3</p>
-            <span className="text-micro text-ink-2">body-sm — 14/20, Ranade Regular</span>
+            <span className="text-micro text-ink-2">body-sm — 14/20, General Sans Medium</span>
           </div>
           <div>
             <p className="text-label text-ink">Order status</p>
@@ -102,11 +102,11 @@ export default function KitchenSinkPage() {
           </div>
           <div>
             <p className="text-num-lg text-ink">{formatLKR(12450)}</p>
-            <span className="text-micro text-ink-2">num-lg — 34/38 tabular, Ranade Light</span>
+            <span className="text-micro text-ink-2">num-lg — 34/38 tabular, General Sans Medium</span>
           </div>
           <div>
             <p className="text-num text-ink">{formatLKR(950)}</p>
-            <span className="text-micro text-ink-2">num — 16/22 tabular, Ranade Regular</span>
+            <span className="text-micro text-ink-2">num — 16/22 tabular, General Sans Medium</span>
           </div>
         </div>
       </Section>

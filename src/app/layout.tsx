@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ranade, generalSans } from "@/lib/fonts";
+import { generalSans } from "@/lib/fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,10 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${ranade.variable} ${generalSans.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${generalSans.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

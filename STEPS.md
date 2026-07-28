@@ -646,7 +646,7 @@ no summary of what's fine:
 10. Any hardcoded font or radius outside the token layer?
 11. Any screen with more than one AccentPanel, or --alert used decoratively?
 12. Any filled --alert button sitting next to a filled --accent button?
-13. Ranade used below 28px anywhere?
+13. Any font other than General Sans anywhere (Ranade is removed, DESIGN.md §Type)?
 
 List findings with file and line. Propose fixes, don't apply them yet.
 ```
