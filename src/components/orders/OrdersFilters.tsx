@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { TabPills } from "@/components/patterns/TabPills";
 import type { ActiveCounter } from "@/lib/queries/counters";
 
 type OrdersFiltersProps = {
@@ -26,7 +26,7 @@ export function OrdersFilters({ counters, sources }: OrdersFiltersProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const tab = searchParams.get("tab") ?? "active";
+  const tab = (searchParams.get("tab") ?? "active") as "active" | "archived";
   const status = searchParams.get("status") ?? "";
   const counterId = searchParams.get("counter") ?? "";
   const source = searchParams.get("source") ?? "";
@@ -46,23 +46,12 @@ export function OrdersFilters({ counters, sources }: OrdersFiltersProps) {
 
   return (
     <div className="flex flex-col gap-3 border-b border-line px-4 py-3">
-      <div className="inline-flex w-fit gap-1 rounded-full bg-surface-2 p-1" role="tablist" aria-label="Order status">
-        {TABS.map((t) => (
-          <button
-            key={t.value}
-            type="button"
-            role="tab"
-            aria-selected={tab === t.value}
-            onClick={() => updateParams({ tab: t.value === "active" ? null : t.value, status: null })}
-            className={cn(
-              "flex h-11 items-center rounded-full px-4 text-label",
-              tab === t.value ? "bg-surface text-ink shadow-elevation" : "text-ink-2",
-            )}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <TabPills
+        tabs={TABS}
+        value={tab}
+        onChange={(value) => updateParams({ tab: value === "active" ? null : value, status: null })}
+        label="Order status"
+      />
 
       <div className="flex flex-wrap gap-2">
         {tab === "active" && (

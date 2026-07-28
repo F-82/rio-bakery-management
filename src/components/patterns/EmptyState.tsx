@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { IconChip } from "@/components/patterns/IconChip";
 import { cn } from "@/lib/utils";
 
 type EmptyStateProps = {
@@ -16,7 +17,7 @@ type EmptyStateProps = {
 export function EmptyState({ icon: Icon, message, action, className }: EmptyStateProps) {
   return (
     <div className={cn("flex flex-col items-center gap-4 py-16 text-center", className)}>
-      <Icon className="size-10 text-ink-3" aria-hidden />
+      <IconChip icon={Icon} />
       <p className="text-body text-ink-2">{message}</p>
       {action && <Button onClick={action.onClick}>{action.label}</Button>}
     </div>

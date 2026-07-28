@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Logo } from "@/components/brand/Logo";
 import { StatCard } from "@/components/patterns/StatCard";
 import { IconChip } from "@/components/patterns/IconChip";
+import { AccentPanel } from "@/components/patterns/AccentPanel";
 import { PageHeader } from "@/components/patterns/PageHeader";
 import { MoneyText } from "@/components/patterns/MoneyText";
 import { PrintStatus } from "@/components/patterns/PrintStatus";
@@ -13,7 +14,7 @@ import { LowStockBadge } from "@/components/patterns/LowStockBadge";
 import { PriorityStar } from "@/components/patterns/PriorityStar";
 import { DataTable, type DataTableColumn } from "@/components/patterns/DataTable";
 import { formatLKR, formatQty } from "@/lib/format";
-import { EmptyStateDemo, PrintStatusFailedDemo } from "./demo-interactions";
+import { EmptyStateDemo, PrintStatusFailedDemo, TabPillsDemo } from "./demo-interactions";
 
 type Row = { id: string; item: string; counter: "bakery" | "hot_plate"; qty: number; total: number };
 
@@ -149,6 +150,20 @@ export default function KitchenSinkPage() {
           <IconChip icon={ShoppingBag} />
           <IconChip icon={PackageX} />
         </div>
+      </Section>
+
+      <Section title="TabPills">
+        <TabPillsDemo />
+      </Section>
+
+      <Section title="AccentPanel">
+        <AccentPanel className="flex flex-col gap-1">
+          <span className="text-micro text-ink-2">Today&apos;s sales</span>
+          <span className="text-display text-ink">{formatLKR(84200)}</span>
+        </AccentPanel>
+        <span className="text-micro text-ink-2">
+          --accent-grad, radius 28, black text. One per screen, maximum.
+        </span>
       </Section>
 
       <Section title="Buttons">

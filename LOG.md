@@ -146,3 +146,12 @@ No paragraphs. If it needs a paragraph, it belongs in ARCHITECTURE.md.
 - [note] kitchen-sink's dev-mode 500 (DataTable receiving function props across the RSC boundary, logged in step 10) is unrelated to the retheme and still present — confirmed via production build + compiled CSS instead, not fixed here
 - [done] typecheck/lint/test (36/36)/build all clean after the fixes above
 Commit: fix(ui): resolve retheme regressions
+
+- [done] structural primitives: new `TabPills` (recessed `--surface-2` track, white `shadow-elevation` active pill) and `AccentPanel` (`--accent-grad`, `rounded-card`, `text-ink`, one per screen). IconChip already matched DESIGN.md exactly from T2, unchanged
+- [fix] `EmptyState` rendered a raw `<Icon className="text-ink-3">` instead of leading with an `IconChip` — real gap against DESIGN.md §Components, not caught by T3's contrast pass since it wasn't a colour issue
+- [decision] extracted `TabPills` from the two duplicated inline pill-tracks (`OrdersFilters`, `StockEntryForm`) rather than leaving each screen with its own copy. `StockEntryForm`'s track was 36px tall; standardised to the shared component's 44px, closing a DESIGN.md §Touch floor violation that predated this step
+- [note] `Card` and `Buttons` already matched v2 exactly — `rounded-card`/`bg-surface`/no-border for the former, `--black`/`--on-black` primary, `--surface-2`/`--ink` secondary, `--alert`/white destructive for the latter, blue never a button fill. No changes needed
+- [note] `AccentPanel` is built but not attached to any screen yet — DESIGN.md's per-screen placements (POS cart total, inventory low-stock summary, etc.) are a screen pass, not this primitives step. kitchen-sink demonstrates it standalone with a sample stat
+- [note] kitchen-sink's dev-mode 500 (DataTable's columns/getRowKey functions crossing the RSC boundary, logged in step 10, confirmed unrelated in the last retheme step) still reproduces identically — verified this step's primitives via production build + typecheck/lint/test/build instead of a live four-breakpoint walkthrough; no browser automation available in this environment
+- [done] typecheck/lint/test (36/36)/build all clean
+Commit: feat(ui): add icon chip, pill tabs and accent panel primitives

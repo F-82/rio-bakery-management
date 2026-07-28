@@ -2,8 +2,8 @@
 
 import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { TabPills } from "@/components/patterns/TabPills";
 import { recordStockMovement, type StockMovementReason } from "@/lib/actions/inventory";
-import { cn } from "@/lib/utils";
 
 type StockEntryFormProps = {
   inventoryItemId: string;
@@ -71,27 +71,7 @@ export function StockEntryForm({ inventoryItemId, unit, currentQty, onRecorded }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-tile bg-surface-2 p-3">
-      <div
-        className="flex flex-wrap gap-1 rounded-full p-1"
-        role="tablist"
-        aria-label="Stock entry reason"
-      >
-        {REASONS.map((r) => (
-          <button
-            key={r.value}
-            type="button"
-            role="tab"
-            aria-selected={reason === r.value}
-            onClick={() => switchReason(r.value)}
-            className={cn(
-              "flex h-9 items-center rounded-full px-3 text-label",
-              reason === r.value ? "bg-surface text-ink shadow-elevation" : "text-ink-2",
-            )}
-          >
-            {r.label}
-          </button>
-        ))}
-      </div>
+      <TabPills tabs={REASONS} value={reason} onChange={switchReason} label="Stock entry reason" className="flex-wrap" />
 
       <div className="flex flex-col gap-1">
         <label className="text-label text-ink-2" htmlFor={`${formId}-qty`}>
