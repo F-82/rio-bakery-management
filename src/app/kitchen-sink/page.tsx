@@ -128,6 +128,8 @@ export default function KitchenSinkPage() {
           <Swatch name="warn" className="bg-warn" />
           <Swatch name="alert" className="bg-alert" />
           <Swatch name="alert-bg" className="bg-alert-bg" />
+          <Swatch name="alert-strong" className="bg-alert-strong" />
+          <Swatch name="neg-strong" className="bg-neg-strong" />
         </div>
         <div className="h-24 w-full rounded-card bg-accent-grad" />
       </Section>
@@ -227,7 +229,7 @@ export default function KitchenSinkPage() {
           <div className="flex items-center gap-2">
             <span className="text-body-sm text-ink-2">Plenty (10, threshold 5):</span>
             <LowStockBadge qty={10} threshold={5} unit="kg" />
-            <span className="text-body-sm text-ink-3">(nothing rendered)</span>
+            <span className="text-body-sm text-ink-2">(nothing rendered)</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-body-sm text-ink-2">Low (3, threshold 5):</span>

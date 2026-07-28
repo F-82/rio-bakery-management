@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { LowStockBadge } from "@/components/patterns/LowStockBadge";
 import { formatDate, formatQty } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { fetchStockMovements, type StockMovementRow } from "@/lib/inventory-detail";
 import { updateInventoryItem } from "@/lib/actions/inventory";
@@ -136,7 +137,7 @@ function ItemDetailContent({
                     {movement.note && <p className="text-micro text-ink-2">{movement.note}</p>}
                     <p className="text-micro text-ink-2">{formatDate(movement.createdAt, "datetime")}</p>
                   </div>
-                  <span className={movement.delta < 0 ? "text-alert" : "text-pos"}>
+                  <span className={cn("text-num", movement.delta < 0 ? "text-alert" : "text-pos")}>
                     {movement.delta > 0 ? "+" : ""}
                     {formatQty(movement.delta, item.base_unit)}
                   </span>

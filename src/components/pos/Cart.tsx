@@ -153,7 +153,7 @@ function CartLineRow({ line, dispatch }: { line: CartLine; dispatch: Dispatch<Ca
           type="button"
           onClick={() => dispatch({ type: "remove", menuItemId: line.menuItemId })}
           aria-label={`Remove ${line.name}`}
-          className="flex size-8 items-center justify-center text-ink-3"
+          className="flex size-8 items-center justify-center text-ink-2"
         >
           <X className="size-4" />
         </button>

@@ -31,6 +31,8 @@
   --color-alert: var(--rio-alert);
   --color-alert-ink: var(--rio-alert-ink);
   --color-alert-bg: var(--rio-alert-bg);
+  --color-alert-strong: var(--rio-alert-strong);
+  --color-neg-strong: var(--rio-neg-strong);
   --color-focus: var(--rio-focus);
   --color-scrim: var(--rio-scrim);
 
@@ -129,6 +131,13 @@
   --rio-alert: var(--rio-red-600);
   --rio-alert-ink: #ffffff;
   --rio-alert-bg: var(--rio-red-50);
+  /* --red-600 clears 4.5:1 on plain --bg/--surface (T3 verify) but drops to
+     ~4.2:1 on --alert-bg and ~4.15:1 on its own 10%-tint chip — both under
+     the DESIGN.md floor. --red-700 was already in the palette unused;
+     reserved for small/normal-weight text sitting on a tinted red surface,
+     never for icons, borders or filled buttons (those stay --alert/--neg). */
+  --rio-alert-strong: var(--rio-red-700);
+  --rio-neg-strong: var(--rio-red-700);
   --rio-focus: var(--rio-blue-600);
 
   /* One luminous panel per screen (DESIGN.md §Structural language). Black
@@ -169,6 +178,8 @@
   --rio-alert: var(--rio-red-600);
   --rio-alert-ink: #ffffff;
   --rio-alert-bg: var(--rio-red-50);
+  --rio-alert-strong: var(--rio-red-700);
+  --rio-neg-strong: var(--rio-red-700);
   --rio-focus: var(--rio-blue-600);
 }
 

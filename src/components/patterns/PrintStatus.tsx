@@ -31,7 +31,9 @@ export function PrintStatus({ status, onReprint, className }: PrintStatusProps) 
           className,
         )}
       >
-        <span className="text-label text-alert">
+        {/* text-alert-strong, not text-alert — red-600 on --alert-bg is
+            ~4.2:1, under the floor for this label-sized text. */}
+        <span className="text-label text-alert-strong">
           Kitchen printer didn&apos;t respond. The order is saved — tap Reprint or hand the ticket
           over.
         </span>

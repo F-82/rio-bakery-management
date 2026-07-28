@@ -25,7 +25,12 @@ export function StatCard({ icon, label, value, delta, className }: StatCardProps
           <span
             className={cn(
               "shrink-0 rounded-badge px-2 py-0.5 text-body-sm",
-              delta.direction === "up" ? "bg-pos/10 text-pos" : "bg-neg/10 text-neg",
+              // text-neg-strong, not text-neg — --neg (red-600) drops to
+              // ~4.15:1 against its own 10%-opacity chip fill, under the
+              // floor. --pos (green-600) has the same gap at ~3.3:1 with no
+              // darker green defined yet (still awaiting the real brand hex,
+              // see LOG.md) — left as-is rather than guessing a value.
+              delta.direction === "up" ? "bg-pos/10 text-pos" : "bg-neg/10 text-neg-strong",
             )}
           >
             {delta.direction === "up" ? "▲" : "▼"} {delta.value}

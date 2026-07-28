@@ -16,12 +16,12 @@ export function LoginForm() {
       <h1 className="text-xl font-semibold">Rio Bakers Hut</h1>
 
       {deactivated && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-sm text-alert">
           Your account has been deactivated. Contact your manager.
         </p>
       )}
       {state.error && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-sm text-alert">
           {state.error}
         </p>
       )}

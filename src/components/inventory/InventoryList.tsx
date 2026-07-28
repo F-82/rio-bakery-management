@@ -7,6 +7,7 @@ import { LowStockBadge } from "@/components/patterns/LowStockBadge";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/patterns/EmptyState";
 import { formatQty } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import { Package } from "lucide-react";
 import type { InventoryCategory, InventoryListRow } from "@/lib/queries/inventory";
 import { ItemDetailDrawer } from "./ItemDetailDrawer";
@@ -44,7 +45,7 @@ export function InventoryList({ items, categories, canManage }: InventoryListPro
       header: "On hand",
       render: (row) => (
         <div className="flex items-center justify-end gap-2">
-          <span className={row.qty_on_hand < 0 ? "text-alert" : "text-ink"}>
+          <span className={cn("text-num", row.qty_on_hand < 0 ? "text-alert" : "text-ink")}>
             {formatQty(row.qty_on_hand, row.base_unit)}
           </span>
           <LowStockBadge qty={row.qty_on_hand} threshold={row.low_stock_threshold} />
