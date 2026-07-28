@@ -21,7 +21,7 @@ export function Header({ name, role, counter, unreadCount }: HeaderProps) {
   const title = getPageTitle(pathname);
 
   return (
-    <header className="app-header sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-line bg-surface px-4">
+    <header className="app-header sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-line bg-surface px-4 print:hidden">
       <div className="flex items-center gap-3">
         <Image src="/brand/logo.webp" alt="Rio Bakers Hut Logo" width={32} height={32} className="rounded-full" />
         <h1 className="text-h1 text-ink">{title}</h1>

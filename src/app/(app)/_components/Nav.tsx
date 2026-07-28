@@ -35,7 +35,7 @@ export function Nav({ role, badgeCounts }: NavProps) {
 
   return (
     <>
-      <nav className="app-nav" aria-label="Primary">
+      <nav className="app-nav print:hidden" aria-label="Primary">
         {items.map((item) => {
           if (item.kind === "more") {
             return (
