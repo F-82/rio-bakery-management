@@ -51,6 +51,10 @@ Commit after each completed step in `STEPS.md`, not after each file. Every commi
 - Mutations go through RPC or a server action. Never a raw multi-step client write.
 - Money: `numeric(12,2)` in DB, `Decimal` in app code. Never JS float arithmetic on money.
 - Format money through `formatLKR()` only. Never inline `toFixed`.
+- **No colour outside the semantic tokens.** No hex, no `rgb()`, no `bg-[#…]`, no Tailwind default palette classes. Components use `--accent`, `--pos`, `--neg`, `--warn`, `--alert`, `--ink*`, `--surface*` — never a raw scale value like `--blue-600`. This is what makes a retheme a token swap instead of a rewrite.
+- **No hardcoded colours, fonts, radii or shadows.** Tokens only — no raw hex, no `bg-slate-100`, no inline font stacks. The theme changed once mid-build and will change again.
+- Ranade is display numerals at 28px+ only. General Sans everywhere else.
+- Red is a state colour. Never chrome, never decoration. See DESIGN.md.
 - Dates in UTC in DB, rendered Asia/Colombo. One `formatDate` helper.
 - No `localStorage` for anything the server owns.
 

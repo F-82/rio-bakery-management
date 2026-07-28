@@ -9,7 +9,8 @@ Backend before frontend: the order RPC, RLS and print queue constrain every scre
 - `CLAUDE.md` is auto-loaded every session. Prompts don't repeat its rules.
 - **`/clear` between steps.** State lives in the docs and the repo, not the conversation. Carrying context across steps burns tokens and drifts.
 - Run the review prompt (bottom) every 4–5 steps.
-- ★ = the two steps that carry the product. Slow down there.
+- ★ = the steps that carry the product. Slow down there.
+- **T0–T3 sit between 09 and 10.** DESIGN.md is at v2; the visual direction changed mid-build. Run the T series before continuing 10.
 
 **First message of any session:**
 
@@ -135,6 +136,8 @@ Commit: feat(app): add typed data layer and auth middleware
 
 ## 06 — Design system
 
+> **Superseded.** This was built against DESIGN.md v1 (warm sand). v2 replaces it — see §R. Kept for history; don't run it again.
+
 ```
 Read DESIGN.md in full.
 
@@ -213,7 +216,106 @@ and orders appear on the other till without a refresh.
 Commit: feat(orders): add order list, detail and void
 ```
 
+---
+
+# Re-theme — T0 to T3
+
+**Insert here. Run before resuming 10.** DESIGN.md v2 changes the direction from warm sand to cool neutral with a blue accent, green data, red reserved for state.
+
+Do all four on `feat/retheme`. T1 and T2 are deliberately separate: T1 changes code with no visual change, T2 changes values with almost no code. If a screen breaks after a combined commit you cannot tell which caused it.
+
+## T0 — Audit
+
+```
+DESIGN.md has been rewritten. Direction changed from warm sand to cool
+neutral, blue accent. Read it, then audit. Do not change any code yet.
+
+git checkout -b feat/retheme
+
+Report on everything built in steps 06-10:
+1. Every hardcoded colour — hex, rgb, hsl, or a Tailwind palette class like
+   bg-amber-50 / text-stone-600 — outside the token definitions.
+2. Every hardcoded font family or weight outside the font config.
+3. Every hardcoded radius, shadow or spacing value not on the scale.
+4. Any component that assumes a warm canvas — a hardcoded white expected to
+   sit on sand, a border tuned for low contrast, a shadow doing work a
+   border should do.
+
+Output a table: file, line, current value, token it should use.
+
+Do not edit anything. I want the blast radius before we touch it.
+```
+
+## T1 — Normalise
+
+```
+Using the T0 table, replace every hardcoded value with the correct token from
+the CURRENT palette. Values stay visually identical.
+
+This step must produce zero visual change. Do not touch token values yet —
+only the code consuming them.
+
+Verify /kitchen-sink, POS, orders and dashboard render identically before and
+after. If anything shifts, you substituted the wrong token.
+
+Commit: refactor(ui): replace hardcoded styles with design tokens
+```
+
+## T2 — Swap ★
+
+```
+Read DESIGN.md in full. This is v2.
+
+Rewrite the token layer only:
+- Tailwind config and CSS vars to the v2 palette
+- Fonts: General Sans becomes primary for all UI including body and tables.
+  Ranade Light survives only for display numerals at 28px+. Remove Ranade
+  from every other role.
+- Radii 20/14/999/8, hairline borders, no shadows
+
+Then bring these to the v2 structural language:
+- New IconChip component, 32px --ink circle with white glyph
+- StatCard gains an IconChip top-left
+- Pill tab groups sit on --surface-2
+- PrintStatus failed state: --alert-soft fill, --alert border and text
+- Context band using --accent-soft where a screen has situational header content
+
+Enforce the red rule from DESIGN.md §"Blue and red never fight" — destructive
+actions become text or outline buttons, filled red only inside a confirm modal.
+
+This should be a small diff. If it isn't, T1 missed hardcoded values — stop
+and tell me rather than pushing through.
+
+Commit: feat(ui): retheme to cool neutral palette with blue accent
+```
+
+## T3 — Verify
+
+```
+Walk every screen built so far — kitchen sink, login, shell, POS, orders,
+inventory — at phone portrait, phone landscape, tablet, desktop.
+
+Per screen:
+- Body text ≥4.5:1 against the new --bg
+- Focus rings visible in --accent
+- No filled --accent button adjacent to a filled --alert button
+- Nothing still reading as warm or sand-toned
+- Tabular numerals still aligned in tables
+- Order number treatment intact on the POS confirm screen and orders list
+- Landscape rail and portrait pill both correct
+
+Fix regressions. Report anything ambiguous instead of guessing.
+
+Commit: fix(ui): resolve retheme regressions
+```
+
+Then merge `feat/retheme` and resume below.
+
+---
+
 ## 10 — Inventory
+
+Partially built before the re-theme. Re-read DESIGN.md before continuing.
 
 ```
 Table with low-stock filter, category filter, search. Add and edit items with
@@ -229,6 +331,134 @@ Done when every stock change appears in the ledger and qty_on_hand reconciles
 against the sum of deltas.
 Commit: feat(inventory): add stock management and movement ledger
 ```
+
+---
+
+## R — Retheme
+
+> **Superseded.** This five-sub-step plan (R1–R5) was written before the T0–T3 series above existed. T0–T3 ran instead — audit, normalise, swap, verify — and are done: v2 tokens are live in `globals.css`, structural primitives (IconChip, pill tabs, accent panel) exist, and T3 already covers R5's contrast/alert/focus checks plus fixes R5 doesn't mention (`--alert-strong`/`--neg-strong` for the two token/background pairings that failed 4.5:1). See LOG.md 2026-07-27/28. Kept below for history — don't run it.
+
+Runs once, after 10, before 11. Everything built in 06–10 follows DESIGN.md v1 (warm sand) and moves to v2 (light neutral, blue, green).
+
+**Commit step 10 as-is first**, old theme and all, so the retheme lands as one clean diff over working screens rather than tangling with unfinished work.
+
+Five sub-steps. Run each in its own context, commit each. Don't let it attempt the whole thing in one pass.
+
+### R1 — Tokens
+
+```
+DESIGN.md has been fully replaced. Read it — v2, light neutral canvas with a
+blue accent and green for positive. Ignore everything you remember about the
+warm sand palette.
+
+This sub-step is tokens only. Do not touch components yet.
+
+Replace the palette in the Tailwind config and CSS vars with DESIGN.md
+§Palette exactly, including the semantic aliases and --accent-grad.
+Update radii per §Space & shape — they went up.
+Type stack is unchanged.
+
+Semantic alias names that survived v1: --accent, --pos, --neg, --warn,
+--alert, --alert-bg, --focus. Anything referencing those keeps working.
+Names that are gone: --surface-alt, --accent-ink, --ink (redefined).
+
+Report which token names changed meaning so I know what to expect visually.
+Commit: refactor(ui): replace design tokens with v2 palette
+```
+
+### R2 — Hardcoded colour audit
+
+```
+Find every colour that isn't a semantic token. This is what decides whether
+the retheme is smooth or not.
+
+Grep the whole src/ tree for:
+- hex literals
+- rgb( and hsl( and oklch(
+- Tailwind arbitrary colour values: bg-[#, text-[#, border-[#
+- Tailwind default palette classes: bg-amber-, text-stone-, bg-orange-,
+  bg-neutral-, bg-slate- etc — anything not routed through our tokens
+- inline style props carrying colour
+
+For each hit: replace with the right semantic alias. Where none fits, stop
+and tell me rather than inventing one.
+
+Do not change layout or structure in this sub-step. Colour only.
+
+Done when the grep returns nothing outside the token definition file.
+Commit: refactor(ui): route all colour through semantic tokens
+```
+
+### R3 — Structural primitives
+
+```
+Read DESIGN.md §Structural language and §Components.
+
+Three new primitives:
+- IconChip — 36px (40 on tablet+) true-black circle, white icon
+- TabPills — recessed --surface-2 track, white active pill, replaces every
+  underline tab group in the app
+- AccentPanel — --accent-grad, radius 28, black text, one per screen max
+
+Then update existing primitives:
+- Card: white on --bg, radius 28, minimal elevation, no border
+- StatCard: leads with an IconChip
+- EmptyState: leads with an IconChip
+- Buttons: primary is --black/--on-black pill, secondary --surface-2/--ink,
+  destructive --alert/white. Blue is selection and focus only, never a button
+  fill — that's what keeps it calm.
+
+Update /kitchen-sink to cover the three new primitives. It's the fastest way
+to verify the rest of this step, which is why we kept it.
+
+Done when kitchen-sink is correct at all four breakpoints.
+Commit: feat(ui): add icon chip, pill tabs and accent panel primitives
+```
+
+### R4 — Screen pass
+
+```
+Apply v2 across the screens built so far, one at a time, in this order:
+shell → POS → orders → inventory.
+
+Per screen:
+- Swap underline tabs for TabPills
+- Add IconChips to cards and empty states
+- Place exactly one AccentPanel where DESIGN.md §Structural language says it
+  goes for that screen — POS gets cart total, inventory gets low-stock summary
+  when non-empty. If a screen has two, cut one.
+- Left rail spec per §Responsive: 64px, --surface, active icon --ink on an
+  --accent-tint rounded square
+- Confirm the POS density exception still holds — ~60% vertical rhythm there,
+  full generosity elsewhere
+
+Check each screen at phone portrait, phone landscape, tablet, desktop before
+moving to the next. Don't batch all four screens then check.
+
+Done when every built screen matches v2 at every breakpoint.
+Commit: feat(ui): apply v2 theme across shell, pos, orders and inventory
+```
+
+### R5 — Verify
+
+```
+No code changes unless something's broken.
+
+1. Contrast: every body text pairing ≥4.5:1, every large text ≥3:1. Report
+   failures with the actual ratio.
+2. --alert appears only on errors, voids, failed print jobs and negative
+   deltas. Nowhere decorative. Red is alarm-only in v2.
+3. One AccentPanel per screen, no more.
+4. Focus rings visible on every interactive element, using --focus.
+5. Failed kitchen ticket still unmissable — this is the state the whole
+   colour system is built around. Trigger it and look at it.
+6. prefers-reduced-motion still respected.
+
+Then update DESIGN.md if reality diverged from the spec anywhere, and log it.
+Commit: chore(ui): verify v2 theme accessibility and semantics
+```
+
+---
 
 ## 11 — Menu
 
@@ -411,6 +641,12 @@ no summary of what's fine:
 6. Any hardcoded LKR string, date format, or user-facing string?
 7. Any invariant in ARCHITECTURE.md §Invariants now violated?
 8. Any screen broken in landscape or at tablet width?
+9. Any colour outside the semantic tokens — hex, rgb(), bg-[#, or a Tailwind
+   default palette class?
+10. Any hardcoded font or radius outside the token layer?
+11. Any screen with more than one AccentPanel, or --alert used decoratively?
+12. Any filled --alert button sitting next to a filled --accent button?
+13. Ranade used below 28px anywhere?
 
 List findings with file and line. Propose fixes, don't apply them yet.
 ```
