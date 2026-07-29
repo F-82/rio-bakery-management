@@ -1,9 +1,15 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import Image from "next/image";
+import { Printer } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 import { AccentPanel } from "@/components/patterns/AccentPanel";
 import { MoneyText } from "@/components/patterns/MoneyText";
 import { formatLKR, formatDate } from "@/lib/format";
+import { createClient } from "@/lib/supabase/client";
 import { useTranslation } from "react-i18next";
 import type { Database } from "@/types/database";
 
@@ -19,6 +25,7 @@ type PrintPreviewProps = {
 type PreviewItem = {
   name: string;
   qty: number;
+  unitPrice?: number;
   lineTotal?: number;
   notes: string | null;
 };
@@ -39,6 +46,7 @@ function asItems(value: Json | undefined): PreviewItem[] {
       {
         name: item.name,
         qty: item.qty,
+        unitPrice: typeof item.unit_price === "number" ? item.unit_price : undefined,
         lineTotal: typeof item.line_total === "number" ? item.line_total : undefined,
         notes: typeof item.notes === "string" ? item.notes : null,
       },
@@ -57,18 +65,116 @@ const TARGET_LABELS: Record<PrintTarget, string> = {
  * a reconstruction from order_items — so this preview can never show a price
  * on a kitchen ticket even by accident, matching the tested guarantee in
  * tests/db/orders.test.ts.
+ *
+ * "Print bill" is print-to-PDF, same no-dependency approach as reports/tax's
+ * ExportActions (LOG.md step 15) — window.print() against a dedicated
+ * print-only bill layout, not the on-screen preview itself (the sheet is
+ * fixed-position and not print-friendly).
  */
 export function PrintPreview({ target, payload, onClose }: PrintPreviewProps) {
   const { t } = useTranslation();
+  const [business, setBusiness] = useState<{ name: string; logoUrl: string | null } | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    if (target === null || business) return;
+    const supabase = createClient();
+    supabase
+      .from("businesses")
+      .select("name, logo_url")
+      .single()
+      .then(({ data }) => {
+        if (data) setBusiness({ name: data.name, logoUrl: data.logo_url });
+      });
+    // Only ever needs to run once per mount — the business doesn't change
+    // mid-session, and `business` in the dep array would refetch forever.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target]);
+
   const data = asRecord(payload);
   const orderNumber = data && typeof data.order_number === "string" ? data.order_number : "";
   const createdAt = data && typeof data.created_at === "string" ? data.created_at : null;
   const items = data ? asItems(data.items) : [];
   const isReceipt = target === "customer_receipt";
+  const paymentMethod = data && typeof data.payment_method === "string" ? data.payment_method : null;
+
+  function handlePrint() {
+    // Scopes the print output to just the portaled bill below — see the
+    // matching `body.printing-bill` rule in globals.css. Without this,
+    // window.print() would print the whole page behind this sheet too.
+    document.body.classList.add("printing-bill");
+    window.addEventListener(
+      "afterprint",
+      () => document.body.classList.remove("printing-bill"),
+      { once: true },
+    );
+    window.print();
+  }
+
+  const printBill = target && mounted
+    ? createPortal(
+        <div data-print-portal className="hidden print:block print:p-8">
+          <div className="mx-auto flex max-w-sm flex-col items-center gap-1 text-center">
+            {business?.logoUrl && (
+              <Image src={business.logoUrl} alt="" width={72} height={72} className="mb-2 object-contain" />
+            )}
+            <p className="text-xl font-bold text-black">{business?.name ?? ""}</p>
+          </div>
+
+          <div className="mx-auto mt-4 max-w-sm border-t border-dashed border-neutral-300 pt-3 text-sm">
+            <Row label={t("Order")} value={orderNumber} />
+            {createdAt && <Row label={t("Date")} value={formatDate(createdAt, "datetime")} />}
+            {isReceipt && paymentMethod && <Row label={t("Payment")} value={paymentMethod} />}
+          </div>
+
+          <div className="mx-auto mt-3 max-w-sm border-t border-dashed border-neutral-300 pt-3">
+            {items.map((item, index) => (
+              <div key={index} className="mb-2 flex items-start justify-between gap-3 text-sm">
+                <div>
+                  <p className="font-semibold text-black">{item.name}</p>
+                  {isReceipt && item.unitPrice !== undefined && (
+                    <p className="text-xs text-neutral-500">
+                      {item.qty} × {formatLKR(item.unitPrice)}
+                    </p>
+                  )}
+                  {!isReceipt && <p className="text-xs text-neutral-500">{t("Qty")} {item.qty}</p>}
+                  {item.notes && <p className="text-xs text-neutral-500">{item.notes}</p>}
+                </div>
+                {isReceipt && item.lineTotal !== undefined && (
+                  <p className="font-medium text-black">{formatLKR(item.lineTotal)}</p>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {isReceipt && data && (
+            <div className="mx-auto mt-1 max-w-sm border-t border-dashed border-neutral-300 pt-3 text-sm">
+              {typeof data.subtotal === "number" && <Row label={t("Subtotal")} value={formatLKR(data.subtotal)} />}
+              {typeof data.discount_amount === "number" && data.discount_amount > 0 && (
+                <Row label={t("Discount")} value={`-${formatLKR(data.discount_amount)}`} />
+              )}
+              {typeof data.total === "number" && (
+                <div className="mt-2 flex items-center justify-between border-t-2 border-black pt-2">
+                  <span className="text-base font-bold text-black">{t("TOTAL")}</span>
+                  <span className="text-lg font-bold text-black">{formatLKR(data.total)}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          <p className="mx-auto mt-6 max-w-sm text-center text-sm font-semibold text-black">
+            {t("Thank you for your order!")}
+          </p>
+        </div>,
+        document.body,
+      )
+    : null;
 
   return (
     <Sheet open={target !== null} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-sm">
+      <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-sm print:hidden">
         <SheetHeader>
           <SheetTitle>{target ? t(TARGET_LABELS[target]) : ""}</SheetTitle>
         </SheetHeader>
@@ -113,9 +219,9 @@ export function PrintPreview({ target, payload, onClose }: PrintPreviewProps) {
                   <MoneyText amount={data.total} size="num-lg" />
                 </AccentPanel>
               )}
-              {typeof data.payment_method === "string" && data.payment_method && (
+              {paymentMethod && (
                 <p className="mt-1 text-micro text-ink-2">
-                  {t("Paid by")} {data.payment_method}
+                  {t("Paid by")} {paymentMethod}
                 </p>
               )}
             </div>
@@ -126,8 +232,23 @@ export function PrintPreview({ target, payload, onClose }: PrintPreviewProps) {
               </p>
             )
           )}
+
+          <Button variant="secondary" onClick={handlePrint}>
+            <Printer aria-hidden /> {t(isReceipt ? "Print bill" : "Print ticket")}
+          </Button>
         </div>
       </SheetContent>
+
+      {printBill}
     </Sheet>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between py-0.5">
+      <span className="text-neutral-500">{label}</span>
+      <span className="font-semibold text-black">{value}</span>
+    </div>
   );
 }

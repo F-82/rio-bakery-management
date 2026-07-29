@@ -523,3 +523,19 @@
     }
   }
 }
+
+/*
+ * Bill/kitchen-ticket printing (PrintPreview.tsx). The printable layout is
+ * portaled to a direct child of <body> tagged [data-print-portal], outside
+ * the app's normal render tree, so it isn't clipped by any parent's
+ * overflow/position. "Print bill" toggles this class around window.print()
+ * so only that portal prints — otherwise the whole page behind the sheet
+ * (sidebar, table, POS screen, ...) would print too. Reports/tax's own
+ * print-to-PDF (ExportActions) doesn't set this class, so it's unaffected —
+ * that one prints the actual page content, this one deliberately does not.
+ */
+@media print {
+  body.printing-bill > :not([data-print-portal]) {
+    display: none !important;
+  }
+}
