@@ -252,6 +252,28 @@ describe("create_order — loyalty accrual and redemption (STEPS.md §12 done-wh
       ).rejects.toThrow();
     });
   });
+
+  // Security review finding: change_to_points_lkr had no upper bound, so any
+  // authenticated session could inflate a customer's redeemable balance with
+  // no real cash behind it. Clamped to 50 LKR — this only ever represents
+  // leftover coin change, never a real amount.
+  it("clamps change_to_points_lkr to 50 LKR — it's leftover coin change, not an arbitrary bonus", async () => {
+    await withRollback(async (c) => {
+      await setActor(c, await userId(c, OWNER));
+      const customer = await findOrCreateCustomer(c, { name: "Kasun", phone_e164: "+94771234591" });
+      const soup = await menuItemId(c, "Chicken Soup"); // 480 LKR
+
+      const order = await createOrder(c, {
+        customer_id: customer.id,
+        change_to_points_lkr: 5000,
+        items: [{ menu_item_id: soup, qty: 1 }],
+      });
+
+      expect(Number(order.total)).toBe(480);
+      expect(order.loyalty!.bonus_points).toBe(50);
+      expect(order.loyalty!.points_earned).toBe(480 + 50);
+    });
+  });
 });
 
 describe("RLS — customers / loyalty_transactions", () => {
