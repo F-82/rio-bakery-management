@@ -8,9 +8,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   LayoutDashboard, ShoppingBag, Package, Wallet, Utensils, Users,
   Calendar, UserCog, BarChart3, Receipt, Settings, Bell, Search,
-  ChevronRight, Sparkles, LogOut, Plus, AlertTriangle,
+  ChevronRight, Sparkles, Plus, AlertTriangle,
 } from "lucide-react";
-import { signOut } from "@/lib/actions/auth";
+import { SignOutButton } from "@/components/shared/SignOutButton";
 import { InventoryList } from "./InventoryList";
 import { AddItemDrawer } from "./AddItemDrawer";
 import type { InventoryListRow, InventoryCategory, InventoryFilter } from "@/lib/queries/inventory";
@@ -68,7 +68,7 @@ export function InventoryShell({ items, categories, canManage, lowStockCount }: 
 
   const stats = [
     { label: "Total items",  value: items.length,                                           bg: "#f5f5f5",                   text: "text-neutral-800" },
-    { label: "Low stock",    value: lowStockCount,                                           bg: "rgba(239,68,68,0.08)",      text: "text-red-600" },
+    { label: "Low stock",    value: lowStockCount,                                           bg: "rgba(250,255,127,0.45)",    text: "text-neutral-800" },
     { label: "Categories",   value: categories.length,                                       bg: "#f5f5f5",                   text: "text-neutral-800" },
     { label: "Active",       value: items.filter((i) => i.active).length,                   bg: "rgba(12,151,98,0.10)",      text: "text-[var(--accent-green)]" },
   ];
@@ -107,12 +107,10 @@ export function InventoryShell({ items, categories, canManage, lowStockCount }: 
           <button type="button" className="relative h-8 w-8 rounded-full bg-neutral-100 flex items-center justify-center hover:bg-neutral-200 transition-colors" aria-label="Notifications">
             <Bell className="h-4 w-4 text-neutral-700" />
             {lowStockCount > 0 && (
-              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-amber-500" />
+              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-[var(--accent-yellow)]" />
             )}
           </button>
-          <button type="button" onClick={() => signOut()} className="h-8 w-8 rounded-full bg-neutral-200 flex items-center justify-center hover:bg-neutral-300 transition-colors" title="Sign out">
-            <LogOut className="h-3.5 w-3.5 text-neutral-600" />
-          </button>
+          <SignOutButton />
         </div>
       </div>
 
@@ -135,7 +133,7 @@ export function InventoryShell({ items, categories, canManage, lowStockCount }: 
                 <item.icon className="h-4 w-4 flex-shrink-0" />
                 {item.label}
                 {item.href === "/inventory" && lowStockCount > 0 && (
-                  <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-amber-500 px-1.5 text-[10px] font-medium text-white">
+                  <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[var(--accent-yellow)] px-1.5 text-[10px] font-medium text-black">
                     {lowStockCount > 9 ? "9+" : lowStockCount}
                   </span>
                 )}
@@ -169,7 +167,7 @@ export function InventoryShell({ items, categories, canManage, lowStockCount }: 
               >
                 <item.icon className="h-4 w-4" />
                 {item.href === "/inventory" && lowStockCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-amber-500 flex items-center justify-center text-[9px] text-white font-medium">
+                  <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-[var(--accent-yellow)] flex items-center justify-center text-[9px] text-black font-medium">
                     {lowStockCount > 9 ? "9+" : lowStockCount}
                   </span>
                 )}
@@ -200,23 +198,23 @@ export function InventoryShell({ items, categories, canManage, lowStockCount }: 
           {lowStockCount > 0 && (
             <div
               className="rounded-[20px] p-4 flex items-center justify-between gap-3"
-              style={{ background: "rgba(239,68,68,0.08)" }}
+              style={{ background: "rgba(250,255,127,0.45)" }}
             >
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                  <AlertTriangle className="h-4 w-4 text-red-600" />
+                <div className="h-9 w-9 rounded-full bg-[var(--accent-yellow)] flex items-center justify-center flex-shrink-0">
+                  <AlertTriangle className="h-4 w-4 text-black" />
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-red-700">
+                  <div className="text-sm font-medium text-neutral-900">
                     {lowStockCount} item{lowStockCount === 1 ? "" : "s"} need restocking
                   </div>
-                  <div className="text-xs text-red-600/70 mt-0.5">Stock levels are below minimum thresholds</div>
+                  <div className="text-xs text-neutral-600 mt-0.5">Stock levels are below minimum thresholds</div>
                 </div>
               </div>
               <button
                 onClick={() => updateParams({ lowStock: lowStockOnly ? null : "1" })}
                 className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors flex-shrink-0 ${
-                  lowStockOnly ? "bg-red-600 text-white" : "bg-white text-red-600 border border-red-200 hover:bg-red-50"
+                  lowStockOnly ? "bg-black text-white" : "bg-white text-neutral-700 border border-neutral-200 hover:bg-neutral-50"
                 }`}
               >
                 {lowStockOnly ? "Show all" : "View low stock"}
