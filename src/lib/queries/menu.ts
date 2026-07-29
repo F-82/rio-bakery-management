@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { colomboToday } from "@/lib/dashboard";
 import type { Database } from "@/types/database";
 
 type TaxCategory = Database["public"]["Enums"]["tax_category"];
@@ -84,6 +85,32 @@ export async function getMenuItems(filter: MenuItemFilter): Promise<MenuListRow[
   if (error) throw error;
 
   return data.map(({ categories, ...row }) => ({ ...row, category: categories }));
+}
+
+export type SoldTodayMap = Record<string, number>;
+
+/**
+ * Today's completed sales per menu item (Colombo day) — feeds the Menu
+ * page's "sold today" count (client request: a daily per-item sold
+ * count, not a production/stocktake entry). Aggregated here rather than
+ * via an RPC since it's a single small `group by` over one day's rows.
+ */
+export async function getSoldTodayByMenuItem(): Promise<SoldTodayMap> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("order_items")
+    .select("menu_item_id, qty, orders!inner(status, order_day)")
+    .eq("orders.status", "completed")
+    .eq("orders.order_day", colomboToday());
+
+  if (error) throw error;
+
+  const totals: SoldTodayMap = {};
+  for (const row of data) {
+    if (!row.menu_item_id) continue;
+    totals[row.menu_item_id] = (totals[row.menu_item_id] ?? 0) + row.qty;
+  }
+  return totals;
 }
 
 /** Active inventory items available to link into a recipe, for the recipe builder's picker. */

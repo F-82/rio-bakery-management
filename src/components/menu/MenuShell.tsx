@@ -12,7 +12,7 @@ import { fetchMenuItemRecipe } from "@/lib/menu-detail";
 import {
   uploadMenuItemImageAction, createMenuItem, updateMenuItem, replaceMenuItemRecipe,
 } from "@/lib/actions/menu";
-import type { MenuCategory, MenuListRow, RecipeInventoryOption, RecipeLine } from "@/lib/queries/menu";
+import type { MenuCategory, MenuListRow, RecipeInventoryOption, RecipeLine, SoldTodayMap } from "@/lib/queries/menu";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -24,6 +24,7 @@ type MenuShellProps = {
   inventoryOptions: RecipeInventoryOption[];
   canManage: boolean;
   businessId: string;
+  soldToday: SoldTodayMap;
 };
 
 const TAX_LABELS: Record<string, string> = {
@@ -540,7 +541,7 @@ function AddModal({
 // Main shell
 // ---------------------------------------------------------------------------
 
-export function MenuShell({ items, categories, inventoryOptions, canManage, businessId }: MenuShellProps) {
+export function MenuShell({ items, categories, inventoryOptions, canManage, businessId, soldToday }: MenuShellProps) {
   const router = useRouter();
 
   // Client-side filter state
@@ -642,8 +643,9 @@ export function MenuShell({ items, categories, inventoryOptions, canManage, busi
             {/* Header row — desktop */}
             <div className="hidden grid-cols-12 gap-3 bg-neutral-50 px-5 py-3 text-xs font-medium text-neutral-500 md:grid">
               <div className="col-span-3">Name</div>
-              <div className="col-span-3">Category</div>
+              <div className="col-span-2">Category</div>
               <div className="col-span-2">Price</div>
+              <div className="col-span-1">Sold today</div>
               <div className="col-span-1">Kitchen prep</div>
               <div className="col-span-1">Tax</div>
               <div className="col-span-2 text-right">Availability</div>
@@ -654,9 +656,17 @@ export function MenuShell({ items, categories, inventoryOptions, canManage, busi
                 key={item.id}
                 className="grid grid-cols-2 items-center gap-3 border-t border-black/5 px-5 py-3.5 transition-colors hover:bg-neutral-50 md:grid-cols-12"
               >
-                <div className="col-span-2 text-sm font-medium md:col-span-3">{item.name}</div>
-                <div className="col-span-1 text-xs text-neutral-500 md:col-span-3 md:text-sm">{item.category?.name ?? "—"}</div>
+                <div className="col-span-2 md:col-span-3">
+                  <div className="text-sm font-medium">{item.name}</div>
+                  {(soldToday[item.id] ?? 0) > 0 && (
+                    <div className="text-xs text-neutral-400">{soldToday[item.id]} sold today</div>
+                  )}
+                </div>
+                <div className="col-span-1 text-xs text-neutral-500 md:col-span-2 md:text-sm">{item.category?.name ?? "—"}</div>
                 <div className="col-span-1 text-sm md:col-span-2 tabular-nums">{lkr(item.price)}</div>
+                <div className="col-span-1 hidden text-sm tabular-nums text-neutral-600 md:block">
+                  {soldToday[item.id] ?? 0}
+                </div>
                 <div className="col-span-1 md:col-span-1">
                   {item.requires_kitchen_prep
                     ? <Chip tone="yellow">Prep</Chip>
