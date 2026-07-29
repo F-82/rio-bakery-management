@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { 
   updateBusinessProfile, 
@@ -97,7 +98,13 @@ function BusinessProfileForm({ business }: { business: Business }) {
         <span className="text-label text-ink-2">{t("Logo")}</span>
         <div className="flex items-center gap-4">
           {business.logo_url && !file && (
-            <img src={business.logo_url} alt={t("Logo")} className="size-16 rounded border border-line object-contain" />
+            <Image
+              src={business.logo_url}
+              alt={t("Logo")}
+              width={64}
+              height={64}
+              className="size-16 rounded border border-line object-contain"
+            />
           )}
           <input
             type="file"
