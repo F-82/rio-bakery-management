@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PrintStatus } from "@/components/patterns/PrintStatus";
 import { AccentPanel } from "@/components/patterns/AccentPanel";
+import { PrintPreview } from "@/components/patterns/PrintPreview";
 import type { OrderPrintJob } from "@/lib/actions/orders";
 import { useTranslation } from "react-i18next";
 
@@ -25,6 +27,8 @@ const TARGET_LABELS: Record<string, string> = {
  */
 export function SuccessScreen({ orderNumber, printJobs, onReprint, onNewOrder }: SuccessScreenProps) {
     const { t } = useTranslation();
+  const [previewJob, setPreviewJob] = useState<OrderPrintJob | null>(null);
+
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-6 p-6 text-center">
       {/* The order number — the one AccentPanel this screen gets (DESIGN.md §Signature). "Order
@@ -40,16 +44,27 @@ export function SuccessScreen({ orderNumber, printJobs, onReprint, onNewOrder }:
         {printJobs.map((job) => (
           <div
             key={job.id}
-            className="flex items-center justify-between gap-3 rounded-tile bg-surface p-3"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-tile bg-surface p-3"
           >
             <span className="text-label text-ink-2">{TARGET_LABELS[job.target] ?? job.target}</span>
-            <PrintStatus status={job.status} onReprint={() => onReprint(job.id)} />
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" onClick={() => setPreviewJob(job)}>
+                {t("Preview")}
+              </Button>
+              <PrintStatus status={job.status} onReprint={() => onReprint(job.id)} />
+            </div>
           </div>
         ))}
       </div>
 
       <Button size="lg" onClick={onNewOrder}>
         {t("New order")}</Button>
+
+      <PrintPreview
+        target={previewJob?.target ?? null}
+        payload={previewJob?.payload}
+        onClose={() => setPreviewJob(null)}
+      />
     </div>
   );
 }

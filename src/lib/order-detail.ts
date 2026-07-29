@@ -32,6 +32,7 @@ export type OrderDetail = {
     target: Database["public"]["Enums"]["print_target"];
     status: Database["public"]["Enums"]["print_status"];
     createdAt: string;
+    payload: Database["public"]["Tables"]["print_jobs"]["Row"]["payload"];
   }[];
 };
 
@@ -62,7 +63,7 @@ export async function fetchOrderDetail(
 
   const { data: printJobs } = await supabase
     .from("print_jobs")
-    .select("id, target, status, created_at")
+    .select("id, target, status, created_at, payload")
     .eq("order_id", orderId)
     .order("created_at");
 
@@ -94,6 +95,7 @@ export async function fetchOrderDetail(
       target: job.target,
       status: job.status,
       createdAt: job.created_at,
+      payload: job.payload,
     })),
   };
 }

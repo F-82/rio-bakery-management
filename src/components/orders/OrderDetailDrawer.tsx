@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { PrintStatus } from "@/components/patterns/PrintStatus";
+import { PrintPreview } from "@/components/patterns/PrintPreview";
 import { MoneyText } from "@/components/patterns/MoneyText";
 import { CounterBadge } from "@/components/patterns/CounterBadge";
 import { formatDate, formatQty } from "@/lib/format";
@@ -47,6 +48,7 @@ function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: bo
   const [voiding, setVoiding] = useState(false);
   const [voidReason, setVoidReason] = useState("");
   const [voidError, setVoidError] = useState<string | null>(null);
+  const [previewJob, setPreviewJob] = useState<OrderDetail["printJobs"][number] | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -136,13 +138,24 @@ function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: bo
           <p className="text-body-sm text-ink-2">{t("No print jobs.")}</p>
         ) : (
           detail.printJobs.map((job) => (
-            <div key={job.id} className="flex items-center justify-between gap-3 rounded-tile bg-surface p-3">
+            <div key={job.id} className="flex flex-wrap items-center justify-between gap-3 rounded-tile bg-surface p-3">
               <span className="text-label text-ink-2">{TARGET_LABELS[job.target] ?? job.target}</span>
-              <PrintStatus status={job.status} onReprint={() => handleReprint(job.id)} />
+              <div className="flex items-center gap-3">
+                <Button variant="ghost" onClick={() => setPreviewJob(job)}>
+                  {t("Preview")}
+                </Button>
+                <PrintStatus status={job.status} onReprint={() => handleReprint(job.id)} />
+              </div>
             </div>
           ))
         )}
       </div>
+
+      <PrintPreview
+        target={previewJob?.target ?? null}
+        payload={previewJob?.payload}
+        onClose={() => setPreviewJob(null)}
+      />
 
       {canVoid && detail.status !== "voided" && (
         <div className="flex flex-col gap-2 border-t border-line pt-4">

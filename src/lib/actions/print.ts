@@ -39,7 +39,7 @@ export async function reprintJob(printJobId: string): Promise<ReprintResult> {
 
   const { data: printJobs } = await supabase
     .from("print_jobs")
-    .select("id, target, status")
+    .select("id, target, status, payload")
     .eq("order_id", existing.order_id)
     .order("created_at");
 
