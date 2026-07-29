@@ -8,9 +8,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   LayoutDashboard, ShoppingBag, Package, Wallet, Utensils, Users,
   Calendar, UserCog, BarChart3, Receipt, Settings, Bell, Search,
-  ChevronRight, Sparkles, LogOut, Star, Users as UsersIcon, UserPlus
+  ChevronRight, Sparkles, Star, Users as UsersIcon, UserPlus
 } from "lucide-react";
-import { signOut } from "@/lib/actions/auth";
+import { SignOutButton } from "@/components/shared/SignOutButton";
 import { CustomerList } from "./CustomerList";
 import { AddCustomerDrawer } from "./AddCustomerDrawer";
 import { LoyaltySettingsCard } from "./LoyaltySettingsCard";
@@ -109,9 +109,7 @@ export function CustomersShell({ customers, loyaltySettings, canManage, isOwner 
           <button type="button" className="relative h-8 w-8 rounded-full bg-neutral-100 flex items-center justify-center hover:bg-neutral-200 transition-colors" aria-label="Notifications">
             <Bell className="h-4 w-4 text-neutral-700" />
           </button>
-          <button type="button" onClick={() => signOut()} className="h-8 w-8 rounded-full bg-neutral-200 flex items-center justify-center hover:bg-neutral-300 transition-colors" title="Sign out">
-            <LogOut className="h-3.5 w-3.5 text-neutral-600" />
-          </button>
+          <SignOutButton />
         </div>
       </div>
 

@@ -8,9 +8,9 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, ShoppingBag, Package, Wallet, Utensils, Users,
   Calendar, UserCog, BarChart3, Receipt, Settings, Bell,
-  ChevronRight, Sparkles, LogOut,
+  ChevronRight, Sparkles,
 } from "lucide-react";
-import { signOut } from "@/lib/actions/auth";
+import { SignOutButton } from "@/components/shared/SignOutButton";
 
 // ---------------------------------------------------------------------------
 // Sidebar nav config (shared)
@@ -36,9 +36,15 @@ export const SIDEBAR_ITEMS = [
 type AppShellProps = {
   pageLabel: string;
   children: React.ReactNode;
+  /**
+   * Overrides main's default padded/stacked layout. Most pages want the
+   * default; POS wants full-bleed (DESIGN.md §"The POS screen is dense on
+   * purpose" — "drop the whitespace").
+   */
+  mainClassName?: string;
 };
 
-export function AppShell({ pageLabel, children }: AppShellProps) {
+export function AppShell({ pageLabel, children, mainClassName }: AppShellProps) {
   const pathname = usePathname();
 
   return (
@@ -67,9 +73,7 @@ export function AppShell({ pageLabel, children }: AppShellProps) {
           <button type="button" className="relative h-8 w-8 rounded-full bg-neutral-100 flex items-center justify-center hover:bg-neutral-200 transition-colors" aria-label="Notifications">
             <Bell className="h-4 w-4 text-neutral-700" />
           </button>
-          <button type="button" onClick={() => signOut()} className="h-8 w-8 rounded-full bg-neutral-200 flex items-center justify-center hover:bg-neutral-300 transition-colors" title="Sign out">
-            <LogOut className="h-3.5 w-3.5 text-neutral-600" />
-          </button>
+          <SignOutButton />
         </div>
       </div>
 
@@ -126,7 +130,7 @@ export function AppShell({ pageLabel, children }: AppShellProps) {
         </aside>
 
         {/* Main content slot */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-5 space-y-4 md:space-y-5">
+        <main className={mainClassName ?? "flex-1 overflow-y-auto p-4 md:p-5 space-y-4 md:space-y-5"}>
           {children}
         </main>
       </div>

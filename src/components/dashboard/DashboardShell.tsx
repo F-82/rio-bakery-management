@@ -29,11 +29,10 @@ import {
   XCircle,
   Boxes,
   CalendarCheck,
-  LogOut,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { reprintJob } from "@/lib/actions/print";
-import { signOut } from "@/lib/actions/auth";
+import { SignOutButton } from "@/components/shared/SignOutButton";
 import { PrintStatus } from "@/components/patterns/PrintStatus";
 import {
   colomboToday,
@@ -264,14 +263,7 @@ export function DashboardShell({
               </button>
 
               {/* Sign out avatar */}
-              <button
-                type="button"
-                onClick={() => signOut()}
-                className="h-8 w-8 rounded-full bg-neutral-200 flex items-center justify-center text-xs font-medium select-none hover:bg-neutral-300 transition-colors"
-                title="Sign out"
-              >
-                <LogOut className="h-3.5 w-3.5 text-neutral-600" />
-              </button>
+              <SignOutButton />
             </div>
           </div>
 

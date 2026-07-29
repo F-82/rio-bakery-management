@@ -8,10 +8,10 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   LayoutDashboard, ShoppingBag, Package, Wallet, Utensils, Users,
   Calendar, UserCog, BarChart3, Receipt, Settings, Bell,
-  ChevronRight, Sparkles, LogOut, TrendingUp, ArrowUpRight, ArrowDownRight,
+  ChevronRight, Sparkles, TrendingUp, ArrowUpRight, ArrowDownRight,
   PieChart, ReceiptText, Building2
 } from "lucide-react";
-import { signOut } from "@/lib/actions/auth";
+import { SignOutButton } from "@/components/shared/SignOutButton";
 import { RevenueByDayChart } from "./RevenueByDayChart";
 import { ExpensesLedger } from "./ExpensesLedger";
 import { PlatformEarningsTab } from "./PlatformEarningsTab";
@@ -108,9 +108,7 @@ export function FinanceShell({
           <button type="button" className="relative h-8 w-8 rounded-full bg-neutral-100 flex items-center justify-center hover:bg-neutral-200 transition-colors" aria-label="Notifications">
             <Bell className="h-4 w-4 text-neutral-700" />
           </button>
-          <button type="button" onClick={() => signOut()} className="h-8 w-8 rounded-full bg-neutral-200 flex items-center justify-center hover:bg-neutral-300 transition-colors" title="Sign out">
-            <LogOut className="h-3.5 w-3.5 text-neutral-600" />
-          </button>
+          <SignOutButton />
         </div>
       </div>
 

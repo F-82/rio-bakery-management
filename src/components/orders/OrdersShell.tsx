@@ -8,9 +8,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   LayoutDashboard, ShoppingBag, Package, Wallet, Utensils, Users,
   Calendar, UserCog, BarChart3, Receipt, Settings, Bell, Search,
-  ChevronRight, Sparkles, LogOut, Plus, Clock, Archive
+  ChevronRight, Sparkles, Plus, Clock, Archive
 } from "lucide-react";
-import { signOut } from "@/lib/actions/auth";
+import { SignOutButton } from "@/components/shared/SignOutButton";
 import { OrdersList } from "./OrdersList";
 import type { OrderListRow, OrdersFilter } from "@/lib/queries/orders";
 import type { ActiveCounter } from "@/lib/queries/counters";
@@ -131,9 +131,7 @@ export function OrdersShell({ initialOrders, filter, counters, sources, canVoid 
             <Bell className="h-4 w-4 text-neutral-700" />
             <span className="absolute top-1 right-1 h-2 w-2 rounded-full" style={{ background: "var(--accent-green)" }} />
           </button>
-          <button type="button" onClick={() => signOut()} className="h-8 w-8 rounded-full bg-neutral-200 flex items-center justify-center hover:bg-neutral-300 transition-colors" title="Sign out">
-            <LogOut className="h-3.5 w-3.5 text-neutral-600" />
-          </button>
+          <SignOutButton />
         </div>
       </div>
 
