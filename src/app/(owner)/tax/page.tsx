@@ -1,32 +1,33 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Receipt } from "lucide-react";
+import { TaxReport } from "@/components/tax/TaxReport";
+import { getTaxGranularity } from "@/components/tax/GranularitySelector";
+import { getDeductibleExpenses, getTaxCategoryLines, getTaxOrders } from "@/lib/queries/tax";
+import { currentTaxPeriodValue, getTaxPeriodRange } from "@/lib/tax";
 
-export default async function TaxPage() {
+type TaxPageProps = {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+function firstValue(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function TaxPage({ searchParams }: TaxPageProps) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  return (
-    <>
-      <div>
-        <div className="flex items-center gap-2 text-xs text-neutral-500">
-          <span>Rio Bakers Hut</span>
-          <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          <span className="text-neutral-800 font-medium">Tax</span>
-        </div>
-        <h1 className="mt-1 text-3xl font-light tracking-tight text-neutral-900">Tax</h1>
-      </div>
+  const params = await searchParams;
+  const granularity = getTaxGranularity({ granularity: firstValue(params.granularity) });
+  const period = firstValue(params.period) || currentTaxPeriodValue(granularity);
+  const range = getTaxPeriodRange(granularity, period);
 
-      <div className="flex flex-col items-center justify-center rounded-[24px] border border-black/5 py-20 text-center">
-        <div className="h-16 w-16 rounded-full bg-neutral-100 flex items-center justify-center mb-4">
-          <Receipt className="h-7 w-7 text-neutral-400" />
-        </div>
-        <h2 className="text-xl font-light text-neutral-800">Tax management coming soon</h2>
-        <p className="mt-2 text-sm text-neutral-500 max-w-xs">
-          VAT tracking, tax reports, and filing summaries are planned for a future release. Tax categories are already applied at the menu level.
-        </p>
-      </div>
-    </>
-  );
+  const [orders, categoryLines, expenses] = await Promise.all([
+    getTaxOrders(range.from, range.to),
+    getTaxCategoryLines(range.from, range.to),
+    getDeductibleExpenses(range.from, range.to),
+  ]);
+
+  return <TaxReport granularity={granularity} range={range} orders={orders} categoryLines={categoryLines} expenses={expenses} />;
 }
