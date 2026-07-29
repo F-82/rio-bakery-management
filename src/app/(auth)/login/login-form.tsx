@@ -94,17 +94,16 @@ export function LoginForm() {
           <div className="w-full max-w-[400px]">
 
             {/* Mobile-only brand mark */}
-            <div className="mb-8 flex items-center gap-3 lg:hidden">
-              <div className="grid h-9 w-9 place-items-center rounded-full overflow-hidden bg-neutral-100">
+            <div className="mb-8 mt-4 flex lg:hidden">
+              <div className="grid h-16 w-16 place-items-center">
                 <Image
                   src="/brand/logo.webp"
                   alt="Rio Bakers Hut logo"
-                  width={36}
-                  height={36}
+                  width={64}
+                  height={64}
                   className="object-contain"
                 />
               </div>
-              <span className="text-sm font-semibold tracking-tight">Rio Bakers Hut</span>
             </div>
 
             {/* Heading */}
