@@ -42,7 +42,7 @@ values (
   true,
   5242880,
   array['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']
-);
+) on conflict (id) do nothing;
 
 create policy brand_assets_read on storage.objects for select
   to public
