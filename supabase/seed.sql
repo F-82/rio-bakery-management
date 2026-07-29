@@ -248,7 +248,7 @@ from (values
   ('Rainbow Jelly', 'Dessert', 120.0, true, 'standard', 1400),
   ('Crunchy Fish Fingers', 'Kids Menu', 880.0, true, 'standard', 1410),
   ('Chicken Lollipop', 'Kids Menu', 880.0, true, 'standard', 1420),
-  ('French Fries', 'Kids Menu', 580.0, true, 'standard', 1430),
+  ('French Fries (Kids)', 'Kids Menu', 580.0, true, 'standard', 1430),
   ('Creamy Pasta / Spaghetti', 'Kids Menu', 680.0, true, 'standard', 1440),
   ('Chicken Sandwich', 'Kids Menu', 1280.0, true, 'standard', 1450),
   ('Cheese Sandwich', 'Kids Menu', 1080.0, true, 'standard', 1460),
