@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -575,12 +577,18 @@ export function MenuShell({ items, categories, inventoryOptions, canManage, busi
   function handleSaved() { router.refresh(); }
 
   return (
-    <div className="flex flex-col min-h-screen bg-white" style={{ fontFamily: "var(--font-outfit, var(--font-sans))" }}>
+    <div className="flex flex-col h-dvh overflow-hidden bg-white" style={{ fontFamily: "var(--font-outfit, var(--font-sans))" }}>
 
       {/* ── Top tab bar ──────────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 px-4 pt-3 pb-2 border-b border-black/5 flex-shrink-0">
-        <Link href="/dashboard" className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0 hover:opacity-80 transition-opacity" style={{ background: "var(--accent-yellow)" }}>
-          <span className="text-black text-sm select-none">✦</span>
+        <Link href="/dashboard" className="h-7 w-7 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0 hover:opacity-80 transition-opacity bg-neutral-100">
+          <Image
+            src="/brand/logo.webp"
+            alt="Rio Bakers Hut"
+            width={28}
+            height={28}
+            className="object-cover"
+          />
         </Link>
         <div className="flex items-center gap-1.5 rounded-lg bg-neutral-100 px-3 py-1.5 text-sm font-medium">
           <Utensils className="h-3.5 w-3.5 text-neutral-500" />
@@ -632,11 +640,11 @@ export function MenuShell({ items, categories, inventoryOptions, canManage, busi
             <div className="rounded-[20px] p-4" style={{ background: "var(--accent-yellow)" }}>
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4" />
-                <span className="text-sm font-semibold">Pro plan</span>
+                <span className="text-sm font-semibold">Need help?</span>
               </div>
-              <p className="mt-1.5 text-xs text-black/70 leading-snug">Unlock recipe costing and menu engineering reports.</p>
+              <p className="mt-1.5 text-xs text-black/70 leading-snug">Head to our support section for guides and tutorials.</p>
               <Link href="/settings" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold underline underline-offset-2 hover:opacity-70 transition-opacity">
-                Upgrade <ChevronRight className="h-3 w-3" />
+                Get support <ChevronRight className="h-3 w-3" />
               </Link>
             </div>
           </div>
