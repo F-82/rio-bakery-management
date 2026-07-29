@@ -10,10 +10,9 @@ import {
   LayoutDashboard, ShoppingBag, Package, Wallet, Utensils, Users,
   Calendar, UserCog, BarChart3, Receipt, Settings, Bell, Search,
   ChevronRight, Sparkles, Plus, Pencil, X, ImagePlus, ChefHat,
-  LogOut,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { signOut } from "@/lib/actions/auth";
+import { SignOutButton } from "@/components/shared/SignOutButton";
 import { fetchMenuItemRecipe } from "@/lib/menu-detail";
 import {
   uploadMenuItemImageAction, createMenuItem, updateMenuItem, replaceMenuItemRecipe,
@@ -143,6 +142,12 @@ function ItemForm({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  // Local string buffer for the price field. Binding the input straight to
+  // `value.price` (a number defaulting to 0) means every re-render — e.g.
+  // typing in the Name field above it — writes the DOM value back to "0",
+  // so a cleared field never stays cleared. Same fix as Cart's cashGivenStr
+  // and inventory ItemForm's lowStockThreshold.
+  const [priceText, setPriceText] = useState(() => (value.price ? String(value.price) : ""));
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -184,9 +189,14 @@ function ItemForm({
           <input
             type="number"
             min={0}
+            step="0.01"
+            placeholder="0.00"
             className={inputCls}
-            value={value.price}
-            onChange={(e) => set({ price: Number(e.target.value) })}
+            value={priceText}
+            onChange={(e) => {
+              setPriceText(e.target.value);
+              set({ price: Number(e.target.value) || 0 });
+            }}
           />
         </Field>
       </div>
@@ -609,9 +619,7 @@ export function MenuShell({ items, categories, inventoryOptions, canManage, busi
             <Bell className="h-4 w-4 text-neutral-700" />
             <span className="absolute top-1 right-1 h-2 w-2 rounded-full" style={{ background: "var(--accent-green)" }} />
           </button>
-          <button type="button" onClick={() => signOut()} className="h-8 w-8 rounded-full bg-neutral-200 flex items-center justify-center hover:bg-neutral-300 transition-colors" title="Sign out">
-            <LogOut className="h-3.5 w-3.5 text-neutral-600" />
-          </button>
+          <SignOutButton />
         </div>
       </div>
 
