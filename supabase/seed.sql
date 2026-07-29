@@ -86,7 +86,18 @@ from (values
   ('Bread Loaf',         'Bakery Supplies','ingredient',    'unit',   100,   10, 120.00),
   ('Croissant',          'Finished Goods', 'finished_good', 'unit',    60,   10, 90.00),
   ('Bottled Water 500ml','Merchandise',    'merchandise',   'unit',   200,   24, 60.00),
-  ('Canned Soda',        'Merchandise',    'merchandise',   'unit',   150,   24, 130.00)
+  ('Canned Soda',        'Merchandise',    'merchandise',   'unit',   150,   24, 130.00),
+  -- Hotplate menu protein/dry-good categories added 3e7781d have no stock
+  -- data from the client yet (hotplate-menu.csv has names/prices only, no
+  -- ingredients or supplier costs). qty_on_hand/cost are 0, not a real
+  -- count, so recipe_items for these can't be built without inventing
+  -- numbers — see LOG.md [blocked] hotplate recipe data.
+  ('Prawns',             'Proteins',       'ingredient',    'g',        0,    0,   0.00),
+  ('Mutton',             'Proteins',       'ingredient',    'g',        0,    0,   0.00),
+  ('Beef',               'Proteins',       'ingredient',    'g',        0,    0,   0.00),
+  ('Cuttlefish',         'Proteins',       'ingredient',    'g',        0,    0,   0.00),
+  ('Noodles',            'Dry Goods',      'ingredient',    'g',        0,    0,   0.00),
+  ('Pasta',              'Dry Goods',      'ingredient',    'g',        0,    0,   0.00)
 ) as v(name, cat, stock_type, base_unit, qty, low, cost)
 join public.categories c
   on c.business_id = '11111111-1111-1111-1111-111111111111'
@@ -265,76 +276,21 @@ on conflict (business_id, name) do update set
   sort_order = excluded.sort_order;
 
 -- Recipe items: (menu_item, inventory_item, qty in the item's base_unit)
--- Croissant / Bottled Water / Canned Soda point at their own finished_good /
--- merchandise inventory row with qty 1 (see ARCHITECTURE §Catalog).
+--
+-- Only "Fresh Lime Juice" has a real recipe below. The other 146 hotplate
+-- menu items (3e7781d) have no ingredient data from the client yet —
+-- hotplate-menu.csv is name/price only. A prior bakery-menu recipe list
+-- lived here (Fish Bun, Chicken Roll, Croissant, Kottu variants, etc.)
+-- referencing menu items that no longer exist; it silently matched nothing
+-- via this block's inner join (no error, just dead rows) and has been
+-- removed rather than left as misleading dead seed data. See LOG.md
+-- [blocked] hotplate recipe data — orders for these items won't deduct
+-- stock until real recipes are supplied.
 insert into public.recipe_items (business_id, menu_item_id, inventory_item_id, qty)
 select '11111111-1111-1111-1111-111111111111', m.id, i.id, v.qty
 from (values
-  ('Fish Bun',            'Flour',                80),
-  ('Fish Bun',            'Fish',                 40),
-  ('Fish Bun',            'Cooking Oil',           5),
-  ('Chicken Roll',        'Flour',                70),
-  ('Chicken Roll',        'Chicken',              50),
-  ('Chicken Roll',        'Cooking Oil',          10),
-  ('Vegetable Roti',      'Flour',                90),
-  ('Vegetable Roti',      'Vegetables',           60),
-  ('Egg Roti',            'Flour',                90),
-  ('Egg Roti',            'Eggs',                  1),
-  ('Sausage Bun',         'Flour',                80),
-  ('Sausage Bun',         'Sausage',              50),
-  ('Croissant',           'Croissant',             1),
-  ('Chocolate Éclair',    'Flour',                50),
-  ('Chocolate Éclair',    'Sugar',                30),
-  ('Chocolate Éclair',    'Milk',                 40),
-  ('Chocolate Éclair',    'Butter',               20),
-  ('Butter Cake Slice',   'Flour',                60),
-  ('Butter Cake Slice',   'Sugar',                50),
-  ('Butter Cake Slice',   'Butter',               40),
-  ('Butter Cake Slice',   'Eggs',                  1),
-  ('Ribbon Cake Slice',   'Flour',                60),
-  ('Ribbon Cake Slice',   'Sugar',                55),
-  ('Ribbon Cake Slice',   'Butter',               35),
-  ('Ribbon Cake Slice',   'Eggs',                  1),
-  ('Chicken Kottu',       'Kottu Roti',          250),
-  ('Chicken Kottu',       'Chicken',             150),
-  ('Chicken Kottu',       'Vegetables',           80),
-  ('Chicken Kottu',       'Eggs',                  1),
-  ('Chicken Kottu',       'Cooking Oil',          20),
-  ('Vegetable Kottu',     'Kottu Roti',          250),
-  ('Vegetable Kottu',     'Vegetables',          150),
-  ('Vegetable Kottu',     'Eggs',                  1),
-  ('Vegetable Kottu',     'Cooking Oil',          20),
-  ('Cheese Kottu',        'Kottu Roti',          250),
-  ('Cheese Kottu',        'Chicken',             120),
-  ('Cheese Kottu',        'Cheese',               80),
-  ('Cheese Kottu',        'Vegetables',           60),
-  ('Cheese Kottu',        'Eggs',                  1),
-  ('Cheese Kottu',        'Cooking Oil',          20),
-  ('Egg Fried Rice',      'Rice',                300),
-  ('Egg Fried Rice',      'Eggs',                  2),
-  ('Egg Fried Rice',      'Vegetables',           60),
-  ('Egg Fried Rice',      'Cooking Oil',          20),
-  ('Chicken Fried Rice',  'Rice',                300),
-  ('Chicken Fried Rice',  'Chicken',             130),
-  ('Chicken Fried Rice',  'Eggs',                  1),
-  ('Chicken Fried Rice',  'Vegetables',           60),
-  ('Chicken Fried Rice',  'Cooking Oil',          20),
-  ('Chicken Submarine',   'Bread Loaf',            1),
-  ('Chicken Submarine',   'Chicken',             120),
-  ('Chicken Submarine',   'Cheese',               40),
-  ('Chicken Submarine',   'Vegetables',           40),
-  ('Devilled Chicken',    'Chicken',             250),
-  ('Devilled Chicken',    'Vegetables',           80),
-  ('Devilled Chicken',    'Cooking Oil',          25),
-  ('Plain Tea',           'Tea Leaves',            5),
-  ('Plain Tea',           'Sugar',                15),
-  ('Milk Coffee',         'Coffee Powder',         8),
-  ('Milk Coffee',         'Milk',                 80),
-  ('Milk Coffee',         'Sugar',                15),
   ('Fresh Lime Juice',    'Lime',                  2),
-  ('Fresh Lime Juice',    'Sugar',                25),
-  ('Bottled Water 500ml', 'Bottled Water 500ml',   1),
-  ('Canned Soda',         'Canned Soda',           1)
+  ('Fresh Lime Juice',    'Sugar',                25)
 ) as v(menu_name, inv_name, qty)
 join public.menu_items m
   on m.business_id = '11111111-1111-1111-1111-111111111111' and m.name = v.menu_name
