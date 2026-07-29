@@ -12,7 +12,7 @@ values (
   false,
   8388608,
   array['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
-);
+) on conflict (id) do nothing;
 
 create policy receipts_read on storage.objects for select
   to authenticated

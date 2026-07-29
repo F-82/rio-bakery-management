@@ -13,7 +13,7 @@ values (
   true,
   5242880,
   array['image/jpeg', 'image/png', 'image/webp']
-);
+) on conflict (id) do nothing;
 
 create policy menu_images_read on storage.objects for select
   to public
