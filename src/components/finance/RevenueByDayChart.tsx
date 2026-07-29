@@ -23,6 +23,11 @@ export function RevenueByDayChart({ data }: RevenueByDayChartProps) {
 
   return (
     <div className="flex flex-col gap-2">
+      {/* Bars and labels share one scroll container so they move together
+          and neither can push the page itself wider than the viewport —
+          previously the labels row was an unwrapped min-w-fit sibling with
+          no overflow boundary of its own, so on phone it inflated the whole
+          card/page width instead of scrolling internally. */}
       <div className="overflow-x-auto">
         <div
           className="flex min-w-fit items-end justify-center gap-0.5 border-b border-line"
@@ -52,15 +57,15 @@ export function RevenueByDayChart({ data }: RevenueByDayChartProps) {
             );
           })}
         </div>
-      </div>
-      <div className="flex min-w-fit justify-center gap-0.5">
-        {data.map((point, index) => (
-          <div key={point.date} className="w-6 shrink-0 text-center">
-            {index % labelEvery === 0 && (
-              <span className="text-micro whitespace-nowrap text-ink-3">{formatDate(point.date, "date")}</span>
-            )}
-          </div>
-        ))}
+        <div className="flex min-w-fit justify-center gap-0.5">
+          {data.map((point, index) => (
+            <div key={point.date} className="w-6 shrink-0 text-center">
+              {index % labelEvery === 0 && (
+                <span className="text-micro whitespace-nowrap text-ink-3">{formatDate(point.date, "date")}</span>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
