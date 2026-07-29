@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Calendar } from "lucide-react";
-import { AppShell } from "@/components/shared/AppShell";
 
 export default async function BookingsPage() {
   const supabase = await createClient();
@@ -9,7 +8,7 @@ export default async function BookingsPage() {
   if (!user) redirect("/login");
 
   return (
-    <AppShell pageLabel="Bookings">
+    <>
       <div>
         <div className="flex items-center gap-2 text-xs text-neutral-500">
           <span>Rio Bakers Hut</span>
@@ -28,6 +27,6 @@ export default async function BookingsPage() {
           Table and event reservation management is on the roadmap and will be available in an upcoming update.
         </p>
       </div>
-    </AppShell>
+    </>
   );
 }

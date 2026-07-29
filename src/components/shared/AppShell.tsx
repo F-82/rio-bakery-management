@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 
-import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -29,23 +28,31 @@ export const SIDEBAR_ITEMS = [
   { icon: Settings,        label: "Settings",   href: "/settings"   },
 ];
 
+// The one route that wants full-bleed content instead of the padded/stacked
+// default — DESIGN.md's POS section: "dense on purpose... drop the whitespace".
+const FULL_BLEED_PREFIXES = ["/orders/new"];
+
 // ---------------------------------------------------------------------------
-// AppShell — reusable warm-minimal wrapper (topbar + sidebar + children)
+// AppShell — persistent warm-minimal shell (topbar + sidebar), mounted once
+// by (owner)/layout.tsx rather than per-page. Navigating between screens now
+// only swaps `children`; the chrome around it never unmounts, so a tap
+// switches instantly instead of tearing down and rebuilding the whole page.
 // ---------------------------------------------------------------------------
 
 type AppShellProps = {
-  pageLabel: string;
   children: React.ReactNode;
-  /**
-   * Overrides main's default padded/stacked layout. Most pages want the
-   * default; POS wants full-bleed (DESIGN.md §"The POS screen is dense on
-   * purpose" — "drop the whitespace").
-   */
-  mainClassName?: string;
+  /** Bell dot — fetched once in the layout rather than recomputed per page. */
+  lowStockCount?: number;
 };
 
-export function AppShell({ pageLabel, children, mainClassName }: AppShellProps) {
+export function AppShell({ children, lowStockCount = 0 }: AppShellProps) {
   const pathname = usePathname();
+  const activeItem = SIDEBAR_ITEMS.find(
+    (item) => pathname === item.href || pathname.startsWith(item.href + "/"),
+  );
+  const pageLabel = activeItem?.label ?? "Rio Bakers Hut";
+  const PageIcon = activeItem?.icon ?? LayoutDashboard;
+  const isFullBleed = FULL_BLEED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 
   return (
     <div className="flex flex-col h-dvh overflow-hidden bg-white" style={{ fontFamily: "var(--font-outfit, var(--font-sans))" }}>
@@ -62,16 +69,15 @@ export function AppShell({ pageLabel, children, mainClassName }: AppShellProps) 
           />
         </Link>
         <div className="flex items-center gap-1.5 rounded-lg bg-neutral-100 px-3 py-1.5 text-sm font-medium">
-          {(() => {
-            const activeItem = SIDEBAR_ITEMS.find((item) => item.label === pageLabel);
-            const PageIcon = activeItem?.icon || LayoutDashboard;
-            return <PageIcon className="h-3.5 w-3.5 text-neutral-500" />;
-          })()}
+          <PageIcon className="h-3.5 w-3.5 text-neutral-500" />
           <span>{pageLabel}</span>
         </div>
         <div className="ml-auto flex items-center gap-2">
           <button type="button" className="relative h-8 w-8 rounded-full bg-neutral-100 flex items-center justify-center hover:bg-neutral-200 transition-colors" aria-label="Notifications">
             <Bell className="h-4 w-4 text-neutral-700" />
+            {lowStockCount > 0 && (
+              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-[var(--accent-yellow)]" />
+            )}
           </button>
           <SignOutButton />
         </div>
@@ -95,6 +101,11 @@ export function AppShell({ pageLabel, children, mainClassName }: AppShellProps) 
               >
                 <item.icon className="h-4 w-4 flex-shrink-0" />
                 {item.label}
+                {item.href === "/inventory" && lowStockCount > 0 && (
+                  <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[var(--accent-yellow)] px-1.5 text-[10px] font-medium text-black">
+                    {lowStockCount > 9 ? "9+" : lowStockCount}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -118,19 +129,24 @@ export function AppShell({ pageLabel, children, mainClassName }: AppShellProps) 
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
               <Link key={item.label} href={item.href}
-                className={`h-9 w-9 mx-auto rounded-xl flex items-center justify-center mb-1 transition-all duration-150 ${
+                className={`h-9 w-9 mx-auto rounded-xl flex items-center justify-center mb-1 transition-all duration-150 relative ${
                   isActive ? "bg-black text-white" : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
                 }`}
                 title={item.label}
               >
                 <item.icon className="h-4 w-4" />
+                {item.href === "/inventory" && lowStockCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-[var(--accent-yellow)] flex items-center justify-center text-[9px] text-black font-medium">
+                    {lowStockCount > 9 ? "9+" : lowStockCount}
+                  </span>
+                )}
               </Link>
             );
           })}
         </aside>
 
         {/* Main content slot */}
-        <main className={mainClassName ?? "flex-1 overflow-y-auto p-4 md:p-5 space-y-4 md:space-y-5"}>
+        <main className={isFullBleed ? "flex flex-1 flex-col overflow-hidden" : "flex-1 overflow-y-auto p-4 md:p-5 space-y-4 md:space-y-5"}>
           {children}
         </main>
       </div>

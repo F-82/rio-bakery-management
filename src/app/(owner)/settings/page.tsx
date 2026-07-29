@@ -2,8 +2,6 @@ import { redirect } from "next/navigation";
 import { getBusinessSettings } from "@/lib/queries/settings";
 import { getCurrentProfile } from "@/lib/queries/profile";
 import { SettingsForms } from "@/components/settings/SettingsForms";
-import { Settings } from "lucide-react";
-import { AppShell } from "@/components/shared/AppShell";
 
 export default async function SettingsPage() {
   const profile = await getCurrentProfile();
@@ -12,7 +10,7 @@ export default async function SettingsPage() {
   const { business, settings } = await getBusinessSettings();
 
   return (
-    <AppShell pageLabel="Settings">
+    <>
       <div>
         <div className="flex items-center gap-2 text-xs text-neutral-500">
           <span>Rio Bakers Hut</span>
@@ -30,6 +28,6 @@ export default async function SettingsPage() {
           languagePref={profile.language_pref}
         />
       </div>
-    </AppShell>
+    </>
   );
 }

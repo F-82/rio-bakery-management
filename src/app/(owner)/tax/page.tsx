@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Receipt } from "lucide-react";
-import { AppShell } from "@/components/shared/AppShell";
 
 export default async function TaxPage() {
   const supabase = await createClient();
@@ -9,7 +8,7 @@ export default async function TaxPage() {
   if (!user) redirect("/login");
 
   return (
-    <AppShell pageLabel="Tax">
+    <>
       <div>
         <div className="flex items-center gap-2 text-xs text-neutral-500">
           <span>Rio Bakers Hut</span>
@@ -28,6 +27,6 @@ export default async function TaxPage() {
           VAT tracking, tax reports, and filing summaries are planned for a future release. Tax categories are already applied at the menu level.
         </p>
       </div>
-    </AppShell>
+    </>
   );
 }

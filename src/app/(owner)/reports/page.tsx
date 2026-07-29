@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { BarChart3 } from "lucide-react";
-import { AppShell } from "@/components/shared/AppShell";
 
 export default async function ReportsPage() {
   const supabase = await createClient();
@@ -9,7 +8,7 @@ export default async function ReportsPage() {
   if (!user) redirect("/login");
 
   return (
-    <AppShell pageLabel="Reports">
+    <>
       <div>
         <div className="flex items-center gap-2 text-xs text-neutral-500">
           <span>Rio Bakers Hut</span>
@@ -28,6 +27,6 @@ export default async function ReportsPage() {
           Detailed sales analytics, inventory reports, and staff performance dashboards are in development.
         </p>
       </div>
-    </AppShell>
+    </>
   );
 }

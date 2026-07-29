@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { UserCog } from "lucide-react";
-import { AppShell } from "@/components/shared/AppShell";
 
 export default async function EmployeesPage() {
   const supabase = await createClient();
@@ -9,7 +8,7 @@ export default async function EmployeesPage() {
   if (!user) redirect("/login");
 
   return (
-    <AppShell pageLabel="Employees">
+    <>
       <div>
         <div className="flex items-center gap-2 text-xs text-neutral-500">
           <span>Rio Bakers Hut</span>
@@ -28,6 +27,6 @@ export default async function EmployeesPage() {
           Shift scheduling, staff performance tracking, and payroll management will be available in a future update.
         </p>
       </div>
-    </AppShell>
+    </>
   );
 }
