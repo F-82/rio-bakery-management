@@ -97,6 +97,7 @@ export type CreateOrderResult = {
   low_stock_warnings: Array<Record<string, unknown>>;
   loyalty: {
     points_earned: number;
+    bonus_points: number;
     points_redeemed: number;
     redemption_discount: string;
     balance: number;

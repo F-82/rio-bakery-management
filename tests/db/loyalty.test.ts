@@ -195,6 +195,63 @@ describe("create_order — loyalty accrual and redemption (STEPS.md §12 done-wh
       expect(Number(order.total)).toBe(120);
     });
   });
+
+  // Client request (2026-07-29): when cash change owed is small (their
+  // example, ~LKR 7) and staff don't have coins, credit it to the
+  // customer's loyalty balance instead. change_to_points_lkr never touches
+  // the order total — it's the same amount either way, just kept as
+  // points instead of handed back as coins.
+  it("converts change_to_points_lkr to bonus points at the earn rate, without touching order total", async () => {
+    await withRollback(async (c) => {
+      await setActor(c, await userId(c, OWNER));
+      const customer = await findOrCreateCustomer(c, { name: "Nadeesha", phone_e164: "+94771234592" });
+      const soup = await menuItemId(c, "Chicken Soup"); // 480 LKR
+
+      const order = await createOrder(c, {
+        customer_id: customer.id,
+        change_to_points_lkr: 7,
+        items: [{ menu_item_id: soup, qty: 1 }],
+      });
+
+      // Total is exactly the item price — the bonus never becomes a discount.
+      expect(Number(order.total)).toBe(480);
+      expect(Number(order.subtotal)).toBe(480);
+
+      const loyalty = order.loyalty!;
+      expect(loyalty.bonus_points).toBe(7);
+      // 480 spend + 7 bonus, both at the default 1 point/LKR rate.
+      expect(loyalty.points_earned).toBe(487);
+      expect(loyalty.balance).toBe(487);
+
+      const after = await getCustomer(c, customer.id);
+      expect(Number(after.loyalty_points)).toBe(487);
+      // total_spend reflects what was actually charged, not the bonus.
+      expect(Number(after.total_spend)).toBe(480);
+    });
+  });
+
+  it("silently drops change_to_points_lkr on a customer-less order — nothing to credit it to", async () => {
+    await withRollback(async (c) => {
+      await setActor(c, await userId(c, OWNER));
+      const soup = await menuItemId(c, "Chicken Soup");
+      const order = await createOrder(c, {
+        change_to_points_lkr: 7,
+        items: [{ menu_item_id: soup, qty: 1 }],
+      });
+      expect(order.loyalty).toBeNull();
+      expect(Number(order.total)).toBe(480);
+    });
+  });
+
+  it("rejects a negative change_to_points_lkr", async () => {
+    await withRollback(async (c) => {
+      await setActor(c, await userId(c, OWNER));
+      const soup = await menuItemId(c, "Chicken Soup");
+      await expect(
+        createOrder(c, { change_to_points_lkr: -5, items: [{ menu_item_id: soup, qty: 1 }] }),
+      ).rejects.toThrow();
+    });
+  });
 });
 
 describe("RLS — customers / loyalty_transactions", () => {

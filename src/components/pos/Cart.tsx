@@ -30,7 +30,7 @@ type CartProps = {
   onSourceChange: (source: string) => void;
   customer: CustomerInfo | null;
   onCustomerChange: (customer: CustomerInfo | null) => void;
-  onConfirm: () => void;
+  onConfirm: (changeToPointsLkr?: number) => void;
   isSubmitting: boolean;
   error: string | null;
 };
@@ -60,11 +60,20 @@ export function Cart({
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const [cashGivenStr, setCashGivenStr] = useState("");
+  const [giveChangeAsPoints, setGiveChangeAsPoints] = useState(false);
   const itemCount = cartItemCount(cart);
   const subtotal = cartSubtotal(cart);
 
   const cashGiven = new Decimal(Number.parseFloat(cashGivenStr) || 0);
   const changeDue = cashGiven.minus(subtotal);
+
+  // Client request: when the change owed is a small, awkward cash amount
+  // (their example: ~LKR 7) and there's no change on hand, let staff credit
+  // it to the customer's loyalty points instead of shorting them. Only
+  // possible with cash, a positive change, and a customer on the order —
+  // no account, nothing to credit it to.
+  const canOfferChangeAsPoints = paymentMethod === "cash" && Boolean(customer) && changeDue.isPositive();
+  const changeToPointsLkr = giveChangeAsPoints && canOfferChangeAsPoints ? changeDue.toNumber() : undefined;
 
 
   return (
@@ -177,6 +186,20 @@ export function Cart({
               </div>
             )}
 
+            {canOfferChangeAsPoints && (
+              <label className="flex items-center gap-2 rounded-tile bg-surface-2 p-3 text-body-sm text-ink">
+                <input
+                  type="checkbox"
+                  checked={giveChangeAsPoints}
+                  onChange={(e) => setGiveChangeAsPoints(e.target.checked)}
+                  className="size-4"
+                />
+                {t("Add the {{amount}} change to their loyalty points instead of cash", {
+                  amount: changeDue.toFixed(2),
+                })}
+              </label>
+            )}
+
             {error && (
               <p role="alert" className="text-body-sm text-alert">
                 {error}
@@ -197,7 +220,7 @@ export function Cart({
               type="button"
               size="lg"
               disabled={cart.lines.length === 0 || isSubmitting}
-              onClick={onConfirm}
+              onClick={() => onConfirm(changeToPointsLkr)}
             >
               {isSubmitting ? "Placing order…" : "Complete order"}
             </Button>
