@@ -8,6 +8,16 @@ const LOGIN_PATH = "/login";
 // auth gate below.
 const PUBLIC_PATHS = ["/kitchen-sink"];
 
+// STEPS.md §07: "staff get Orders / Menu / Inventory. Owner and manager get
+// Dashboard / Orders / Inventory / Finance / More." Counter logins (bakery,
+// hot plate) are `staff` role — everything outside this set redirects them
+// to Orders rather than rendering a page whose data RLS would only partly
+// (or misleadingly) return. This is a UX-level gate, not the access
+// boundary — RLS (see ARCHITECTURE.md Invariant 8) is what actually
+// enforces staff can't read expenses/other-counter orders/etc.
+const STAFF_ALLOWED_PREFIXES = ["/orders", "/menu", "/inventory"];
+const STAFF_LANDING_PATH = "/orders";
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (PUBLIC_PATHS.includes(pathname)) {
@@ -35,7 +45,7 @@ export async function proxy(request: NextRequest) {
   // that currently enforces it, as a UX-level guard, not a security boundary.
   const { data: profile } = await supabase
     .from("profiles")
-    .select("active")
+    .select("active, role")
     .eq("id", user.id)
     .single();
 
@@ -44,6 +54,15 @@ export async function proxy(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = LOGIN_PATH;
     url.searchParams.set("error", "inactive");
+    return NextResponse.redirect(url);
+  }
+
+  if (
+    profile.role === "staff" &&
+    !STAFF_ALLOWED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix + "/"))
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = STAFF_LANDING_PATH;
     return NextResponse.redirect(url);
   }
 

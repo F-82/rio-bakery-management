@@ -17,13 +17,22 @@ export async function signIn(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
     return { error: "Incorrect email or password." };
   }
 
-  redirect("/dashboard");
+  // Staff (counter logins) land on Orders, not Dashboard — Dashboard is
+  // outside their allowed route set (see proxy.ts), so redirecting them
+  // there would just bounce through a second redirect.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", data.user.id)
+    .single();
+
+  redirect(profile?.role === "staff" ? "/orders" : "/dashboard");
 }
 
 export async function signOut(): Promise<void> {

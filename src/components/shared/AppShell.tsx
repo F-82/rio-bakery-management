@@ -10,6 +10,9 @@ import {
   ChevronRight, Sparkles,
 } from "lucide-react";
 import { SignOutButton } from "@/components/shared/SignOutButton";
+import type { Database } from "@/types/database";
+
+type UserRole = Database["public"]["Enums"]["user_role"];
 
 // ---------------------------------------------------------------------------
 // Sidebar nav config (shared)
@@ -28,6 +31,12 @@ export const SIDEBAR_ITEMS = [
   { icon: Settings,        label: "Settings",   href: "/settings"   },
 ];
 
+// STEPS.md §07: "staff get Orders / Menu / Inventory." Counter logins
+// (bakery, hot plate) are `staff` role — everything else is finance/owner
+// territory and is already redirected server-side (src/proxy.ts); this just
+// keeps the sidebar from advertising links staff would bounce off of.
+const STAFF_HREFS = new Set(["/orders", "/menu", "/inventory"]);
+
 // The one route that wants full-bleed content instead of the padded/stacked
 // default — DESIGN.md's POS section: "dense on purpose... drop the whitespace".
 const FULL_BLEED_PREFIXES = ["/orders/new"];
@@ -43,11 +52,13 @@ type AppShellProps = {
   children: React.ReactNode;
   /** Bell dot — fetched once in the layout rather than recomputed per page. */
   lowStockCount?: number;
+  role: UserRole;
 };
 
-export function AppShell({ children, lowStockCount = 0 }: AppShellProps) {
+export function AppShell({ children, lowStockCount = 0, role }: AppShellProps) {
   const pathname = usePathname();
-  const activeItem = SIDEBAR_ITEMS.find(
+  const navItems = role === "staff" ? SIDEBAR_ITEMS.filter((item) => STAFF_HREFS.has(item.href)) : SIDEBAR_ITEMS;
+  const activeItem = navItems.find(
     (item) => pathname === item.href || pathname.startsWith(item.href + "/"),
   );
   const pageLabel = activeItem?.label ?? "Rio Bakers Hut";
@@ -91,7 +102,7 @@ export function AppShell({ children, lowStockCount = 0 }: AppShellProps) {
           <div className="mb-2 px-3 pt-1">
             <div className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Rio Bakers Hut</div>
           </div>
-          {SIDEBAR_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
               <Link key={item.label} href={item.href}
@@ -109,23 +120,25 @@ export function AppShell({ children, lowStockCount = 0 }: AppShellProps) {
               </Link>
             );
           })}
-          <div className="mt-auto pt-3">
-            <div className="rounded-[20px] p-4" style={{ background: "var(--accent-yellow)" }}>
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4" />
-                <span className="text-sm font-semibold">Need help?</span>
+          {role !== "staff" && (
+            <div className="mt-auto pt-3">
+              <div className="rounded-[20px] p-4" style={{ background: "var(--accent-yellow)" }}>
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  <span className="text-sm font-semibold">Need help?</span>
+                </div>
+                <p className="mt-1.5 text-xs text-black/70 leading-snug">Head to our support section for guides and tutorials.</p>
+                <Link href="/settings" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold underline underline-offset-2 hover:opacity-70 transition-opacity">
+                  Get support <ChevronRight className="h-3 w-3" />
+                </Link>
               </div>
-              <p className="mt-1.5 text-xs text-black/70 leading-snug">Head to our support section for guides and tutorials.</p>
-              <Link href="/settings" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold underline underline-offset-2 hover:opacity-70 transition-opacity">
-                Get support <ChevronRight className="h-3 w-3" />
-              </Link>
             </div>
-          </div>
+          )}
         </aside>
 
         {/* Mobile icon rail */}
         <aside className="flex md:hidden flex-col w-14 py-3 px-1.5 shrink-0 border-r border-black/5 overflow-y-auto">
-          {SIDEBAR_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
               <Link key={item.label} href={item.href}

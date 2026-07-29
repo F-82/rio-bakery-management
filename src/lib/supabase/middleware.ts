@@ -43,9 +43,27 @@ export async function updateSession(request: NextRequest): Promise<{
     },
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user: User | null = null;
+  try {
+    const result = await supabase.auth.getUser();
+    user = result.data.user;
+  } catch (error) {
+    // A stale/invalid refresh token cookie (e.g. left over from a wiped
+    // auth.users table, or a session issued before a password reset) makes
+    // getUser() throw AuthApiError instead of returning null — uncaught,
+    // this crashes the proxy for every request until the cookie is cleared.
+    // Treat it the same as "not signed in": drop the bad session so the
+    // caller's existing `if (!user)` redirect-to-login path handles it.
+    if (isAuthApiError(error)) {
+      await supabase.auth.signOut();
+    } else {
+      throw error;
+    }
+  }
 
   return { response, user, supabase };
+}
+
+function isAuthApiError(error: unknown): boolean {
+  return typeof error === "object" && error !== null && "__isAuthError" in error;
 }
