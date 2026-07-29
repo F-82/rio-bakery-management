@@ -93,6 +93,20 @@ export const TAX_GRANULARITIES: { value: TaxGranularity; label: string }[] = [
   { value: "annual", label: "Annual" },
 ];
 
+const DEFAULT_GRANULARITY: TaxGranularity = "monthly";
+
+/**
+ * Pure — must not live in a "use client" file. It did (GranularitySelector.tsx),
+ * which crashed /tax at runtime: importing a plain function (not a component)
+ * from a client module into a Server Component throws "getTaxGranularity is
+ * on the client" the moment the page tries to call it directly, the same
+ * error class production logs already showed once for getFinanceTab.
+ */
+export function getTaxGranularity(searchParams: { granularity?: string }): TaxGranularity {
+  const granularity = searchParams.granularity;
+  return granularity === "quarterly" || granularity === "annual" ? granularity : DEFAULT_GRANULARITY;
+}
+
 export type DateRange = { from: string; to: string };
 
 /** Same fixed UTC+05:30 offset technique as colomboToday() (lib/dashboard.ts) — Sri Lanka has no DST. */

@@ -2,14 +2,9 @@
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { TabPills } from "@/components/patterns/TabPills";
-import { TAX_GRANULARITIES, type TaxGranularity } from "@/lib/tax";
+import { TAX_GRANULARITIES, getTaxGranularity, type TaxGranularity } from "@/lib/tax";
 
 const DEFAULT_GRANULARITY: TaxGranularity = "monthly";
-
-export function getTaxGranularity(searchParams: { granularity?: string }): TaxGranularity {
-  const granularity = searchParams.granularity;
-  return granularity === "quarterly" || granularity === "annual" ? granularity : DEFAULT_GRANULARITY;
-}
 
 /** Lives in the URL, same pattern as PeriodSelector (lib/finance.ts). */
 export function GranularitySelector() {

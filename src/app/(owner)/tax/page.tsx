@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { TaxReport } from "@/components/tax/TaxReport";
-import { getTaxGranularity } from "@/components/tax/GranularitySelector";
 import { getDeductibleExpenses, getTaxCategoryLines, getTaxOrders } from "@/lib/queries/tax";
-import { currentTaxPeriodValue, getTaxPeriodRange } from "@/lib/tax";
+import { currentTaxPeriodValue, getTaxGranularity, getTaxPeriodRange } from "@/lib/tax";
 
 type TaxPageProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
