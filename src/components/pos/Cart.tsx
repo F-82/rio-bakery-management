@@ -97,103 +97,111 @@ export function Cart({
               ))}
             </ul>
           )}
+
+          <div className="flex flex-col gap-3 border-t border-line py-3">
+            <div className="flex flex-col gap-1">
+              <span className="text-micro text-ink-2">{t("Counter")}</span>
+              <select
+                value={counterId}
+                onChange={(event) => onCounterChange(event.target.value)}
+                className="h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink"
+              >
+                {counters.map((counter) => (
+                  <option key={counter.id} value={counter.id}>
+                    {counter.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <span className="text-micro text-ink-2">{t("Order Type")}</span>
+              <select
+                value={source}
+                onChange={(event) => onSourceChange(event.target.value)}
+                className="h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink"
+              >
+                <option value="in_person">{t("Dine-in")}</option>
+                <option value="takeaway">{t("Takeaway")}</option>
+              </select>
+            </div>
+
+            <CustomerSelect selectedCustomer={customer} onSelect={onCustomerChange} />
+
+            <div className="flex flex-col gap-1">
+              <span className="text-micro text-ink-2">{t("Payment")}</span>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant={paymentMethod === "cash" ? "default" : "outline"}
+                  className="flex-1"
+                  onClick={() => onPaymentMethodChange("cash")}
+                >
+                  {t("Cash")}
+                </Button>
+                <Button
+                  type="button"
+                  variant={paymentMethod === "card" ? "default" : "outline"}
+                  className="flex-1"
+                  onClick={() => onPaymentMethodChange("card")}
+                >
+                  {t("Card")}
+                </Button>
+              </div>
+            </div>
+
+            {paymentMethod === "cash" && (
+              <div className="flex gap-2 rounded-tile bg-surface-2 p-3">
+                <div className="flex flex-1 flex-col gap-1">
+                  <span className="text-micro text-ink-2">{t("Cash Given")}</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={cashGivenStr}
+                    onChange={(e) => setCashGivenStr(e.target.value)}
+                    placeholder="0.00"
+                    className="h-9 w-full rounded-tile border border-line bg-surface px-2 text-body-sm text-ink placeholder:text-ink-3"
+                  />
+                </div>
+                <div className="flex flex-1 flex-col gap-1 text-right">
+                  <span className="text-micro text-ink-2">{t("Change Due")}</span>
+                  {cashGivenStr.trim() === "" ? (
+                    <span className="text-num text-ink-3">—</span>
+                  ) : changeDue.isNegative() ? (
+                    <span className="text-num text-alert-strong">{t("Not enough yet")}</span>
+                  ) : (
+                    <MoneyText amount={changeDue.toNumber()} />
+                  )}
+                </div>
+              </div>
+            )}
+
+            {error && (
+              <p role="alert" className="text-body-sm text-alert">
+                {error}
+              </p>
+            )}
+          </div>
         </div>
 
-        <div className="flex shrink-0 flex-col gap-3 border-t border-line px-4 py-3">
-          <div className="flex flex-col gap-1">
-            <span className="text-micro text-ink-2">{t("Counter")}</span>
-            <select
-              value={counterId}
-              onChange={(event) => onCounterChange(event.target.value)}
-              className="h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink"
+        {/* Cart total + confirm — the one AccentPanel this screen gets (DESIGN.md §Structural language).
+            Pinned outside the scrollable region above: DESIGN.md requires the running total and confirm
+            action stay "permanently on screen," not buried below Counter/Payment/Customer fields.
+            The "Total" label sits outside the panel — the gradient is never behind small text (DESIGN.md §Palette). */}
+        <div className="flex shrink-0 flex-col gap-1 border-t border-line px-4 py-3">
+          <span className="text-micro text-ink-2">{t("Total")}</span>
+          <AccentPanel className="flex items-center justify-between gap-3 p-4">
+            <MoneyText amount={subtotal} size="num-lg" />
+            <Button
+              type="button"
+              size="lg"
+              disabled={cart.lines.length === 0 || isSubmitting}
+              onClick={onConfirm}
             >
-              {counters.map((counter) => (
-                <option key={counter.id} value={counter.id}>
-                  {counter.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <span className="text-micro text-ink-2">{t("Order Type")}</span>
-            <select
-              value={source}
-              onChange={(event) => onSourceChange(event.target.value)}
-              className="h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink"
-            >
-              <option value="in_person">{t("Dine-in")}</option>
-              <option value="takeaway">{t("Takeaway")}</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <span className="text-micro text-ink-2">{t("Payment")}</span>
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant={paymentMethod === "cash" ? "default" : "outline"}
-                className="flex-1"
-                onClick={() => onPaymentMethodChange("cash")}
-              >
-                {t("Cash")}
-              </Button>
-              <Button
-                type="button"
-                variant={paymentMethod === "card" ? "default" : "outline"}
-                className="flex-1"
-                onClick={() => onPaymentMethodChange("card")}
-              >
-                {t("Card")}
-              </Button>
-            </div>
-          </div>
-
-          {paymentMethod === "cash" && (
-            <div className="flex gap-2 rounded-tile bg-surface-2 p-3">
-              <div className="flex flex-1 flex-col gap-1">
-                <span className="text-micro text-ink-2">{t("Cash Given")}</span>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={cashGivenStr}
-                  onChange={(e) => setCashGivenStr(e.target.value)}
-                  placeholder="0.00"
-                  className="h-9 w-full rounded-tile border border-line bg-surface px-2 text-body-sm text-ink placeholder:text-ink-3"
-                />
-              </div>
-              <div className="flex flex-1 flex-col gap-1 text-right">
-                <span className="text-micro text-ink-2">{t("Change Due")}</span>
-                <MoneyText amount={changeDue.toNumber()} />
-              </div>
-            </div>
-          )}
-
-          <CustomerSelect selectedCustomer={customer} onSelect={onCustomerChange} />
-
-          {error && (
-            <p role="alert" className="text-body-sm text-alert">
-              {error}
-            </p>
-          )}
-
-          {/* Cart total + confirm — the one AccentPanel this screen gets (DESIGN.md §Structural language).
-              The "Total" label sits outside the panel — the gradient is never behind small text (DESIGN.md §Palette). */}
-          <div className="flex flex-col gap-1">
-            <span className="text-micro text-ink-2">{t("Total")}</span>
-            <AccentPanel className="flex items-center justify-between gap-3 p-4">
-              <MoneyText amount={subtotal} size="num-lg" />
-              <Button
-                type="button"
-                size="lg"
-                disabled={cart.lines.length === 0 || isSubmitting}
-                onClick={onConfirm}
-              >
-                {isSubmitting ? "Placing order…" : "Complete order"}
-              </Button>
-            </AccentPanel>
-          </div>
+              {isSubmitting ? "Placing order…" : "Complete order"}
+            </Button>
+          </AccentPanel>
         </div>
       </div>
     </aside>

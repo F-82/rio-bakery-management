@@ -464,7 +464,10 @@
 
   .pos-cart {
     position: fixed;
-    left: 0;
+    /* AppShell's mobile icon rail (w-14 = 3.5rem) sits to the left at every
+       width this fixed-bottom-sheet mode applies at (<768px); inset past it
+       instead of overlapping it. */
+    left: 3.5rem;
     right: 0;
     bottom: 0;
     z-index: 30;

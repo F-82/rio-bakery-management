@@ -21,7 +21,7 @@ export function SearchInput({ value, onChange }: SearchInputProps) {
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={t("Search menu")}
-        className="flex h-11 w-full items-center rounded-tile border border-line bg-surface pr-3 pl-9 text-body-sm text-ink placeholder:text-ink-3"
+        className="flex h-11 w-full items-center rounded-full bg-surface-2 pr-3 pl-9 text-body-sm text-ink placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-focus/20"
       />
     </div>
   );

@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useReducer, useState, useTransition } from "react";
+import { ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { CategoryTabs } from "./CategoryTabs";
 import { ItemTileGrid } from "./ItemTileGrid";
 import { SearchInput } from "./SearchInput";
@@ -26,6 +28,7 @@ type OrderSuccess = {
 };
 
 export function PosScreen({ categories, menuItems, counters, defaultCounterId }: PosScreenProps) {
+  const { t } = useTranslation();
   const [cart, dispatch] = useReducer(cartReducer, initialCartState);
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -109,28 +112,42 @@ export function PosScreen({ categories, menuItems, counters, defaultCounterId }:
   }
 
   return (
-    <div className="pos-layout">
-      <div className="pos-grid">
-        <CategoryTabs categories={categories} activeId={activeCategoryId} onSelect={setActiveCategoryId} />
-        <SearchInput value={search} onChange={setSearch} />
-        <ItemTileGrid items={filteredItems} cartQtyFor={cartQtyFor} onAdd={handleAdd} />
+    <div className="flex min-h-0 flex-1 flex-col">
+      {/* Page header — matches the rowner shell's other screens (Dashboard,
+          Menu, Orders): breadcrumb + text-3xl font-light title. POS never had
+          one before; it rendered directly with no chrome at all. */}
+      <div className="shrink-0 px-4 pt-4 pb-2 md:px-5 md:pt-5">
+        <div className="flex items-center gap-2 text-xs text-ink-2">
+          <span>{t("Orders")}</span>
+          <ChevronRight className="size-3" />
+          <span>{t("New order")}</span>
+        </div>
+        <h1 className="mt-1 text-2xl font-light tracking-tight text-ink md:text-3xl">{t("New order")}</h1>
       </div>
-      <Cart
-        cart={cart}
-        dispatch={dispatch}
-        counters={counters}
-        counterId={counterId}
-        onCounterChange={setCounterId}
-        paymentMethod={paymentMethod}
-        onPaymentMethodChange={setPaymentMethod}
-        source={source}
-        onSourceChange={setSource}
-        customer={customer}
-        onCustomerChange={setCustomer}
-        onConfirm={handleConfirm}
-        isSubmitting={isPending}
-        error={error}
-      />
+
+      <div className="pos-layout min-h-0 flex-1">
+        <div className="pos-grid">
+          <CategoryTabs categories={categories} activeId={activeCategoryId} onSelect={setActiveCategoryId} />
+          <SearchInput value={search} onChange={setSearch} />
+          <ItemTileGrid items={filteredItems} cartQtyFor={cartQtyFor} onAdd={handleAdd} />
+        </div>
+        <Cart
+          cart={cart}
+          dispatch={dispatch}
+          counters={counters}
+          counterId={counterId}
+          onCounterChange={setCounterId}
+          paymentMethod={paymentMethod}
+          onPaymentMethodChange={setPaymentMethod}
+          source={source}
+          onSourceChange={setSource}
+          customer={customer}
+          onCustomerChange={setCustomer}
+          onConfirm={handleConfirm}
+          isSubmitting={isPending}
+          error={error}
+        />
+      </div>
     </div>
   );
 }
