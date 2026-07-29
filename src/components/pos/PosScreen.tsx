@@ -4,6 +4,7 @@ import { useMemo, useReducer, useState, useTransition } from "react";
 import { ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { CategoryTabs } from "./CategoryTabs";
+import { MenuTypeToggle, type MenuTypeFilter } from "./MenuTypeToggle";
 import { ItemTileGrid } from "./ItemTileGrid";
 import { SearchInput } from "./SearchInput";
 import { Cart } from "./Cart";
@@ -31,6 +32,7 @@ export function PosScreen({ categories, menuItems, counters, defaultCounterId }:
   const { t } = useTranslation();
   const [cart, dispatch] = useReducer(cartReducer, initialCartState);
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
+  const [menuType, setMenuType] = useState<MenuTypeFilter>("all");
   const [search, setSearch] = useState("");
   const [counterId, setCounterId] = useState(defaultCounterId ?? counters[0]?.id ?? "");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "card">("cash");
@@ -44,10 +46,13 @@ export function PosScreen({ categories, menuItems, counters, defaultCounterId }:
     const query = search.trim().toLowerCase();
     return menuItems.filter((item) => {
       const matchesCategory = activeCategoryId === null || item.category_id === activeCategoryId;
+      const matchesType =
+        menuType === "all" ||
+        (menuType === "hot_plate" ? item.requires_kitchen_prep : !item.requires_kitchen_prep);
       const matchesSearch = query === "" || item.name.toLowerCase().includes(query);
-      return matchesCategory && matchesSearch;
+      return matchesCategory && matchesType && matchesSearch;
     });
-  }, [menuItems, activeCategoryId, search]);
+  }, [menuItems, activeCategoryId, menuType, search]);
 
   function cartQtyFor(menuItemId: string) {
     return cart.lines.find((line) => line.menuItemId === menuItemId)?.qty ?? 0;
@@ -63,7 +68,7 @@ export function PosScreen({ categories, menuItems, counters, defaultCounterId }:
     dispatch({ type: "add", item: cartItem });
   }
 
-  function handleConfirm() {
+  function handleConfirm(changeToPointsLkr?: number) {
     if (!counterId) {
       setError("Pick a counter first.");
       return;
@@ -75,6 +80,7 @@ export function PosScreen({ categories, menuItems, counters, defaultCounterId }:
         paymentMethod,
         source,
         customerId: customer?.id,
+        changeToPointsLkr,
         items: cart.lines.map((line) => ({
           menuItemId: line.menuItemId,
           qty: line.qty,
@@ -127,6 +133,7 @@ export function PosScreen({ categories, menuItems, counters, defaultCounterId }:
 
       <div className="pos-layout min-h-0 flex-1">
         <div className="pos-grid">
+          <MenuTypeToggle value={menuType} onChange={setMenuType} />
           <CategoryTabs categories={categories} activeId={activeCategoryId} onSelect={setActiveCategoryId} />
           <SearchInput value={search} onChange={setSearch} />
           <ItemTileGrid items={filteredItems} cartQtyFor={cartQtyFor} onAdd={handleAdd} />
