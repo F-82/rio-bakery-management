@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Image from "next/image";
 import { BookOpen, ImageOff } from "lucide-react";
 import { DataTable, type DataTableColumn } from "@/components/patterns/DataTable";
 import { Badge } from "@/components/ui/badge";
@@ -68,8 +69,7 @@ export function MenuList({ items, businessId, categories, inventoryOptions, canM
       render: (row) => (
         <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-tile bg-surface-2">
           {row.image_url ? (
-            // eslint-disable-next-line @next/next/no-img-element -- arbitrary Storage URL, not a static/optimizable asset
-            <img src={row.image_url} alt="" className="size-full object-cover" />
+            <Image src={row.image_url} alt="" width={40} height={40} className="size-full object-cover" />
           ) : (
             <ImageOff className="size-4 text-ink-3" aria-hidden />
           )}
