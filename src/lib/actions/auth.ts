@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getHomeHref } from "@/lib/nav";
 
 export type SignInState = { error: string | null };
 
@@ -32,7 +33,7 @@ export async function signIn(
     .eq("id", data.user.id)
     .single();
 
-  redirect(profile?.role === "staff" ? "/orders" : "/dashboard");
+  redirect(profile ? getHomeHref(profile.role) : "/login");
 }
 
 export async function signOut(): Promise<void> {

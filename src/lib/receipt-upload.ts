@@ -14,7 +14,7 @@ export type ReceiptUploadResult = { ok: true; path: string } | { ok: false; erro
  * because getPublicUrl() doesn't produce anything reachable on a private
  * bucket. Storage RLS (20260728143346_expense_receipts_storage.sql)
  * requires the path's first segment to be the caller's own business_id and
- * the caller to be the owner — passing another business's id fails the
+ * the caller to be an owner or manager — passing another business's id fails the
  * write, it doesn't leak. Callers resolve the path to a signed URL for
  * display via getExpenses() (lib/queries/finance.ts).
  */

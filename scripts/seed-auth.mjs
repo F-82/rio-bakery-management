@@ -9,6 +9,7 @@
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const password = process.env.SEED_PASSWORD;
+const seedEmail = process.env.SEED_EMAIL;
 
 if (!url || !serviceKey) {
   console.error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY.");
@@ -25,6 +26,7 @@ const HOT_PLATE = "33333333-3333-3333-3333-333333333333";
 
 const users = [
   { email: "owner@riobakershut.lk", name: "Rio Owner", role: "owner", counter_id: null },
+  { email: "manager@riobakershut.lk", name: "Rio Manager", role: "manager", counter_id: null },
   { email: "bakery@riobakershut.lk", name: "Bakery Staff", role: "staff", counter_id: BAKERY },
   { email: "hotplate@riobakershut.lk", name: "Hot Plate Staff", role: "staff", counter_id: HOT_PLATE },
 ];
@@ -78,7 +80,13 @@ async function upsertUser(u) {
   console.log(`created  ${u.email.padEnd(26)} role=${u.role}`);
 }
 
-for (const u of users) {
+const selectedUsers = seedEmail ? users.filter((user) => user.email === seedEmail) : users;
+if (selectedUsers.length === 0) {
+  console.error(`No configured seed user matches ${seedEmail}.`);
+  process.exit(1);
+}
+
+for (const u of selectedUsers) {
   await upsertUser(u);
 }
 console.log("done.");

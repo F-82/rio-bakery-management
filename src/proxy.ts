@@ -15,8 +15,9 @@ const PUBLIC_PATHS = ["/kitchen-sink"];
 // (or misleadingly) return. This is a UX-level gate, not the access
 // boundary — RLS (see ARCHITECTURE.md Invariant 8) is what actually
 // enforces staff can't read expenses/other-counter orders/etc.
-const STAFF_ALLOWED_PREFIXES = ["/orders", "/menu", "/inventory"];
+const STAFF_ALLOWED_PREFIXES = ["/orders", "/menu", "/inventory", "/kitchen"];
 const STAFF_LANDING_PATH = "/orders";
+const MANAGER_BLOCKED_PREFIXES = ["/dashboard"];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -63,6 +64,15 @@ export async function proxy(request: NextRequest) {
   ) {
     const url = request.nextUrl.clone();
     url.pathname = STAFF_LANDING_PATH;
+    return NextResponse.redirect(url);
+  }
+
+  if (
+    profile.role === "manager" &&
+    MANAGER_BLOCKED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix + "/"))
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/finance";
     return NextResponse.redirect(url);
   }
 

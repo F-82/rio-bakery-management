@@ -567,6 +567,9 @@ export type Database = {
           order_day: string
           order_number: string
           payment_method: string | null
+          prep_status: Database["public"]["Enums"]["prep_status"]
+          prepared_at: string | null
+          prepared_by: string | null
           source: string
           status: Database["public"]["Enums"]["order_status"]
           subtotal: number
@@ -589,6 +592,9 @@ export type Database = {
           order_day: string
           order_number: string
           payment_method?: string | null
+          prep_status?: Database["public"]["Enums"]["prep_status"]
+          prepared_at?: string | null
+          prepared_by?: string | null
           source?: string
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
@@ -611,6 +617,9 @@ export type Database = {
           order_day?: string
           order_number?: string
           payment_method?: string | null
+          prep_status?: Database["public"]["Enums"]["prep_status"]
+          prepared_at?: string | null
+          prepared_by?: string | null
           source?: string
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
@@ -919,6 +928,10 @@ export type Database = {
       create_order: { Args: { payload: Json }; Returns: Json }
       current_business_id: { Args: never; Returns: string }
       current_counter_id: { Args: never; Returns: string }
+      current_counter_kind: {
+        Args: never
+        Returns: Database["public"]["Enums"]["counter_kind"]
+      }
       current_role: {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]
@@ -948,6 +961,7 @@ export type Database = {
       }
       is_owner: { Args: never; Returns: boolean }
       is_owner_or_manager: { Args: never; Returns: boolean }
+      mark_order_prepared: { Args: { p_order_id: string }; Returns: Json }
       record_stock_movement: { Args: { payload: Json }; Returns: Json }
       void_order: {
         Args: { p_order_id: string; p_reason: string }
@@ -960,6 +974,7 @@ export type Database = {
       category_scope: "menu" | "inventory"
       counter_kind: "bakery" | "hot_plate"
       order_status: "open" | "completed" | "voided"
+      prep_status: "not_required" | "pending" | "prepared"
       print_status: "queued" | "printing" | "done" | "failed"
       print_target: "customer_receipt" | "kitchen_ticket"
       stock_reason:
@@ -1107,6 +1122,7 @@ export const Constants = {
       category_scope: ["menu", "inventory"],
       counter_kind: ["bakery", "hot_plate"],
       order_status: ["open", "completed", "voided"],
+      prep_status: ["not_required", "pending", "prepared"],
       print_status: ["queued", "printing", "done", "failed"],
       print_target: ["customer_receipt", "kitchen_ticket"],
       stock_reason: [

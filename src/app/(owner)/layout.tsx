@@ -19,7 +19,11 @@ export default async function OwnerLayout({ children }: { children: React.ReactN
   const lowStockCount = await getLowStockCount();
 
   return (
-    <AppShell lowStockCount={lowStockCount} role={context.profile.role}>
+    <AppShell
+      counterKind={context.counter?.kind ?? null}
+      lowStockCount={lowStockCount}
+      role={context.profile.role}
+    >
       {children}
     </AppShell>
   );

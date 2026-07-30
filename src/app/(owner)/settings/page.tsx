@@ -5,7 +5,7 @@ import { SettingsForms } from "@/components/settings/SettingsForms";
 
 export default async function SettingsPage() {
   const profile = await getCurrentProfile();
-  if (!profile || profile.role !== "owner") redirect("/");
+  if (!profile || (profile.role !== "owner" && profile.role !== "manager")) redirect("/");
 
   const { business, settings } = await getBusinessSettings(profile.business_id);
 

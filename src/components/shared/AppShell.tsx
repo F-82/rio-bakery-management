@@ -8,8 +8,10 @@ import {
   LayoutDashboard, ShoppingBag, Package, Wallet, Utensils, Users,
   Calendar, UserCog, BarChart3, Receipt, Settings, Bell,
   ChevronRight, Sparkles,
+  CookingPot,
 } from "lucide-react";
 import { SignOutButton } from "@/components/shared/SignOutButton";
+import { getHomeHref } from "@/lib/nav";
 import type { Database } from "@/types/database";
 
 type UserRole = Database["public"]["Enums"]["user_role"];
@@ -20,6 +22,7 @@ type UserRole = Database["public"]["Enums"]["user_role"];
 export const SIDEBAR_ITEMS = [
   { icon: LayoutDashboard, label: "Dashboard",  href: "/dashboard"  },
   { icon: ShoppingBag,     label: "Orders",     href: "/orders"     },
+  { icon: CookingPot,      label: "Kitchen",    href: "/kitchen"    },
   { icon: Package,         label: "Inventory",  href: "/inventory"  },
   { icon: Wallet,          label: "Finance",    href: "/finance"    },
   { icon: Utensils,        label: "Menu",       href: "/menu"       },
@@ -50,14 +53,23 @@ const FULL_BLEED_PREFIXES = ["/orders/new"];
 
 type AppShellProps = {
   children: React.ReactNode;
+  counterKind: "bakery" | "hot_plate" | null;
   /** Bell dot — fetched once in the layout rather than recomputed per page. */
   lowStockCount?: number;
   role: UserRole;
 };
 
-export function AppShell({ children, lowStockCount = 0, role }: AppShellProps) {
+export function AppShell({ children, counterKind, lowStockCount = 0, role }: AppShellProps) {
   const pathname = usePathname();
-  const navItems = role === "staff" ? SIDEBAR_ITEMS.filter((item) => STAFF_HREFS.has(item.href)) : SIDEBAR_ITEMS;
+  const navItems = SIDEBAR_ITEMS
+    .filter((item) => {
+      if (role === "staff") {
+        return STAFF_HREFS.has(item.href) || (item.href === "/kitchen" && counterKind === "hot_plate");
+      }
+      if (role === "manager") return item.href !== "/dashboard";
+      return true;
+    })
+    .map((item) => role === "manager" && item.href === "/finance" ? { ...item, label: "Revenue" } : item);
   const activeItem = navItems.find(
     (item) => pathname === item.href || pathname.startsWith(item.href + "/"),
   );
@@ -70,7 +82,7 @@ export function AppShell({ children, lowStockCount = 0, role }: AppShellProps) {
 
       {/* ── Top tab bar ──────────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 px-4 pt-3 pb-2 border-b border-black/5 flex-shrink-0 print:hidden">
-        <Link href="/dashboard" className="h-7 w-7 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0 hover:opacity-80 transition-opacity bg-neutral-100">
+        <Link href={getHomeHref(role)} className="h-7 w-7 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0 hover:opacity-80 transition-opacity bg-neutral-100">
           <Image
             src="/brand/logo.webp"
             alt="Rio Bakers Hut"

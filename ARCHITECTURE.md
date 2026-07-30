@@ -84,8 +84,10 @@ orders          id, business_id, daily_seq, order_number, counter_id,
                 created_by, customer_id, source, status,
                 subtotal, discount_amount, discount_reason,
                 tax_amount, total, payment_method,
+                prep_status, prepared_at, prepared_by,
                 created_at, completed_at, voided_at, void_reason
                 status: open | completed | voided
+                prep_status: not_required | pending | prepared
 order_items     id, order_id, menu_item_id, name_snapshot, qty,
                 unit_price, line_total, requires_kitchen_prep,
                 tax_category, notes
@@ -105,6 +107,11 @@ returning last_seq;
 Displayed 3-digit (`047`). Printed large on **both** the customer receipt and the kitchen ticket — this is what lets the chef match a KOT to a waiting customer, and it closes the open question in Eng Spec §4.5.
 
 **Snapshots.** `name_snapshot`, `unit_price`, `requires_kitchen_prep` and `tax_category` are copied onto the line at order time. Renaming or deleting a menu item must never alter a historical receipt or tax figure.
+
+**Kitchen state is not payment state.** A completed order containing any prep
+line starts with `prep_status = pending`. Hot-plate staff mark it `prepared`
+from the kitchen queue; this never changes `status`, totals, payment, or
+`completed_at`, so clearing the queue cannot remove recorded revenue.
 
 ### Stock ledger
 
@@ -203,11 +210,16 @@ Two tills writing concurrently to the same stock rows without step 3 produces wr
 | menu_items | write | write | read |
 | inventory_items | write | write | read (needs stock to sell) |
 | stock_movements | all | all | insert via RPC only |
-| expenses | all | read | **none** |
+| expenses | all | read + insert | **none** |
 | customers | all | all | read + insert (loyalty lookup) |
 | print_jobs | all | all | read + reprint own |
-| profiles | all | read | read self |
-| settings | write | read | read public keys |
+| profiles | all | all | read self |
+| settings | write | write | read public keys |
+
+Managers have the owner's operational access, but their app navigation omits
+Dashboard. Their Revenue screen exposes revenue and expense entry only; it
+does not expose expense totals, net profit, the expense ledger, or platform
+earnings.
 
 Staff having zero access to `expenses` is a policy, not a hidden tab.
 

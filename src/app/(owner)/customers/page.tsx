@@ -25,7 +25,7 @@ export default async function CustomersPage({ searchParams }: CustomersPageProps
   ]);
 
   const canManage = profile?.role === "owner" || profile?.role === "manager";
-  const isOwner = profile?.role === "owner";
+  const isOwner = profile?.role === "owner" || profile?.role === "manager";
 
   return (
     <CustomersShell

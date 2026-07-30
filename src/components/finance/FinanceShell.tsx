@@ -1,6 +1,5 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   ChevronRight, TrendingUp, ArrowUpRight, ArrowDownRight,
@@ -10,9 +9,10 @@ import { RevenueByDayChart } from "./RevenueByDayChart";
 import { ExpensesLedger } from "./ExpensesLedger";
 import { PlatformEarningsTab } from "./PlatformEarningsTab";
 import type { FinanceSummary, RevenueByDay, FinancePeriod } from "@/lib/finance";
-import { FINANCE_PERIODS, getFinanceTab, DEFAULT_TAB } from "@/lib/finance";
+import { FINANCE_PERIODS, DEFAULT_TAB } from "@/lib/finance";
 import type { ExpenseRow } from "@/lib/queries/finance";
-import { formatLKR } from "@/lib/format";
+import { AddExpenseDrawer } from "./AddExpenseDrawer";
+import { useTranslation } from "react-i18next";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -29,6 +29,7 @@ type FinanceShellProps = {
   expenseCategories?: string[];
   businessId: string;
   canAddExpense: boolean;
+  managerView: boolean;
 };
 
 const TABS = [
@@ -42,8 +43,9 @@ const TABS = [
 // ---------------------------------------------------------------------------
 
 export function FinanceShell({
-  tab, period, summary, revenueByDay, expenses, expenseCategories, businessId, canAddExpense,
+  tab, period, summary, revenueByDay, expenses, expenseCategories, businessId, canAddExpense, managerView,
 }: FinanceShellProps) {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -72,11 +74,21 @@ export function FinanceShell({
               <ChevronRight className="h-3 w-3" />
               <span className="text-neutral-800 font-medium">Finance</span>
             </div>
-            <h1 className="mt-1 text-3xl font-light tracking-tight text-neutral-900">Finance</h1>
+            <div className="mt-1 flex items-center justify-between gap-3">
+              <h1 className="text-3xl font-light tracking-tight text-neutral-900">
+                {managerView ? t("Revenue") : "Finance"}
+              </h1>
+              {managerView && (
+                <AddExpenseDrawer
+                  businessId={businessId}
+                  categories={expenseCategories ?? []}
+                />
+              )}
+            </div>
           </section>
 
           {/* Finance tabs */}
-          <div className="flex items-center gap-2">
+          {!managerView && <div className="flex items-center gap-2">
             {TABS.map((t) => (
               <button
                 key={t.value}
@@ -89,7 +101,7 @@ export function FinanceShell({
                 {t.label}
               </button>
             ))}
-          </div>
+          </div>}
 
           {/* Tab content */}
           {tab === "overview" && summary && revenueByDay && (
@@ -124,7 +136,7 @@ export function FinanceShell({
               </div>
 
               {/* Stat pills */}
-              <section className="grid grid-cols-2 gap-4">
+              <section className={`grid gap-4 ${managerView ? "grid-cols-1" : "grid-cols-2"}`}>
                 <div className="rounded-[20px] p-4" style={{ background: "#f5f5f5" }}>
                   <div className="flex items-start justify-between">
                     <div className="h-9 w-9 rounded-full bg-black flex items-center justify-center">
@@ -135,7 +147,7 @@ export function FinanceShell({
                   <div className="mt-4 text-3xl font-light">{summary.totalOrders}</div>
                   <div className="mt-1 text-xs text-neutral-600">Total orders</div>
                 </div>
-                <div className="rounded-[20px] p-4" style={{ background: "rgba(239,68,68,0.08)" }}>
+                {!managerView && <div className="rounded-[20px] p-4" style={{ background: "rgba(239,68,68,0.08)" }}>
                   <div className="flex items-start justify-between">
                     <div className="h-9 w-9 rounded-full flex items-center justify-center" style={{ background: "rgba(239,68,68,0.15)" }}>
                       <Wallet className="h-4 w-4 text-red-600" />
@@ -146,11 +158,11 @@ export function FinanceShell({
                     {summary.totalExpenses.toLocaleString("en-LK", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                   </div>
                   <div className="mt-1 text-xs text-neutral-600">Total expenses</div>
-                </div>
+                </div>}
               </section>
 
               {/* Net profit card */}
-              <div className="rounded-[24px] bg-white border border-black/5 p-5">
+              {!managerView && <div className="rounded-[24px] bg-white border border-black/5 p-5">
                 <div className="flex items-center gap-2 text-sm text-neutral-500">
                   <TrendingUp className="h-4 w-4" />
                   Net profit
@@ -175,7 +187,7 @@ export function FinanceShell({
                     <span className="font-medium text-red-600">LKR {summary.totalExpenses.toLocaleString("en-LK", { minimumFractionDigits: 2 })}</span>
                   </div>
                 </div>
-              </div>
+              </div>}
 
               {/* Revenue by day chart */}
               {revenueByDay.length > 0 && (
@@ -187,7 +199,7 @@ export function FinanceShell({
             </>
           )}
 
-          {tab === "expenses" && expenses && expenseCategories && (
+          {!managerView && tab === "expenses" && expenses && expenseCategories && (
             <ExpensesLedger
               expenses={expenses}
               categories={expenseCategories}
@@ -196,7 +208,7 @@ export function FinanceShell({
             />
           )}
 
-          {tab === "platform" && <PlatformEarningsTab />}
+          {!managerView && tab === "platform" && <PlatformEarningsTab />}
 
           <div className="h-4" />
     </>

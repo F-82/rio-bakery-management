@@ -15,20 +15,20 @@ export default async function EmployeesPage() {
     getActiveCounters(),
   ]);
 
-  const isOwner = profile?.role === "owner";
+  const canManageEmployees = profile?.role === "owner" || profile?.role === "manager";
 
   return (
     <div className="flex flex-col">
       <PageHeader
         title={t("Employees")}
-        actions={isOwner ? <InviteDrawer counters={counters} /> : undefined}
+        actions={canManageEmployees ? <InviteDrawer counters={counters} /> : undefined}
       />
 
       <div className="p-6">
         <EmployeesList
           employees={employees}
           counters={counters}
-          isOwner={isOwner}
+          isOwner={canManageEmployees}
         />
       </div>
     </div>

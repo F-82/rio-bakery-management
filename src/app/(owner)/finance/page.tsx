@@ -16,25 +16,28 @@ export default async function FinancePage({ searchParams }: FinancePageProps) {
   const tab = getFinanceTab({ tab: firstValue(params.tab) });
   const period = (firstValue(params.period) as FinancePeriod) || "month";
   const profile = await getCurrentProfile();
-  const canAddExpense = profile?.role === "owner";
+  const isManager = profile?.role === "manager";
+  const canAddExpense = profile?.role === "owner" || isManager;
 
   let summary, revenueByDay, expenses, expenseCategories;
 
-  if (tab === "overview") {
+  if (isManager || tab === "overview") {
     const range = getPeriodRange(period);
-    const [orders, expenseAmounts] = await Promise.all([
+    const [orders, expenseAmounts, managerCategories] = await Promise.all([
       getOrdersForPeriod(range.from, range.to),
-      getExpenseAmountsForPeriod(range.from, range.to),
+      isManager ? Promise.resolve([]) : getExpenseAmountsForPeriod(range.from, range.to),
+      isManager ? getExpenseCategories() : Promise.resolve(undefined),
     ]);
     summary = summariseFinance(orders, expenseAmounts);
     revenueByDay = buildRevenueByDay(orders, range);
+    expenseCategories = managerCategories;
   } else if (tab === "expenses") {
     [expenses, expenseCategories] = await Promise.all([getExpenses(), getExpenseCategories()]);
   }
 
   return (
     <FinanceShell
-      tab={tab}
+      tab={isManager ? "overview" : tab}
       period={period}
       summary={summary}
       revenueByDay={revenueByDay}
@@ -42,6 +45,7 @@ export default async function FinancePage({ searchParams }: FinancePageProps) {
       expenseCategories={expenseCategories}
       businessId={profile?.business_id ?? ""}
       canAddExpense={canAddExpense}
+      managerView={isManager}
     />
   );
 }

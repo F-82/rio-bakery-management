@@ -11,6 +11,7 @@ import {
   Settings,
   Users,
   Wallet,
+  CookingPot,
   type LucideIcon,
 } from "lucide-react";
 import type { Database } from "@/types/database";
@@ -26,6 +27,7 @@ const orders: NavLinkItem = { kind: "link", label: "Orders", href: "/orders", ic
 const menu: NavLinkItem = { kind: "link", label: "Menu", href: "/menu", icon: BookOpen };
 const inventory: NavLinkItem = { kind: "link", label: "Inventory", href: "/inventory", icon: Package };
 const finance: NavLinkItem = { kind: "link", label: "Finance", href: "/finance", icon: Wallet };
+const kitchen: NavLinkItem = { kind: "link", label: "Kitchen", href: "/kitchen", icon: CookingPot };
 const more: NavMoreItem = { kind: "more", label: "More", icon: MoreHorizontal };
 
 /**
@@ -50,15 +52,18 @@ export const MORE_SHEET_ITEMS: NavLinkItem[] = [
  */
 export function getPrimaryNavItems(role: UserRole): NavItem[] {
   if (role === "staff") return [orders, menu, inventory];
+  if (role === "manager") return [orders, kitchen, inventory, { ...finance, label: "Revenue" }, more];
   return [dashboard, orders, inventory, finance, more];
 }
 
 /** Default landing tab per role, used for "/" and post-login redirects. */
 export function getHomeHref(role: UserRole): string {
-  return role === "staff" ? "/orders" : "/dashboard";
+  if (role === "staff") return "/orders";
+  if (role === "manager") return "/finance";
+  return "/dashboard";
 }
 
-const ALL_LINK_ITEMS: NavLinkItem[] = [dashboard, orders, menu, inventory, finance, ...MORE_SHEET_ITEMS];
+const ALL_LINK_ITEMS: NavLinkItem[] = [dashboard, orders, kitchen, menu, inventory, finance, ...MORE_SHEET_ITEMS];
 
 /** Page title for the header, derived from the current pathname. */
 export function getPageTitle(pathname: string): string {

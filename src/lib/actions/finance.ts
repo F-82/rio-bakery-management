@@ -16,14 +16,15 @@ export type ExpenseInput = {
 export type ExpenseResult = { ok: true; id: string } | { ok: false; error: string };
 
 /**
- * Owner-only (expenses_write RLS, ARCHITECTURE.md §RLS — manager is
- * read-only on expenses, staff has none). Checked here too so the form
+ * Owner/manager only (expenses_write RLS; staff has none). Checked here too so the form
  * fails with a clear message instead of a bare RLS-denied insert error.
  */
 export async function createExpense(input: ExpenseInput): Promise<ExpenseResult> {
   const profile = await getCurrentProfile();
   if (!profile) return { ok: false, error: "not authenticated" };
-  if (profile.role !== "owner") return { ok: false, error: "Only the owner can record expenses." };
+  if (profile.role !== "owner" && profile.role !== "manager") {
+    return { ok: false, error: "Only an owner or manager can record expenses." };
+  }
   if (!input.category.trim()) return { ok: false, error: "Category is required." };
   if (!input.date) return { ok: false, error: "Date is required." };
   if (!(input.amount >= 0)) return { ok: false, error: "Amount cannot be negative." };

@@ -41,10 +41,13 @@ export async function updateEmployeeStatus(profileId: string, active: boolean) {
 export async function inviteEmployee(email: string, name: string, role: UserRole, counterId: string | null) {
   const currentProfile = await getCurrentProfile();
   if (!currentProfile) return { success: false, error: "Not authenticated" };
+  if (currentProfile.role !== "owner" && currentProfile.role !== "manager") {
+    return { success: false, error: "Not authorized to invite employees" };
+  }
 
   const adminClient = createAdminClient();
 
-  const { data, error } = await adminClient.auth.admin.inviteUserByEmail(email, {
+  const { error } = await adminClient.auth.admin.inviteUserByEmail(email, {
     data: {
       name,
       role,
