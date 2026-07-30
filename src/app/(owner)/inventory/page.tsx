@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import {
   getInventoryItems,
   getInventoryCategories,
@@ -18,10 +16,6 @@ function firstValue(value: string | string[] | undefined): string | undefined {
 }
 
 export default async function InventoryPage({ searchParams }: InventoryPageProps) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
   const params = await searchParams;
 
   const filter: InventoryFilter = {

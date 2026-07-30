@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import {
   getInventoryItemsForRecipe,
   getMenuCategories,
@@ -10,10 +8,6 @@ import { getCurrentProfile } from "@/lib/queries/profile";
 import { MenuShell } from "@/components/menu/MenuShell";
 
 export default async function MenuPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
   const [items, categories, profile, inventoryOptions, soldToday] = await Promise.all([
     getMenuItems({}),          // no filter — client filters in browser
     getMenuCategories(),

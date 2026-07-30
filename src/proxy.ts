@@ -24,10 +24,10 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const { response, user, supabase } = await updateSession(request);
+  const { response, userId, supabase } = await updateSession(request);
   const isLoginPath = pathname === LOGIN_PATH;
 
-  if (!user) {
+  if (!userId) {
     if (isLoginPath) return response;
     const url = request.nextUrl.clone();
     url.pathname = LOGIN_PATH;
@@ -46,7 +46,7 @@ export async function proxy(request: NextRequest) {
   const { data: profile } = await supabase
     .from("profiles")
     .select("active, role")
-    .eq("id", user.id)
+    .eq("id", userId)
     .single();
 
   if (!profile?.active) {

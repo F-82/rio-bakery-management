@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { TaxReport } from "@/components/tax/TaxReport";
 import { getDeductibleExpenses, getTaxCategoryLines, getTaxOrders } from "@/lib/queries/tax";
 import { currentTaxPeriodValue, getTaxGranularity, getTaxPeriodRange } from "@/lib/tax";
@@ -13,10 +11,6 @@ function firstValue(value: string | string[] | undefined): string | undefined {
 }
 
 export default async function TaxPage({ searchParams }: TaxPageProps) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
   const params = await searchParams;
   const granularity = getTaxGranularity({ granularity: firstValue(params.granularity) });
   const period = firstValue(params.period) || currentTaxPeriodValue(granularity);

@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { getCustomers, getPriorityCustomers, getLoyaltySettings, type CustomerFilter } from "@/lib/queries/customers";
 import { getCurrentProfile } from "@/lib/queries/profile";
 import { CustomersShell } from "@/components/customers/CustomersShell";
@@ -13,10 +11,6 @@ function firstValue(value: string | string[] | undefined): string | undefined {
 }
 
 export default async function CustomersPage({ searchParams }: CustomersPageProps) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
   const params = await searchParams;
 
   const filter: CustomerFilter = {

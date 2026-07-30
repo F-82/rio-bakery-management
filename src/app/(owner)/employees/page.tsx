@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { getEmployees } from "@/lib/queries/employees";
 import { getActiveCounters } from "@/lib/queries/counters";
 import { getCurrentProfile } from "@/lib/queries/profile";
@@ -9,10 +7,6 @@ import { InviteDrawer } from "@/components/employees/InviteDrawer";
 import { getTranslation } from "@/lib/i18n-server";
 
 export default async function EmployeesPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
   const { t } = await getTranslation();
   const profile = await getCurrentProfile();
 

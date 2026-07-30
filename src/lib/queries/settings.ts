@@ -1,25 +1,22 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/types/database";
-import { getCurrentProfile } from "./profile";
 
 export type Business = Database["public"]["Tables"]["businesses"]["Row"];
 export type Setting = Database["public"]["Tables"]["settings"]["Row"];
 
-export async function getBusinessSettings() {
+export async function getBusinessSettings(businessId: string) {
   const supabase = await createClient();
-  const profile = await getCurrentProfile();
-  if (!profile) throw new Error("Not authenticated");
 
   const [businessRes, settingsRes] = await Promise.all([
     supabase
       .from("businesses")
       .select("*")
-      .eq("id", profile.business_id)
+      .eq("id", businessId)
       .single(),
     supabase
       .from("settings")
       .select("*")
-      .eq("business_id", profile.business_id)
+      .eq("business_id", businessId)
   ]);
 
   if (businessRes.error) throw businessRes.error;

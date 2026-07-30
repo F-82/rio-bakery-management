@@ -7,7 +7,7 @@ export default async function SettingsPage() {
   const profile = await getCurrentProfile();
   if (!profile || profile.role !== "owner") redirect("/");
 
-  const { business, settings } = await getBusinessSettings();
+  const { business, settings } = await getBusinessSettings(profile.business_id);
 
   return (
     <>

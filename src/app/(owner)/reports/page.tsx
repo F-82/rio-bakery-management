@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { SalesReport } from "@/components/reports/SalesReport";
 import { getOrdersForReport } from "@/lib/queries/reports";
 import { getPeriodRange, type FinancePeriod } from "@/lib/finance";
@@ -13,10 +11,6 @@ function firstValue(value: string | string[] | undefined): string | undefined {
 }
 
 export default async function ReportsPage({ searchParams }: ReportsPageProps) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
   const params = await searchParams;
   const period = (firstValue(params.period) as FinancePeriod) || "month";
   const range = getPeriodRange(period);

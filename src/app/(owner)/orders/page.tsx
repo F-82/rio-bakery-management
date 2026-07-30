@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { getOrders, getOrderSources, type OrdersFilter } from "@/lib/queries/orders";
 import { getActiveCounters } from "@/lib/queries/counters";
 import { getCurrentProfile } from "@/lib/queries/profile";
@@ -14,10 +12,6 @@ function firstValue(value: string | string[] | undefined): string | undefined {
 }
 
 export default async function OrdersPage({ searchParams }: OrdersPageProps) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
   const params = await searchParams;
 
   const filter: OrdersFilter = {

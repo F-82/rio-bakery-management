@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { getExpenseAmountsForPeriod, getExpenseCategories, getExpenses, getOrdersForPeriod } from "@/lib/queries/finance";
 import { getCurrentProfile } from "@/lib/queries/profile";
 import { buildRevenueByDay, getPeriodRange, summariseFinance, getFinanceTab, type FinancePeriod } from "@/lib/finance";
@@ -14,10 +12,6 @@ function firstValue(value: string | string[] | undefined): string | undefined {
 }
 
 export default async function FinancePage({ searchParams }: FinancePageProps) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
   const params = await searchParams;
   const tab = getFinanceTab({ tab: firstValue(params.tab) });
   const period = (firstValue(params.period) as FinancePeriod) || "month";
