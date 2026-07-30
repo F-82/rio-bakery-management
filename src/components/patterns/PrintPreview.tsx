@@ -115,21 +115,21 @@ export function PrintPreview({ target, payload, onClose }: PrintPreviewProps) {
 
   const printBill = target && mounted
     ? createPortal(
-        <div data-print-portal className="hidden print:block print:p-8">
+        <div data-print-portal className="hidden print:block print:p-4 print:py-3">
           <div className="mx-auto flex max-w-sm flex-col items-center gap-1 text-center">
-            <Logo logoUrl={business?.logoUrl} size={72} className="mb-2" />
-            <p className="text-xl font-bold text-black">{business?.name ?? ""}</p>
+            <Logo logoUrl={business?.logoUrl} size={52} className="mb-1" />
+            <p className="text-lg font-bold text-black">{business?.name ?? ""}</p>
           </div>
 
-          <div className="mx-auto mt-4 max-w-sm border-t border-dashed border-neutral-300 pt-3 text-sm">
+          <div className="mx-auto mt-3 max-w-sm border-t border-dashed border-neutral-300 pt-2 text-sm">
             <Row label={t("Order")} value={orderNumber} />
             {createdAt && <Row label={t("Date")} value={formatDate(createdAt, "datetime")} />}
             {isReceipt && paymentMethod && <Row label={t("Payment")} value={paymentMethod} />}
           </div>
 
-          <div className="mx-auto mt-3 max-w-sm border-t border-dashed border-neutral-300 pt-3">
+          <div className="mx-auto mt-2 max-w-sm border-t border-dashed border-neutral-300 pt-2">
             {items.map((item, index) => (
-              <div key={index} className="mb-2 flex items-start justify-between gap-3 text-sm">
+              <div key={index} className="mb-1.5 flex items-start justify-between gap-3 text-sm">
                 <div>
                   <p className="font-semibold text-black">{item.name}</p>
                   {isReceipt && item.unitPrice !== undefined && (
@@ -148,13 +148,13 @@ export function PrintPreview({ target, payload, onClose }: PrintPreviewProps) {
           </div>
 
           {isReceipt && data && (
-            <div className="mx-auto mt-1 max-w-sm border-t border-dashed border-neutral-300 pt-3 text-sm">
+            <div className="mx-auto mt-1 max-w-sm border-t border-dashed border-neutral-300 pt-2 text-sm">
               {typeof data.subtotal === "number" && <Row label={t("Subtotal")} value={formatLKR(data.subtotal)} />}
               {typeof data.discount_amount === "number" && data.discount_amount > 0 && (
                 <Row label={t("Discount")} value={`-${formatLKR(data.discount_amount)}`} />
               )}
               {typeof data.total === "number" && (
-                <div className="mt-2 flex items-center justify-between border-t-2 border-black pt-2">
+                <div className="mt-1.5 flex items-center justify-between border-t-2 border-black pt-1.5">
                   <span className="text-base font-bold text-black">{t("TOTAL")}</span>
                   <span className="text-lg font-bold text-black">{formatLKR(data.total)}</span>
                 </div>
@@ -162,7 +162,7 @@ export function PrintPreview({ target, payload, onClose }: PrintPreviewProps) {
             </div>
           )}
 
-          <p className="mx-auto mt-6 max-w-sm text-center text-sm font-semibold text-black">
+          <p className="mx-auto mt-4 max-w-sm text-center text-xs font-semibold text-black">
             {t("Thank you for your order!")}
           </p>
         </div>,

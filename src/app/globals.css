@@ -548,7 +548,20 @@
  * to one screen's worth of content.
  */
 @media print {
+  @page {
+    margin: 0;
+    size: auto;
+  }
+  body.printing-bill {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
   body.printing-bill > :not([data-print-portal]) {
     display: none !important;
+  }
+  body.printing-bill [data-print-portal] {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 }
