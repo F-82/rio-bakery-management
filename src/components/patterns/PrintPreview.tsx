@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import Image from "next/image";
 import { Printer } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/brand/Logo";
 import { AccentPanel } from "@/components/patterns/AccentPanel";
 import { MoneyText } from "@/components/patterns/MoneyText";
 import { formatLKR, formatDate } from "@/lib/format";
@@ -117,9 +117,7 @@ export function PrintPreview({ target, payload, onClose }: PrintPreviewProps) {
     ? createPortal(
         <div data-print-portal className="hidden print:block print:p-8">
           <div className="mx-auto flex max-w-sm flex-col items-center gap-1 text-center">
-            {business?.logoUrl && (
-              <Image src={business.logoUrl} alt="" width={72} height={72} className="mb-2 object-contain" />
-            )}
+            <Logo logoUrl={business?.logoUrl} size={72} className="mb-2" />
             <p className="text-xl font-bold text-black">{business?.name ?? ""}</p>
           </div>
 

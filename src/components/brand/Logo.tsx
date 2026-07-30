@@ -10,43 +10,22 @@ type LogoProps = {
 };
 
 /**
- * Renders the business logo if provided, or the placeholder mark otherwise.
+ * Renders the uploaded business logo (`businesses.logo_url`, set via
+ * Settings) if there is one, otherwise the real supplied artwork bundled
+ * with the app at `public/brand/logo.webp` — the same file the login screen
+ * and topbar already use. Not a placeholder: the client's actual logo, kept
+ * as a static asset until an owner uploads a custom one through Settings.
  */
 export function Logo({ size = 32, className, logoUrl }: LogoProps) {
     const { t } = useTranslation();
-  if (logoUrl) {
-    return (
-      <img
-        src={logoUrl}
-        width={size}
-        height={size}
-        alt={t("Rio Bakers Hut")}
-        className={className}
-        style={{ objectFit: 'contain' }}
-      />
-    );
-  }
-
   return (
-    <svg
+    <img
+      src={logoUrl || "/brand/logo.webp"}
       width={size}
       height={size}
-      viewBox="0 0 32 32"
-      role="img"
-      aria-label="Rio Bakers Hut"
+      alt={t("Rio Bakers Hut")}
       className={className}
-    >
-      <rect width="32" height="32" rx="8" fill="var(--color-ink)" />
-      <text
-        x="16"
-        y="22"
-        textAnchor="middle"
-        fontFamily="var(--font-general-sans), sans-serif"
-        fontWeight={500}
-        fontSize="18"
-        fill="var(--color-on-black)"
-      >
-        {t("R")}</text>
-    </svg>
+      style={{ objectFit: 'contain' }}
+    />
   );
 }
