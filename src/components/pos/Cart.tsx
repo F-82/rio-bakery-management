@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type Dispatch } from "react";
-import { Minus, Plus, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Minus, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MoneyText } from "@/components/patterns/MoneyText";
 import { AccentPanel } from "@/components/patterns/AccentPanel";
@@ -13,6 +13,8 @@ import {
   type CartLine,
   type CartState,
 } from "@/lib/pos/cart";
+import { clampRedeemPoints, redemptionValue } from "@/lib/loyalty";
+import { formatLKR } from "@/lib/format";
 import type { ActiveCounter } from "@/lib/queries/counters";
 import { useTranslation } from "react-i18next";
 import { CustomerSelect, type CustomerInfo } from "./CustomerSelect";
@@ -30,7 +32,9 @@ type CartProps = {
   onSourceChange: (source: string) => void;
   customer: CustomerInfo | null;
   onCustomerChange: (customer: CustomerInfo | null) => void;
-  onConfirm: (changeToPointsLkr?: number) => void;
+  /** LKR value of one loyalty point at redemption — ARCHITECTURE.md §Loyalty, a settings value not a constant. */
+  redeemLkrPerPoint: number;
+  onConfirm: (changeToPointsLkr?: number, redeemPoints?: number) => void;
   isSubmitting: boolean;
   error: string | null;
 };
@@ -53,6 +57,7 @@ export function Cart({
   onSourceChange,
   customer,
   onCustomerChange,
+  redeemLkrPerPoint,
   onConfirm,
   isSubmitting,
   error,
@@ -61,11 +66,31 @@ export function Cart({
   const [expanded, setExpanded] = useState(false);
   const [cashGivenStr, setCashGivenStr] = useState("");
   const [giveChangeAsPoints, setGiveChangeAsPoints] = useState(false);
+  const [redeemPointsStr, setRedeemPointsStr] = useState("");
   const itemCount = cartItemCount(cart);
   const subtotal = cartSubtotal(cart);
 
+  // Redemption resets whenever the customer on the order changes — a
+  // leftover point count from a previous customer must never carry over.
+  // Adjusting state during render (not an effect) per React's guidance for
+  // "resetting state when a prop changes" — avoids an extra commit.
+  const [lastCustomerId, setLastCustomerId] = useState(customer?.id);
+  if (customer?.id !== lastCustomerId) {
+    setLastCustomerId(customer?.id);
+    setRedeemPointsStr("");
+  }
+
+  const availablePoints = customer?.loyalty_points ?? 0;
+  const requestedRedeemPoints = Math.max(0, Math.trunc(Number.parseInt(redeemPointsStr, 10) || 0));
+  // Preview-only clamp (client can't be trusted per Invariant 3) — mirrors
+  // the RPC's own clamp so staff see the real number before confirming.
+  const redeemPoints = clampRedeemPoints(requestedRedeemPoints, availablePoints, redeemLkrPerPoint, subtotal);
+  const redemptionDiscount = redemptionValue(redeemPoints, redeemLkrPerPoint);
+  const canRedeemPoints = Boolean(customer) && availablePoints > 0;
+  const total = subtotal.minus(redemptionDiscount);
+
   const cashGiven = new Decimal(Number.parseFloat(cashGivenStr) || 0);
-  const changeDue = cashGiven.minus(subtotal);
+  const changeDue = cashGiven.minus(total);
 
   // Client request: when the change owed is a small, awkward cash amount
   // (their example: ~LKR 7) and there's no change on hand, let staff credit
@@ -80,20 +105,32 @@ export function Cart({
     <aside className="pos-cart" data-expanded={expanded} aria-label="Cart">
       <button
         type="button"
-        className="pos-cart-handle flex h-16 w-full shrink-0 items-center justify-between px-4"
+        className={`pos-cart-handle flex h-16 w-full shrink-0 items-center justify-between gap-2 border-b px-4 transition-colors ${
+          expanded ? "border-line bg-surface-2" : "border-transparent bg-surface"
+        }`}
         onClick={() => setExpanded((value) => !value)}
         aria-expanded={expanded}
+        aria-label={expanded ? t("Collapse cart and go back to the menu") : t("Expand cart")}
       >
         <span className="text-label text-ink-2">
           {itemCount} {t("item")}{itemCount === 1 ? "" : "s"}
         </span>
-        <MoneyText amount={subtotal} size="num-lg" />
+        <span className="flex items-center gap-3">
+          <MoneyText amount={total} size="num-lg" />
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-ink text-on-black">
+            {expanded ? (
+              <ChevronDown className="size-5" aria-hidden />
+            ) : (
+              <ChevronUp className="size-5" aria-hidden />
+            )}
+          </span>
+        </span>
       </button>
 
       <div className="flex min-h-0 flex-1 flex-col">
         <div className="hidden shrink-0 items-center justify-between px-4 py-3 md:flex landscape:flex">
           <span className="text-h3 text-ink">{t("Cart")}</span>
-          <MoneyText amount={subtotal} size="num-lg" />
+          <MoneyText amount={total} size="num-lg" />
         </div>
 
         <div className="flex-1 overflow-y-auto px-4">
@@ -136,6 +173,42 @@ export function Cart({
             </div>
 
             <CustomerSelect selectedCustomer={customer} onSelect={onCustomerChange} />
+
+            {canRedeemPoints && (
+              <div className="flex flex-col gap-2 rounded-tile bg-surface-2 p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-micro text-ink-2">
+                    {t("Redeem points")} ({t("{{count}} available", { count: availablePoints })})
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setRedeemPointsStr(String(availablePoints))}
+                    className="text-micro font-medium text-ink underline underline-offset-2"
+                  >
+                    {t("Use max")}
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    inputMode="numeric"
+                    value={redeemPointsStr}
+                    onChange={(e) => setRedeemPointsStr(e.target.value)}
+                    placeholder="0"
+                    aria-label={t("Points to redeem")}
+                    className="h-9 w-24 rounded-tile border border-line bg-surface px-2 text-body-sm text-ink placeholder:text-ink-3"
+                  />
+                  {redeemPoints > 0 && (
+                    <span className="text-body-sm text-ink">
+                      −{formatLKR(redemptionDiscount)}
+                      {requestedRedeemPoints !== redeemPoints && ` (${t("capped")})`}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className="flex flex-col gap-1">
               <span className="text-micro text-ink-2">{t("Payment")}</span>
@@ -195,7 +268,7 @@ export function Cart({
                   className="size-4"
                 />
                 {t("Add the {{amount}} change to their loyalty points instead of cash", {
-                  amount: changeDue.toFixed(2),
+                  amount: formatLKR(changeDue),
                 })}
               </label>
             )}
@@ -213,14 +286,20 @@ export function Cart({
             action stay "permanently on screen," not buried below Counter/Payment/Customer fields.
             The "Total" label sits outside the panel — the gradient is never behind small text (DESIGN.md §Palette). */}
         <div className="flex shrink-0 flex-col gap-1 border-t border-line px-4 py-3">
+          {redeemPoints > 0 && (
+            <div className="flex items-center justify-between text-body-sm text-ink-2">
+              <span>{t("Points discount")}</span>
+              <span>−{formatLKR(redemptionDiscount)}</span>
+            </div>
+          )}
           <span className="text-micro text-ink-2">{t("Total")}</span>
           <AccentPanel className="flex items-center justify-between gap-3 p-4">
-            <MoneyText amount={subtotal} size="num-lg" />
+            <MoneyText amount={total} size="num-lg" />
             <Button
               type="button"
               size="lg"
               disabled={cart.lines.length === 0 || isSubmitting}
-              onClick={() => onConfirm(changeToPointsLkr)}
+              onClick={() => onConfirm(changeToPointsLkr, redeemPoints)}
             >
               {isSubmitting ? "Placing order…" : "Complete order"}
             </Button>

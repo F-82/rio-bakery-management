@@ -21,6 +21,7 @@ type PosScreenProps = {
   menuItems: PosMenuItem[];
   counters: ActiveCounter[];
   defaultCounterId: string | null;
+  redeemLkrPerPoint: number;
 };
 
 type OrderSuccess = {
@@ -28,7 +29,7 @@ type OrderSuccess = {
   printJobs: OrderPrintJob[];
 };
 
-export function PosScreen({ categories, menuItems, counters, defaultCounterId }: PosScreenProps) {
+export function PosScreen({ categories, menuItems, counters, defaultCounterId, redeemLkrPerPoint }: PosScreenProps) {
   const { t } = useTranslation();
   const [cart, dispatch] = useReducer(cartReducer, initialCartState);
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
@@ -68,7 +69,7 @@ export function PosScreen({ categories, menuItems, counters, defaultCounterId }:
     dispatch({ type: "add", item: cartItem });
   }
 
-  function handleConfirm(changeToPointsLkr?: number) {
+  function handleConfirm(changeToPointsLkr?: number, redeemPoints?: number) {
     if (!counterId) {
       setError("Pick a counter first.");
       return;
@@ -81,6 +82,7 @@ export function PosScreen({ categories, menuItems, counters, defaultCounterId }:
         source,
         customerId: customer?.id,
         changeToPointsLkr,
+        redeemPoints,
         items: cart.lines.map((line) => ({
           menuItemId: line.menuItemId,
           qty: line.qty,
@@ -150,6 +152,7 @@ export function PosScreen({ categories, menuItems, counters, defaultCounterId }:
           onSourceChange={setSource}
           customer={customer}
           onCustomerChange={setCustomer}
+          redeemLkrPerPoint={redeemLkrPerPoint}
           onConfirm={handleConfirm}
           isSubmitting={isPending}
           error={error}

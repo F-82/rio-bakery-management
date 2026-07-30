@@ -16,6 +16,8 @@ export type CreateOrderInput = {
   customerId?: string;
   /** LKR change kept as loyalty points instead of handed back as cash — needs a customerId. */
   changeToPointsLkr?: number;
+  /** Loyalty points the customer is spending as a discount on this order — needs a customerId. */
+  redeemPoints?: number;
   items: CreateOrderLine[];
 };
 
@@ -65,6 +67,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
       source: input.source,
       customer_id: input.customerId,
       change_to_points_lkr: input.customerId ? input.changeToPointsLkr : undefined,
+      redeem_points: input.customerId ? input.redeemPoints : undefined,
       items: input.items.map((line) => ({
         menu_item_id: line.menuItemId,
         qty: line.qty,

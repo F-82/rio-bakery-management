@@ -450,6 +450,7 @@
    * only the ratio differs between those tiers, everything else is shared.
    */
   .pos-layout {
+    position: relative;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -462,16 +463,25 @@
     overflow-y: auto;
   }
 
+  /*
+   * Bug: this used to be `position: fixed` with a `left: 3.5rem` fudge to
+   * dodge AppShell's icon rail. Fixed positioning measures against the
+   * viewport, not `.pos-layout` — nothing in the ancestor chain established
+   * a containing block, so an "85dvh" expanded sheet was 85% of the *whole
+   * screen*, including the topbar's territory above `.pos-layout`. That's
+   * the "covers some of the screen but not fully" report: it ate into the
+   * topbar while still leaving an unusable sliver of the menu peeking above
+   * it. `.pos-layout` is already exactly the content area below the topbar
+   * and right of the icon rail (a flex sibling of the rail in AppShell), so
+   * anchoring here with `position: absolute` bounds the sheet correctly for
+   * free — no rail-width fudge needed, and "expanded" can mean "fills this
+   * area" instead of a guessed viewport percentage.
+   */
   .pos-cart {
-    position: fixed;
-    /* AppShell's mobile icon rail (w-14 = 3.5rem) sits to the left at every
-       width this fixed-bottom-sheet mode applies at (<768px); inset past it
-       instead of overlapping it. */
-    left: 3.5rem;
-    right: 0;
-    bottom: 0;
+    position: absolute;
+    inset: auto 0 0 0;
     z-index: 30;
-    max-height: 4.5rem;
+    max-height: 4rem;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -482,7 +492,7 @@
   }
 
   .pos-cart[data-expanded="true"] {
-    max-height: 85dvh;
+    max-height: 100%;
     overflow-y: auto;
   }
 
@@ -531,8 +541,11 @@
  * overflow/position. "Print bill" toggles this class around window.print()
  * so only that portal prints — otherwise the whole page behind the sheet
  * (sidebar, table, POS screen, ...) would print too. Reports/tax's own
- * print-to-PDF (ExportActions) doesn't set this class, so it's unaffected —
- * that one prints the actual page content, this one deliberately does not.
+ * print-to-PDF (ExportActions) doesn't set this class — it prints the
+ * actual page content instead, with AppShell's topbar/sidebar/mobile rail
+ * hidden via print:hidden and the shell's fixed-height/overflow-hidden
+ * layout relaxed via print:overflow-visible so the report isn't clipped
+ * to one screen's worth of content.
  */
 @media print {
   body.printing-bill > :not([data-print-portal]) {
