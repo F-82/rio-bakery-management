@@ -8,6 +8,8 @@ import {
 import { CustomerList } from "./CustomerList";
 import { AddCustomerDrawer } from "./AddCustomerDrawer";
 import { LoyaltySettingsCard } from "./LoyaltySettingsCard";
+import { ExportActions } from "@/components/patterns/ExportActions";
+import { buildPriorityCustomersCsv } from "@/lib/customers";
 import type { CustomerListRow, PriorityCustomerRow } from "@/lib/queries/customers";
 import type { LoyaltySettings } from "@/lib/queries/customers";
 
@@ -44,6 +46,7 @@ export function CustomersShell({ customers, loyaltySettings, canManage, isOwner 
   }
 
   const totalPoints = customers.reduce((sum, c) => sum + (c.loyalty_points ?? 0), 0);
+  const priorityRows = customers.filter((c): c is PriorityCustomerRow => "priority_note" in c);
 
   const stats = [
     { label: "Total customers",  value: customers.length,                                         bg: "#f5f5f5",              text: "text-neutral-800" },
@@ -79,24 +82,32 @@ export function CustomersShell({ customers, loyaltySettings, canManage, isOwner 
           </section>
 
           {/* Filter tabs */}
-          <div className="flex items-center gap-2">
-            {[
-              { value: "all",      label: "All customers", icon: UsersIcon },
-              { value: "priority", label: "Priority",      icon: Star },
-            ].map((tab) => (
-              <button
-                key={tab.value}
-                onClick={() => updateParams({ priority: tab.value === "priority" ? "1" : null })}
-                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                  (tab.value === "priority") === priority
-                    ? "bg-black text-white"
-                    : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
-                }`}
-              >
-                <tab.icon className="h-3.5 w-3.5" />
-                {tab.label}
-              </button>
-            ))}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              {[
+                { value: "all",      label: "All customers", icon: UsersIcon },
+                { value: "priority", label: "Priority",      icon: Star },
+              ].map((tab) => (
+                <button
+                  key={tab.value}
+                  onClick={() => updateParams({ priority: tab.value === "priority" ? "1" : null })}
+                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                    (tab.value === "priority") === priority
+                      ? "bg-black text-white"
+                      : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                  }`}
+                >
+                  <tab.icon className="h-3.5 w-3.5" />
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+            {priority && canManage && (
+              <ExportActions
+                getCsv={() => buildPriorityCustomersCsv(priorityRows)}
+                filename="priority-customers.csv"
+              />
+            )}
           </div>
 
           {/* Search — was desktop-topbar + mobile-only content, now one row

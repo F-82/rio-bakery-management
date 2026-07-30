@@ -42,16 +42,26 @@ export async function getCustomers(filter: CustomerFilter): Promise<CustomerList
 export type PriorityCustomerRow = CustomerListRow & {
   is_top_spender: boolean;
   recent_spend: number;
+  priority_note: string | null;
 };
 
-/** Manual `is_priority` flags OR derived top-10-by-recent-spend, from the priority_customers view (ARCHITECTURE.md §Loyalty). */
+/**
+ * Manual `is_priority` flags OR derived top-10-by-recent-spend, from the
+ * priority_customers view (ARCHITECTURE.md §Loyalty). Ordered so the list is
+ * actually useful at a glance: the owner's own hand-picked regulars first,
+ * then everyone else ranked by recent spend — the view computes a spend_rank
+ * internally but doesn't order its output, so a plain select came back in
+ * arbitrary (near enough to insertion) order.
+ */
 export async function getPriorityCustomers(search?: string): Promise<PriorityCustomerRow[]> {
   const supabase = await createClient();
   let query = supabase
     .from("priority_customers")
     .select(
-      "id, name, phone_e164, loyalty_points, total_spend, order_count, is_priority, last_order_at, is_top_spender, recent_spend",
-    );
+      "id, name, phone_e164, loyalty_points, total_spend, order_count, is_priority, priority_note, last_order_at, is_top_spender, recent_spend",
+    )
+    .order("is_priority", { ascending: false })
+    .order("recent_spend", { ascending: false });
   if (search) {
     const term = search.trim();
     query = query.or(`name.ilike.%${term}%,phone_e164.ilike.%${term}%`);
@@ -68,6 +78,7 @@ export async function getPriorityCustomers(search?: string): Promise<PriorityCus
     total_spend: Number(row.total_spend),
     order_count: row.order_count!,
     is_priority: row.is_priority!,
+    priority_note: row.priority_note,
     last_order_at: row.last_order_at,
     is_top_spender: row.is_top_spender!,
     recent_spend: Number(row.recent_spend),

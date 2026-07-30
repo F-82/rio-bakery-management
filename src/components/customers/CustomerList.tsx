@@ -37,6 +37,9 @@ export function CustomerList({ customers }: CustomerListProps) {
           <div className="flex flex-col">
             <span className="text-body-sm text-ink">{row.name ?? "Unnamed"}</span>
             <span className="text-micro text-ink-2">{row.phone_e164}</span>
+            {"priority_note" in row && row.priority_note && (
+              <span className="text-micro italic text-ink-2">{row.priority_note}</span>
+            )}
           </div>
         </div>
       ),
