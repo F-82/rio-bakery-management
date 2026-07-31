@@ -13,6 +13,9 @@
 # testing
 /coverage
 
+# local source data exports
+*.csv
+
 # next.js
 /.next/
 /out/
@@ -46,3 +49,9 @@ next-env.d.ts
 
 # Lovable prototype reference (design only, not part of the build)
 lovable/
+
+CLAUDE.md
+LOG.md
+AGENTS.md
+STEPS.md
+ARCHITECTURE.md

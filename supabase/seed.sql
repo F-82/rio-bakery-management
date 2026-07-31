@@ -131,7 +131,10 @@ select
   v.prep,
   v.tax::public.tax_category,
   v.sort,
-  'hot_plate',
+  case
+    when v.cat in ('Beverage', 'Mojito', 'Milkshake', 'Lassi') then 'drinks'
+    else 'hot_plate'
+  end,
   'all_days'
 from (values
   ('Chicken Soup', 'Soup', 480.0, true, 'standard', 10),
@@ -285,9 +288,14 @@ from (values
 join public.categories c
   on c.business_id = '11111111-1111-1111-1111-111111111111'
   and c.scope = 'menu' and c.name = v.cat
-on conflict (business_id, name, main_category, availability_schedule) do update set
+on conflict (
+  business_id,
+  name,
+  main_category,
+  availability_schedule,
+  price
+) do update set
   category_id = excluded.category_id,
-  price = excluded.price,
   requires_kitchen_prep = excluded.requires_kitchen_prep,
   tax_category = excluded.tax_category,
   sort_order = excluded.sort_order;

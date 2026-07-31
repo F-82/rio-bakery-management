@@ -365,3 +365,7 @@ No paragraphs. If it needs a paragraph, it belongs in ARCHITECTURE.md.
 - [done] unit tests 120/120, typecheck, and production build pass; repository-wide lint remains at its pre-existing 336-error baseline across untranslated UI, `lovable/`, and the print agent
 - [done] migration `20260731014306_add_menu_main_category_and_schedule.sql` applied to rio-staging; focused menu DB suite passes 5/5, including the 45-row Sunday import and unavailable blank-price rows
 - [blocked] linked generated-type refresh and security-advisor command still request a Supabase PAT after CLI login; direct type generation via the configured DB URLs fails on IPv6 routing or incorrectly requires Docker, so the existing generated file was restored intact and two localized write-boundary casts remain
+- [done] imported all 46 Monday–Saturday bakery rows from `weekdays-bakery.csv.csv`; retained both separate Fish Pastry entries at LKR 110 and LKR 120, and kept 15 blank-price rows unavailable at LKR 0.00
+- [decision] menu-item uniqueness now includes price because the supplied weekday catalog legitimately contains the same name and schedule at two prices; no display names were invented or source rows merged
+- [note] added `*.csv` to `.gitignore` while preserving the client's existing ignore edits; menu source CSVs remain local rather than repository content
+- [done] reclassified all 27 existing Beverage, Mojito, Milkshake, and Lassi items under the all-week `drinks` main category; kitchen-prep flags remain unchanged because printer routing is independent of menu grouping

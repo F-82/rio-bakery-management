@@ -78,6 +78,55 @@ describe("menu_items — main category and weekly menu", () => {
       });
     });
   });
+
+  it("imports every weekday bakery row, including both Fish Pastry prices", async () => {
+    await withRollback(async (c) => {
+      await setActor(c, await userId(c, OWNER));
+
+      const weekdayBakery = await c.query(
+        `select name, price, available
+         from public.menu_items
+         where business_id = $1
+           and main_category = 'bakery'
+           and availability_schedule = 'monday_saturday'
+         order by sort_order`,
+        [BUSINESS_ID],
+      );
+
+      expect(weekdayBakery.rows).toHaveLength(46);
+      expect(
+        weekdayBakery.rows.filter((item) => item.name === "Fish Pastry").map((item) => item.price),
+      ).toEqual(["110.00", "120.00"]);
+      expect(weekdayBakery.rows.find((item) => item.name === "Deval Bun")).toMatchObject({
+        price: "0.00",
+        available: false,
+      });
+    });
+  });
+
+  it("classifies the existing beverage sections as all-week drinks", async () => {
+    await withRollback(async (c) => {
+      await setActor(c, await userId(c, OWNER));
+
+      const drinks = await c.query(
+        `select m.main_category, m.availability_schedule
+         from public.menu_items m
+         join public.categories c
+           on c.id = m.category_id
+          and c.business_id = m.business_id
+         where m.business_id = $1
+           and c.name in ('Beverage', 'Mojito', 'Milkshake', 'Lassi')`,
+        [BUSINESS_ID],
+      );
+
+      expect(drinks.rows).toHaveLength(27);
+      expect(
+        drinks.rows.every(
+          (item) => item.main_category === "drinks" && item.availability_schedule === "all_days",
+        ),
+      ).toBe(true);
+    });
+  });
 });
 
 describe("RLS — menu_items / recipe_items writes", () => {
