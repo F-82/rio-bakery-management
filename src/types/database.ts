@@ -443,12 +443,15 @@ export type Database = {
       }
       menu_items: {
         Row: {
+          availability_schedule: Database["public"]["Enums"]["menu_schedule"]
           available: boolean
           business_id: string
           category_id: string | null
           created_at: string
           id: string
           image_url: string | null
+          main_category: Database["public"]["Enums"]["menu_main_category"]
+          menu_number: number
           name: string
           price: number
           requires_kitchen_prep: boolean
@@ -456,12 +459,15 @@ export type Database = {
           tax_category: Database["public"]["Enums"]["tax_category"]
         }
         Insert: {
+          availability_schedule?: Database["public"]["Enums"]["menu_schedule"]
           available?: boolean
           business_id: string
           category_id?: string | null
           created_at?: string
           id?: string
           image_url?: string | null
+          main_category: Database["public"]["Enums"]["menu_main_category"]
+          menu_number: number
           name: string
           price: number
           requires_kitchen_prep?: boolean
@@ -469,12 +475,15 @@ export type Database = {
           tax_category?: Database["public"]["Enums"]["tax_category"]
         }
         Update: {
+          availability_schedule?: Database["public"]["Enums"]["menu_schedule"]
           available?: boolean
           business_id?: string
           category_id?: string | null
           created_at?: string
           id?: string
           image_url?: string | null
+          main_category?: Database["public"]["Enums"]["menu_main_category"]
+          menu_number?: number
           name?: string
           price?: number
           requires_kitchen_prep?: boolean
@@ -973,6 +982,8 @@ export type Database = {
       booking_status: "pending" | "confirmed" | "completed" | "cancelled"
       category_scope: "menu" | "inventory"
       counter_kind: "bakery" | "hot_plate"
+      menu_main_category: "hot_plate" | "bakery" | "drinks"
+      menu_schedule: "all_days" | "monday_saturday" | "sunday"
       order_status: "open" | "completed" | "voided"
       prep_status: "not_required" | "pending" | "prepared"
       print_status: "queued" | "printing" | "done" | "failed"
@@ -1121,6 +1132,8 @@ export const Constants = {
       booking_status: ["pending", "confirmed", "completed", "cancelled"],
       category_scope: ["menu", "inventory"],
       counter_kind: ["bakery", "hot_plate"],
+      menu_main_category: ["hot_plate", "bakery", "drinks"],
+      menu_schedule: ["all_days", "monday_saturday", "sunday"],
       order_status: ["open", "completed", "voided"],
       prep_status: ["not_required", "pending", "prepared"],
       print_status: ["queued", "printing", "done", "failed"],

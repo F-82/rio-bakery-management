@@ -16,6 +16,7 @@ export type MenuCategory = Pick<
 
 export type PosMenuItem = {
   id: string;
+  menu_number: number;
   name: string;
   price: number;
   category_id: string | null;
@@ -28,6 +29,7 @@ export type PosMenuItem = {
 
 export type MenuListRow = {
   id: string;
+  menu_number: number;
   name: string;
   category_id: string | null;
   category: { name: string } | null;
@@ -76,23 +78,23 @@ export async function getMenuItemsForPos(): Promise<PosMenuItem[]> {
   const { data, error } = await supabase
     .from("menu_items")
     .select(
-      "id, name, price, category_id, requires_kitchen_prep, tax_category, image_url, main_category, availability_schedule",
+      "id, menu_number, name, price, category_id, requires_kitchen_prep, tax_category, image_url, main_category, availability_schedule",
     )
     .eq("available", true)
     .in("availability_schedule", ["all_days", currentMenuSchedule()])
-    .order("sort_order");
+    .order("menu_number");
 
   if (error) throw error;
   return data as unknown as PosMenuItem[];
 }
 
 const LIST_COLUMNS =
-  "id, name, category_id, categories(name), price, image_url, available, main_category, availability_schedule, requires_kitchen_prep, tax_category";
+  "id, menu_number, name, category_id, categories(name), price, image_url, available, main_category, availability_schedule, requires_kitchen_prep, tax_category";
 
 /** Menu items for the management list, newest catalog controls first. */
 export async function getMenuItems(filter: MenuItemFilter): Promise<MenuListRow[]> {
   const supabase = await createClient();
-  let query = supabase.from("menu_items").select(LIST_COLUMNS).order("sort_order");
+  let query = supabase.from("menu_items").select(LIST_COLUMNS).order("menu_number");
 
   if (filter.categoryId) query = query.eq("category_id", filter.categoryId);
   if (filter.search) query = query.ilike("name", `%${filter.search}%`);

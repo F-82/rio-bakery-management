@@ -71,6 +71,12 @@ export function MenuList({
 
   const columns: DataTableColumn<MenuListRow>[] = [
     {
+      key: "menu_number",
+      header: "No.",
+      render: (row) => <span className="tabular-nums">#{row.menu_number}</span>,
+      align: "right",
+    },
+    {
       key: "image",
       header: "",
       render: (row) => (

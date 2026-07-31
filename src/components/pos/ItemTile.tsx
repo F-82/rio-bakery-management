@@ -21,6 +21,7 @@ export function ItemTile({ item, qtyInCart, onAdd }: ItemTileProps) {
       {/* line-clamp-2, not truncate — the (Half)/(Full) qualifier at the end of
           a long name is exactly the part staff can't afford to have clipped. */}
       <span className="text-body-sm text-ink flex items-start gap-1.5">
+        <span className="text-ink-2 shrink-0 tabular-nums">#{item.menu_number}</span>
         <MainCategoryIcon category={item.main_category} className="mt-0.5" />
         <span className="line-clamp-2">{item.name}</span>
       </span>

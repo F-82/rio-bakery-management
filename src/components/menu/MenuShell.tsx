@@ -726,7 +726,8 @@ export function MenuShell({
           (activeCategory === "All categories" || i.category?.name === activeCategory) &&
           (activeMainCategory === "all" || i.main_category === activeMainCategory) &&
           (!availableOnly || i.available) &&
-          i.name.toLowerCase().includes(query.toLowerCase()),
+          (i.name.toLowerCase().includes(query.toLowerCase()) ||
+            String(i.menu_number).includes(query.replace(/^#/, ""))),
       ),
     [items, activeCategory, activeMainCategory, availableOnly, query],
   );
@@ -856,7 +857,7 @@ export function MenuShell({
       <section className="overflow-hidden rounded-[24px] border border-black/5">
         {/* Header row — desktop */}
         <div className="hidden grid-cols-12 gap-3 bg-neutral-50 px-5 py-3 text-xs font-medium text-neutral-500 md:grid">
-          <div className="col-span-3">Name</div>
+          <div className="col-span-3">No. / Name</div>
           <div className="col-span-2">Category</div>
           <div className="col-span-2">Price</div>
           <div className="col-span-1">Sold today</div>
@@ -871,15 +872,25 @@ export function MenuShell({
             className="grid grid-cols-2 items-center gap-3 border-t border-black/5 px-5 py-3.5 transition-colors hover:bg-neutral-50 md:grid-cols-12"
           >
             <div className="col-span-2 md:col-span-3">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <MainCategoryIcon category={item.main_category} />
-                <span>{item.name}</span>
-              </div>
-              {(soldToday[item.id] ?? 0) > 0 && (
-                <div className="text-xs text-neutral-400">{soldToday[item.id]} sold today</div>
-              )}
-              <div className="text-xs text-neutral-400">
-                {MENU_SCHEDULE_LABELS[item.availability_schedule]}
+              <div className="flex items-start gap-3">
+                <span className="inline-flex min-w-10 shrink-0 items-center justify-center rounded-full bg-neutral-100 px-2 py-1 text-xs font-semibold text-neutral-600 tabular-nums">
+                  #{item.menu_number}
+                </span>
+                <div className="min-w-0">
+                  <div className="flex items-start gap-1.5 text-sm font-medium text-neutral-900">
+                    <MainCategoryIcon category={item.main_category} className="mt-0.5 shrink-0" />
+                    <span className="leading-5">{item.name}</span>
+                  </div>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-1.5 text-xs text-neutral-400">
+                    {(soldToday[item.id] ?? 0) > 0 && (
+                      <>
+                        <span>{soldToday[item.id]} sold today</span>
+                        <span aria-hidden>·</span>
+                      </>
+                    )}
+                    <span>{MENU_SCHEDULE_LABELS[item.availability_schedule]}</span>
+                  </div>
+                </div>
               </div>
             </div>
             <div className="col-span-1 text-xs text-neutral-500 md:col-span-2 md:text-sm">

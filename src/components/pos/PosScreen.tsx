@@ -54,7 +54,10 @@ export function PosScreen({
     return menuItems.filter((item) => {
       const matchesCategory = activeCategoryId === null || item.category_id === activeCategoryId;
       const matchesType = menuType === "all" || item.main_category === menuType;
-      const matchesSearch = query === "" || item.name.toLowerCase().includes(query);
+      const matchesSearch =
+        query === "" ||
+        item.name.toLowerCase().includes(query) ||
+        String(item.menu_number).includes(query.replace(/^#/, ""));
       return matchesCategory && matchesType && matchesSearch;
     });
   }, [menuItems, activeCategoryId, menuType, search]);
