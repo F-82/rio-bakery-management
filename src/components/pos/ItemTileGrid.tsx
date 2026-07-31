@@ -16,13 +16,23 @@ export function ItemTileGrid({ items, cartQtyFor, onAdd }: ItemTileGridProps) {
   const { t } = useTranslation();
 
   if (items.length === 0) {
-    return <EmptyState icon={SearchX} message={t("No items match. Try a different search or category.")} />;
+    return (
+      <EmptyState
+        icon={SearchX}
+        message={t("No items match. Try a different search or category.")}
+      />
+    );
   }
 
   return (
-    <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-3 lg:grid-cols-4">
+    <div className="pos-menu-grid">
       {items.map((item) => (
-        <ItemTile key={item.id} item={item} qtyInCart={cartQtyFor(item.id)} onAdd={() => onAdd(item)} />
+        <ItemTile
+          key={item.id}
+          item={item}
+          qtyInCart={cartQtyFor(item.id)}
+          onAdd={() => onAdd(item)}
+        />
       ))}
     </div>
   );

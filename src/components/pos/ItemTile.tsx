@@ -16,21 +16,27 @@ export function ItemTile({ item, qtyInCart, onAdd }: ItemTileProps) {
     <button
       type="button"
       onClick={onAdd}
-      className="rounded-tile bg-surface relative flex min-h-14 flex-col justify-center gap-0.5 px-3 py-2 text-left active:scale-[0.98]"
+      className="group rounded-tile bg-surface hover:bg-accent-tint focus-visible:ring-focus/20 relative flex min-h-28 min-w-0 flex-col justify-between gap-3 overflow-hidden p-3 text-left shadow-[0_1px_2px_rgba(10,11,13,0.04)] transition-[transform,background-color,box-shadow] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(10,11,13,0.08)] focus-visible:ring-2 active:translate-y-0 active:scale-[0.98]"
+      aria-label={`${item.name}, ${formatLKR(item.price)}`}
     >
-      {/* line-clamp-2, not truncate — the (Half)/(Full) qualifier at the end of
-          a long name is exactly the part staff can't afford to have clipped. */}
-      <span className="text-body-sm text-ink flex items-start gap-1.5">
-        <span className="text-ink-2 shrink-0 tabular-nums">#{item.menu_number}</span>
-        <MainCategoryIcon category={item.main_category} className="mt-0.5" />
-        <span className="line-clamp-2">{item.name}</span>
-      </span>
-      <span className="text-num text-ink-2">{formatLKR(item.price)}</span>
-      {qtyInCart > 0 && (
-        <span className="bg-ink text-on-black absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full text-[11px]">
-          {qtyInCart}
+      <span className="flex w-full min-w-0 items-start justify-between gap-2">
+        <span className="bg-surface-2 text-ink-2 group-hover:bg-surface flex min-h-8 min-w-0 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium tabular-nums transition-colors">
+          <MainCategoryIcon category={item.main_category} className="size-3.5 shrink-0" />
+          <span>#{item.menu_number}</span>
         </span>
-      )}
+        {qtyInCart > 0 && (
+          <span className="bg-ink text-on-black flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-medium tabular-nums">
+            {qtyInCart}
+          </span>
+        )}
+      </span>
+
+      <span className="flex min-w-0 flex-1 flex-col justify-end gap-1.5">
+        {/* Three lines keep long size qualifiers visible without making every
+            card a different height. */}
+        <span className="text-body-sm text-ink line-clamp-3 font-medium">{item.name}</span>
+        <span className="text-num text-ink-2">{formatLKR(item.price)}</span>
+      </span>
     </button>
   );
 }

@@ -100,8 +100,8 @@
 
 :root {
   /* Warm-minimal accent colors (rowner design, design-v2.md §2) */
-  --accent-yellow: #faff7f;   /* acid / highlighter yellow — black text on it */
-  --accent-green: #0c9762;    /* deep emerald — white text on it */
+  --accent-yellow: #faff7f; /* acid / highlighter yellow — black text on it */
+  --accent-green: #0c9762; /* deep emerald — white text on it */
 
   --rio-bg: #f1f2f4;
   --rio-surface: #ffffff;
@@ -194,6 +194,29 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    scrollbar-width: thin;
+    scrollbar-color: var(--rio-ink-3) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 0.625rem;
+    height: 0.625rem;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    border: 0.1875rem solid transparent;
+    border-radius: 999px;
+    background-color: var(--rio-ink-3);
+    background-clip: padding-box;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: var(--rio-ink-2);
+  }
+  *::-webkit-scrollbar-corner {
+    background: transparent;
   }
   body {
     @apply bg-background text-foreground font-sans;
@@ -458,9 +481,42 @@
   }
 
   .pos-grid {
+    container-type: inline-size;
     flex: 1;
     min-height: 0;
     overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .pos-menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 8.75rem), 1fr));
+    align-content: start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .pos-category-scroll,
+  .pos-type-scroll {
+    scrollbar-width: none;
+  }
+
+  .pos-category-scroll::-webkit-scrollbar,
+  .pos-type-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  @container (min-width: 34rem) {
+    .pos-menu-grid {
+      grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    }
+  }
+
+  @container (min-width: 44rem) {
+    .pos-menu-grid {
+      gap: 1rem;
+      padding: 1rem;
+    }
   }
 
   /*

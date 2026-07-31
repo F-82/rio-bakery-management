@@ -18,7 +18,7 @@ type CategoryTabsProps = {
  * list — so it scrolls itself into view on every change.
  */
 export function CategoryTabs({ categories, activeId, onSelect }: CategoryTabsProps) {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
   const activeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -26,31 +26,46 @@ export function CategoryTabs({ categories, activeId, onSelect }: CategoryTabsPro
   }, [activeId]);
 
   return (
-    <div className="sticky top-0 z-10 flex gap-1.5 overflow-x-auto border-b border-line bg-bg px-3 py-1.5">
-      <button
-        ref={activeId === null ? activeRef : undefined}
-        type="button"
-        onClick={() => onSelect(null)}
-        className={cn(
-          "flex min-h-11 shrink-0 items-center rounded-full px-3.5 text-body-sm whitespace-nowrap transition-colors",
-          activeId === null ? "bg-ink text-on-black" : "bg-surface-2 text-ink-2",
-        )}
+    <div className="bg-bg sticky top-0 z-10 px-3 py-2">
+      <div
+        className="pos-category-scroll bg-surface-2 flex snap-x snap-mandatory gap-1 overflow-x-auto rounded-full p-1"
+        role="tablist"
+        aria-label={t("Menu categories")}
       >
-        {t("All")}</button>
-      {categories.map((category) => (
         <button
-          key={category.id}
-          ref={activeId === category.id ? activeRef : undefined}
+          ref={activeId === null ? activeRef : undefined}
           type="button"
-          onClick={() => onSelect(category.id)}
+          role="tab"
+          aria-selected={activeId === null}
+          onClick={() => onSelect(null)}
           className={cn(
-            "flex min-h-11 shrink-0 items-center rounded-full px-3.5 text-body-sm whitespace-nowrap transition-colors",
-            activeId === category.id ? "bg-ink text-on-black" : "bg-surface-2 text-ink-2",
+            "text-body-sm flex min-h-10 shrink-0 snap-start items-center rounded-full px-4 font-medium whitespace-nowrap transition-[color,background-color,box-shadow] sm:min-h-11",
+            activeId === null
+              ? "bg-surface text-ink shadow-[0_1px_2px_rgba(10,11,13,0.08)]"
+              : "text-ink-2 hover:bg-surface/70 hover:text-ink",
           )}
         >
-          {category.name}
+          {t("All")}
         </button>
-      ))}
+        {categories.map((category) => (
+          <button
+            key={category.id}
+            ref={activeId === category.id ? activeRef : undefined}
+            type="button"
+            role="tab"
+            aria-selected={activeId === category.id}
+            onClick={() => onSelect(category.id)}
+            className={cn(
+              "text-body-sm flex min-h-10 shrink-0 snap-start items-center rounded-full px-4 font-medium whitespace-nowrap transition-[color,background-color,box-shadow] sm:min-h-11",
+              activeId === category.id
+                ? "bg-surface text-ink shadow-[0_1px_2px_rgba(10,11,13,0.08)]"
+                : "text-ink-2 hover:bg-surface/70 hover:text-ink",
+            )}
+          >
+            {category.name}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

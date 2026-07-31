@@ -29,13 +29,13 @@ export function MenuTypeToggle({ value, onChange }: MenuTypeToggleProps) {
   }
 
   return (
-    <div className="flex shrink-0 gap-1.5 px-3 pb-1.5">
+    <div className="pos-type-scroll flex shrink-0 gap-2 overflow-x-auto px-3 pb-1">
       <button
         type="button"
         onClick={() => toggle("bakery")}
         aria-pressed={value === "bakery"}
         className={cn(
-          "text-body-sm flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-full px-3.5 font-medium transition-colors",
+          "text-body-sm flex min-h-11 min-w-32 flex-1 items-center justify-center gap-2 rounded-full px-4 font-medium whitespace-nowrap transition-colors",
           value === "bakery" ? "bg-ink text-on-black" : "bg-surface-2 text-ink-2",
         )}
       >
@@ -50,7 +50,7 @@ export function MenuTypeToggle({ value, onChange }: MenuTypeToggleProps) {
         onClick={() => toggle("hot_plate")}
         aria-pressed={value === "hot_plate"}
         className={cn(
-          "text-body-sm flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-full px-3.5 font-medium transition-colors",
+          "text-body-sm flex min-h-11 min-w-32 flex-1 items-center justify-center gap-2 rounded-full px-4 font-medium whitespace-nowrap transition-colors",
           value === "hot_plate" ? "bg-ink text-on-black" : "bg-surface-2 text-ink-2",
         )}
       >
@@ -65,7 +65,7 @@ export function MenuTypeToggle({ value, onChange }: MenuTypeToggleProps) {
         onClick={() => toggle("drinks")}
         aria-pressed={value === "drinks"}
         className={cn(
-          "text-body-sm flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-full px-3.5 font-medium transition-colors",
+          "text-body-sm flex min-h-11 min-w-32 flex-1 items-center justify-center gap-2 rounded-full px-4 font-medium whitespace-nowrap transition-colors",
           value === "drinks" ? "bg-ink text-on-black" : "bg-surface-2 text-ink-2",
         )}
       >
