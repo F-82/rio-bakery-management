@@ -2,6 +2,7 @@ import { getOrders, getOrderSources, type OrdersFilter } from "@/lib/queries/ord
 import { getActiveCounters } from "@/lib/queries/counters";
 import { getCurrentProfileContext } from "@/lib/queries/profile";
 import { OrdersShell } from "@/components/orders/OrdersShell";
+import { colomboToday } from "@/lib/dashboard";
 
 type OrdersPageProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -23,8 +24,8 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
     counterId: firstValue(params.counter),
     source: firstValue(params.source),
     paymentMethod: firstValue(params.payment),
-    dateFrom: firstValue(params.from),
-    dateTo: firstValue(params.to),
+    dateFrom: firstValue(params.date) ?? firstValue(params.from),
+    dateTo: firstValue(params.date) ?? firstValue(params.to),
     search: firstValue(params.search),
   };
 
@@ -45,6 +46,7 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
       sources={sources}
       canVoid={canVoid}
       counterId={context?.profile.counter_id ?? null}
+      maxDate={colomboToday()}
     />
   );
 }

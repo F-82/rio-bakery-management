@@ -36,6 +36,7 @@ type RealtimeOrderRow = {
   payment_method: string | null;
   total: number;
   created_at: string;
+  order_day: string;
   counter_id: string | null;
 };
 
@@ -49,8 +50,8 @@ function matchesFilter(row: RealtimeOrderRow, filter: OrdersFilter): boolean {
   if (filter.counterId && row.counter_id !== filter.counterId) return false;
   if (filter.source && row.source !== filter.source) return false;
   if (filter.paymentMethod && row.payment_method !== filter.paymentMethod) return false;
-  if (filter.dateFrom && row.created_at < `${filter.dateFrom}T00:00:00`) return false;
-  if (filter.dateTo && row.created_at > `${filter.dateTo}T23:59:59`) return false;
+  if (filter.dateFrom && row.order_day < filter.dateFrom) return false;
+  if (filter.dateTo && row.order_day > filter.dateTo) return false;
   if (filter.search && !row.order_number.includes(filter.search)) return false;
   return true;
 }

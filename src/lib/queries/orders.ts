@@ -12,6 +12,7 @@ export type OrderListRow = {
   payment_method: string | null;
   total: number;
   created_at: string;
+  order_day: string;
   counter_id: string | null;
   counter: { name: string; kind: CounterKind } | null;
 };
@@ -29,7 +30,7 @@ export type OrdersFilter = {
   search?: string;
 };
 
-const LIST_COLUMNS = "id, order_number, status, source, payment_method, total, created_at, counter_id, counters(name, kind)";
+const LIST_COLUMNS = "id, order_number, status, source, payment_method, total, created_at, order_day, counter_id, counters(name, kind)";
 
 export async function getOrders(filter: OrdersFilter): Promise<OrderListRow[]> {
   const supabase = await createClient();
@@ -45,8 +46,8 @@ export async function getOrders(filter: OrdersFilter): Promise<OrderListRow[]> {
   if (filter.counterId) query = query.eq("counter_id", filter.counterId);
   if (filter.source) query = query.eq("source", filter.source);
   if (filter.paymentMethod) query = query.eq("payment_method", filter.paymentMethod);
-  if (filter.dateFrom) query = query.gte("created_at", `${filter.dateFrom}T00:00:00`);
-  if (filter.dateTo) query = query.lte("created_at", `${filter.dateTo}T23:59:59`);
+  if (filter.dateFrom) query = query.gte("order_day", filter.dateFrom);
+  if (filter.dateTo) query = query.lte("order_day", filter.dateTo);
   if (filter.search) query = query.ilike("order_number", `%${filter.search}%`);
 
   const { data, error } = await query;

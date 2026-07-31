@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
-  ChevronRight, TrendingUp, ArrowUpRight, ArrowDownRight,
+  ChevronRight, TrendingUp, ArrowUpRight, ArrowDownRight, CalendarDays,
   PieChart, ReceiptText, Building2, Receipt, Wallet,
 } from "lucide-react";
 import { RevenueByDayChart } from "./RevenueByDayChart";
@@ -23,6 +23,8 @@ type FinanceTab = "overview" | "expenses" | "platform";
 type FinanceShellProps = {
   tab: FinanceTab;
   period: FinancePeriod;
+  selectedDate?: string;
+  maxDate: string;
   summary?: FinanceSummary;
   revenueByDay?: RevenueByDay[];
   expenses?: ExpenseRow[];
@@ -43,7 +45,7 @@ const TABS = [
 // ---------------------------------------------------------------------------
 
 export function FinanceShell({
-  tab, period, summary, revenueByDay, expenses, expenseCategories, businessId, canAddExpense, managerView,
+  tab, period, selectedDate, maxDate, summary, revenueByDay, expenses, expenseCategories, businessId, canAddExpense, managerView,
 }: FinanceShellProps) {
   const { t } = useTranslation();
   const pathname = usePathname();
@@ -55,6 +57,7 @@ export function FinanceShell({
     if (value === DEFAULT_TAB) params.delete("tab");
     else params.set("tab", value);
     params.delete("period");
+    params.delete("date");
     router.push(`${pathname}?${params.toString()}`);
   }
 
@@ -62,6 +65,15 @@ export function FinanceShell({
     const params = new URLSearchParams(searchParams.toString());
     if (value === "month") params.delete("period");
     else params.set("period", value);
+    params.delete("date");
+    router.push(`${pathname}?${params.toString()}`);
+  }
+
+  function updateDate(value: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) params.set("date", value);
+    else params.delete("date");
+    params.delete("period");
     router.push(`${pathname}?${params.toString()}`);
   }
 
@@ -107,18 +119,30 @@ export function FinanceShell({
           {tab === "overview" && summary && revenueByDay && (
             <>
               {/* Period selector */}
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {FINANCE_PERIODS.map((p) => (
                   <button
                     key={p.value}
                     onClick={() => updatePeriod(p.value)}
                     className={`rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${
-                      period === p.value ? "bg-black text-white" : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+                      !selectedDate && period === p.value ? "bg-black text-white" : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
                     }`}
                   >
                     {p.label}
                   </button>
                 ))}
+                <label className="flex h-9 items-center gap-2 rounded-full bg-neutral-100 px-3 text-sm text-neutral-700">
+                  <CalendarDays className="h-4 w-4" />
+                  <span className="sr-only">Revenue date</span>
+                  <input
+                    type="date"
+                    value={selectedDate ?? ""}
+                    max={maxDate}
+                    onChange={(event) => updateDate(event.target.value)}
+                    className="bg-transparent outline-none"
+                    aria-label="Revenue date"
+                  />
+                </label>
               </div>
 
               {/* Hero income panel */}

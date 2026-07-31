@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Search, ChevronRight, Plus, Clock, Archive } from "lucide-react";
+import { Search, ChevronRight, Plus, Clock, Archive, CalendarDays } from "lucide-react";
 import { OrdersList } from "./OrdersList";
 import type { OrderListRow, OrdersFilter } from "@/lib/queries/orders";
 import type { ActiveCounter } from "@/lib/queries/counters";
@@ -19,6 +19,7 @@ type OrdersShellProps = {
   sources: string[];
   canVoid: boolean;
   counterId: string | null;
+  maxDate: string;
 };
 
 // ---------------------------------------------------------------------------
@@ -58,14 +59,7 @@ const STATUS_CHIP: Record<string, { tone: "green" | "neutral" | "red"; label: st
 // Main shell
 // ---------------------------------------------------------------------------
 
-export function OrdersShell({
-  initialOrders,
-  filter,
-  counters,
-  sources,
-  canVoid,
-  counterId,
-}: OrdersShellProps) {
+export function OrdersShell({ initialOrders, filter, counters, sources, canVoid, counterId, maxDate }: OrdersShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -84,6 +78,7 @@ export function OrdersShell({
   }
 
   const tab = filter.tab ?? "active";
+  const selectedDate = filter.dateFrom === filter.dateTo ? (filter.dateFrom ?? "") : "";
 
   return (
     <>
@@ -97,7 +92,22 @@ export function OrdersShell({
           </div>
           <h1 className="mt-1 text-3xl font-light tracking-tight text-neutral-900">Orders</h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="flex h-9 items-center gap-2 rounded-full bg-neutral-100 px-3 text-sm text-neutral-700">
+            <CalendarDays className="h-4 w-4" />
+            <span className="sr-only">Order date</span>
+            <input
+              type="date"
+              value={selectedDate}
+              max={maxDate}
+              onChange={(event) => {
+                const date = event.target.value;
+                updateParams({ from: date || null, to: date || null });
+              }}
+              className="bg-transparent outline-none"
+              aria-label="Order date"
+            />
+          </label>
           <Link
             href="/orders/new"
             className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm text-white hover:opacity-90"
