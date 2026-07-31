@@ -7,10 +7,16 @@ import { formatLKR } from "@/lib/format";
 import { createClient } from "@/lib/supabase/client";
 import { fetchMenuItemRecipe } from "@/lib/menu-detail";
 import { updateMenuItem } from "@/lib/actions/menu";
-import type { MenuCategory, MenuListRow, RecipeInventoryOption, RecipeLine } from "@/lib/queries/menu";
+import type {
+  MenuCategory,
+  MenuListRow,
+  RecipeInventoryOption,
+  RecipeLine,
+} from "@/lib/queries/menu";
 import { MenuItemForm } from "./MenuItemForm";
 import { RecipeBuilder } from "./RecipeBuilder";
 import { useTranslation } from "react-i18next";
+import { MainCategoryIcon } from "./MainCategoryIcon";
 
 type MenuItemDetailDrawerProps = {
   item: MenuListRow | null;
@@ -29,7 +35,7 @@ export function MenuItemDetailDrawer({
   onClose,
   onSaved,
 }: MenuItemDetailDrawerProps) {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
   return (
     <Sheet open={item !== null} onOpenChange={(open) => !open && onClose()}>
       <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
@@ -69,7 +75,7 @@ function MenuItemDetailContent({
   onSaved: () => void;
   onClose: () => void;
 }) {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
   const [recipe, setRecipe] = useState<RecipeLine[]>([]);
   const [loadingRecipe, setLoadingRecipe] = useState(true);
 
@@ -89,7 +95,10 @@ function MenuItemDetailContent({
   return (
     <div className="flex flex-col gap-6 px-4 pb-6">
       <div>
-        <p className="text-micro text-ink-2">{item.category?.name ?? "Uncategorised"}</p>
+        <p className="text-micro text-ink-2 flex items-center gap-2">
+          <MainCategoryIcon category={item.main_category} />
+          {item.category?.name ?? "Uncategorised"}
+        </p>
         <p className="text-h1 text-ink">{item.name}</p>
         <div className="mt-2 flex items-center gap-2">
           <span className="text-num-lg text-ink">{formatLKR(item.price)}</span>
@@ -114,7 +123,7 @@ function MenuItemDetailContent({
         )}
       </div>
 
-      <div className="flex flex-col gap-2 border-t border-line pt-4">
+      <div className="border-line flex flex-col gap-2 border-t pt-4">
         <h3 className="text-h3 text-ink">{t("Edit item")}</h3>
         <MenuItemForm
           initial={item}

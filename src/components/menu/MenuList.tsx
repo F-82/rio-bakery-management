@@ -13,6 +13,7 @@ import { setMenuItemAvailability } from "@/lib/actions/menu";
 import type { MenuCategory, MenuListRow, RecipeInventoryOption } from "@/lib/queries/menu";
 import { MenuItemDetailDrawer } from "./MenuItemDetailDrawer";
 import { useTranslation } from "react-i18next";
+import { MainCategoryIcon } from "./MainCategoryIcon";
 
 type MenuListProps = {
   items: MenuListRow[];
@@ -29,7 +30,7 @@ const TAX_CATEGORY_LABELS: Record<string, string> = {
 };
 
 function AvailabilityToggle({ item, onChanged }: { item: MenuListRow; onChanged: () => void }) {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
   const [pending, setPending] = useState(false);
 
   async function handleClick(event: React.MouseEvent) {
@@ -53,8 +54,14 @@ function AvailabilityToggle({ item, onChanged }: { item: MenuListRow; onChanged:
   );
 }
 
-export function MenuList({ items, businessId, categories, inventoryOptions, canManage }: MenuListProps) {
-    const { t } = useTranslation();
+export function MenuList({
+  items,
+  businessId,
+  categories,
+  inventoryOptions,
+  canManage,
+}: MenuListProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const [selectedItem, setSelectedItem] = useState<MenuListRow | null>(null);
 
@@ -67,17 +74,32 @@ export function MenuList({ items, businessId, categories, inventoryOptions, canM
       key: "image",
       header: "",
       render: (row) => (
-        <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-tile bg-surface-2">
+        <div className="rounded-tile bg-surface-2 flex size-10 shrink-0 items-center justify-center overflow-hidden">
           {row.image_url ? (
-            <Image src={row.image_url} alt="" width={40} height={40} className="size-full object-cover" />
+            <Image
+              src={row.image_url}
+              alt=""
+              width={40}
+              height={40}
+              className="size-full object-cover"
+            />
           ) : (
-            <ImageOff className="size-4 text-ink-3" aria-hidden />
+            <ImageOff className="text-ink-3 size-4" aria-hidden />
           )}
         </div>
       ),
     },
-    { key: "name", header: "Name", render: (row) => row.name },
-    { key: "category", header: "Category", render: (row) => row.category?.name ?? "—" },
+    {
+      key: "name",
+      header: "Name",
+      render: (row) => (
+        <span className="inline-flex items-center gap-2">
+          <MainCategoryIcon category={row.main_category} />
+          {row.name}
+        </span>
+      ),
+    },
+    { key: "category", header: "Subcategory", render: (row) => row.category?.name ?? "—" },
     {
       key: "price",
       header: "Price",
@@ -88,7 +110,11 @@ export function MenuList({ items, businessId, categories, inventoryOptions, canM
       key: "prep",
       header: "Kitchen prep",
       render: (row) =>
-        row.requires_kitchen_prep ? <Badge variant="secondary">{t("Prep")}</Badge> : <span className="text-ink-2">—</span>,
+        row.requires_kitchen_prep ? (
+          <Badge variant="secondary">{t("Prep")}</Badge>
+        ) : (
+          <span className="text-ink-2">—</span>
+        ),
     },
     {
       key: "tax_category",

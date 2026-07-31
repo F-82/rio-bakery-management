@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/queries/profile";
 import { uploadMenuItemImage } from "@/lib/menu-image-upload";
 import type { Database } from "@/types/database";
+import type { MenuMainCategory, MenuSchedule } from "@/lib/menu-classification";
 
 export type ImageUploadResult = { ok: true; url: string } | { ok: false; error: string };
 
@@ -23,7 +24,6 @@ export async function uploadMenuItemImageAction(formData: FormData): Promise<Ima
   return uploadMenuItemImage(supabase, profile.business_id, file);
 }
 
-
 type TaxCategory = Database["public"]["Enums"]["tax_category"];
 
 export type MenuItemInput = {
@@ -32,6 +32,8 @@ export type MenuItemInput = {
   price: number;
   imageUrl: string | null;
   available: boolean;
+  mainCategory: MenuMainCategory;
+  availabilitySchedule: MenuSchedule;
   requiresKitchenPrep: boolean;
   taxCategory: TaxCategory;
 };
@@ -44,18 +46,24 @@ export async function createMenuItem(input: MenuItemInput): Promise<MenuItemResu
   if (!profile) return { ok: false, error: "not authenticated" };
 
   const supabase = await createClient();
+  // The migration adds these fields before the linked generated types can be
+  // refreshed. Keep the cast at the write boundary; regenerate database.ts
+  // immediately after the staging migration is applied.
+  const insert = {
+    business_id: profile.business_id,
+    name: input.name,
+    category_id: input.categoryId,
+    price: input.price,
+    image_url: input.imageUrl,
+    available: input.available,
+    main_category: input.mainCategory,
+    availability_schedule: input.availabilitySchedule,
+    requires_kitchen_prep: input.requiresKitchenPrep,
+    tax_category: input.taxCategory,
+  };
   const { data, error } = await supabase
     .from("menu_items")
-    .insert({
-      business_id: profile.business_id,
-      name: input.name,
-      category_id: input.categoryId,
-      price: input.price,
-      image_url: input.imageUrl,
-      available: input.available,
-      requires_kitchen_prep: input.requiresKitchenPrep,
-      tax_category: input.taxCategory,
-    })
+    .insert(insert as never)
     .select("id")
     .single();
 
@@ -65,17 +73,20 @@ export async function createMenuItem(input: MenuItemInput): Promise<MenuItemResu
 
 export async function updateMenuItem(id: string, input: MenuItemInput): Promise<MenuItemResult> {
   const supabase = await createClient();
+  const update = {
+    name: input.name,
+    category_id: input.categoryId,
+    price: input.price,
+    image_url: input.imageUrl,
+    available: input.available,
+    main_category: input.mainCategory,
+    availability_schedule: input.availabilitySchedule,
+    requires_kitchen_prep: input.requiresKitchenPrep,
+    tax_category: input.taxCategory,
+  };
   const { error } = await supabase
     .from("menu_items")
-    .update({
-      name: input.name,
-      category_id: input.categoryId,
-      price: input.price,
-      image_url: input.imageUrl,
-      available: input.available,
-      requires_kitchen_prep: input.requiresKitchenPrep,
-      tax_category: input.taxCategory,
-    })
+    .update(update as never)
     .eq("id", id);
 
   if (error) return { ok: false, error: error.message };
@@ -83,7 +94,10 @@ export async function updateMenuItem(id: string, input: MenuItemInput): Promise<
 }
 
 /** Quick toggle from the list row — a partial update, not the full edit form. */
-export async function setMenuItemAvailability(id: string, available: boolean): Promise<MenuItemResult> {
+export async function setMenuItemAvailability(
+  id: string,
+  available: boolean,
+): Promise<MenuItemResult> {
   const supabase = await createClient();
   const { error } = await supabase.from("menu_items").update({ available }).eq("id", id);
 

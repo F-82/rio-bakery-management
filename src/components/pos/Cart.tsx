@@ -19,6 +19,7 @@ import type { ActiveCounter } from "@/lib/queries/counters";
 import { useTranslation } from "react-i18next";
 import { CustomerSelect, type CustomerInfo } from "./CustomerSelect";
 import { Decimal } from "decimal.js";
+import { MainCategoryIcon } from "@/components/menu/MainCategoryIcon";
 
 type CartProps = {
   cart: CartState;
@@ -84,7 +85,12 @@ export function Cart({
   const requestedRedeemPoints = Math.max(0, Math.trunc(Number.parseInt(redeemPointsStr, 10) || 0));
   // Preview-only clamp (client can't be trusted per Invariant 3) — mirrors
   // the RPC's own clamp so staff see the real number before confirming.
-  const redeemPoints = clampRedeemPoints(requestedRedeemPoints, availablePoints, redeemLkrPerPoint, subtotal);
+  const redeemPoints = clampRedeemPoints(
+    requestedRedeemPoints,
+    availablePoints,
+    redeemLkrPerPoint,
+    subtotal,
+  );
   const redemptionDiscount = redemptionValue(redeemPoints, redeemLkrPerPoint);
   const canRedeemPoints = Boolean(customer) && availablePoints > 0;
   const total = subtotal.minus(redemptionDiscount);
@@ -97,27 +103,29 @@ export function Cart({
   // it to the customer's loyalty points instead of shorting them. Only
   // possible with cash, a positive change, and a customer on the order —
   // no account, nothing to credit it to.
-  const canOfferChangeAsPoints = paymentMethod === "cash" && Boolean(customer) && changeDue.isPositive();
-  const changeToPointsLkr = giveChangeAsPoints && canOfferChangeAsPoints ? changeDue.toNumber() : undefined;
-
+  const canOfferChangeAsPoints =
+    paymentMethod === "cash" && Boolean(customer) && changeDue.isPositive();
+  const changeToPointsLkr =
+    giveChangeAsPoints && canOfferChangeAsPoints ? changeDue.toNumber() : undefined;
 
   return (
     <aside className="pos-cart" data-expanded={expanded} aria-label="Cart">
       <button
         type="button"
         className={`pos-cart-handle flex h-16 w-full shrink-0 items-center justify-between gap-2 border-b px-4 transition-colors ${
-          expanded ? "border-line bg-surface-2" : "border-transparent bg-surface"
+          expanded ? "border-line bg-surface-2" : "bg-surface border-transparent"
         }`}
         onClick={() => setExpanded((value) => !value)}
         aria-expanded={expanded}
         aria-label={expanded ? t("Collapse cart and go back to the menu") : t("Expand cart")}
       >
         <span className="text-label text-ink-2">
-          {itemCount} {t("item")}{itemCount === 1 ? "" : "s"}
+          {itemCount} {t("item")}
+          {itemCount === 1 ? "" : "s"}
         </span>
         <span className="flex items-center gap-3">
           <MoneyText amount={total} size="num-lg" />
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-ink text-on-black">
+          <span className="bg-ink text-on-black flex size-8 shrink-0 items-center justify-center rounded-full">
             {expanded ? (
               <ChevronDown className="size-5" aria-hidden />
             ) : (
@@ -135,7 +143,9 @@ export function Cart({
 
         <div className="flex-1 overflow-y-auto px-4">
           {cart.lines.length === 0 ? (
-            <p className="py-8 text-center text-body-sm text-ink-2">{t("Tap a menu item to add it.")}</p>
+            <p className="text-body-sm text-ink-2 py-8 text-center">
+              {t("Tap a menu item to add it.")}
+            </p>
           ) : (
             <ul className="flex flex-col gap-3 py-3">
               {cart.lines.map((line) => (
@@ -144,13 +154,13 @@ export function Cart({
             </ul>
           )}
 
-          <div className="flex flex-col gap-3 border-t border-line py-3">
+          <div className="border-line flex flex-col gap-3 border-t py-3">
             <div className="flex flex-col gap-1">
               <span className="text-micro text-ink-2">{t("Counter")}</span>
               <select
                 value={counterId}
                 onChange={(event) => onCounterChange(event.target.value)}
-                className="h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink"
+                className="rounded-tile border-line bg-surface text-body-sm text-ink h-11 border px-3"
               >
                 {counters.map((counter) => (
                   <option key={counter.id} value={counter.id}>
@@ -165,7 +175,7 @@ export function Cart({
               <select
                 value={source}
                 onChange={(event) => onSourceChange(event.target.value)}
-                className="h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink"
+                className="rounded-tile border-line bg-surface text-body-sm text-ink h-11 border px-3"
               >
                 <option value="in_person">{t("Dine-in")}</option>
                 <option value="takeaway">{t("Takeaway")}</option>
@@ -175,7 +185,7 @@ export function Cart({
             <CustomerSelect selectedCustomer={customer} onSelect={onCustomerChange} />
 
             {canRedeemPoints && (
-              <div className="flex flex-col gap-2 rounded-tile bg-surface-2 p-3">
+              <div className="rounded-tile bg-surface-2 flex flex-col gap-2 p-3">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-micro text-ink-2">
                     {t("Redeem points")} ({t("{{count}} available", { count: availablePoints })})
@@ -183,7 +193,7 @@ export function Cart({
                   <button
                     type="button"
                     onClick={() => setRedeemPointsStr(String(availablePoints))}
-                    className="text-micro font-medium text-ink underline underline-offset-2"
+                    className="text-micro text-ink font-medium underline underline-offset-2"
                   >
                     {t("Use max")}
                   </button>
@@ -198,7 +208,7 @@ export function Cart({
                     onChange={(e) => setRedeemPointsStr(e.target.value)}
                     placeholder="0"
                     aria-label={t("Points to redeem")}
-                    className="h-9 w-24 rounded-tile border border-line bg-surface px-2 text-body-sm text-ink placeholder:text-ink-3"
+                    className="rounded-tile border-line bg-surface text-body-sm text-ink placeholder:text-ink-3 h-9 w-24 border px-2"
                   />
                   {redeemPoints > 0 && (
                     <span className="text-body-sm text-ink">
@@ -233,7 +243,7 @@ export function Cart({
             </div>
 
             {paymentMethod === "cash" && (
-              <div className="flex gap-2 rounded-tile bg-surface-2 p-3">
+              <div className="rounded-tile bg-surface-2 flex gap-2 p-3">
                 <div className="flex flex-1 flex-col gap-1">
                   <span className="text-micro text-ink-2">{t("Cash Given")}</span>
                   <input
@@ -243,7 +253,7 @@ export function Cart({
                     value={cashGivenStr}
                     onChange={(e) => setCashGivenStr(e.target.value)}
                     placeholder="0.00"
-                    className="h-9 w-full rounded-tile border border-line bg-surface px-2 text-body-sm text-ink placeholder:text-ink-3"
+                    className="rounded-tile border-line bg-surface text-body-sm text-ink placeholder:text-ink-3 h-9 w-full border px-2"
                   />
                 </div>
                 <div className="flex flex-1 flex-col gap-1 text-right">
@@ -260,7 +270,7 @@ export function Cart({
             )}
 
             {canOfferChangeAsPoints && (
-              <label className="flex items-center gap-2 rounded-tile bg-surface-2 p-3 text-body-sm text-ink">
+              <label className="rounded-tile bg-surface-2 text-body-sm text-ink flex items-center gap-2 p-3">
                 <input
                   type="checkbox"
                   checked={giveChangeAsPoints}
@@ -285,9 +295,9 @@ export function Cart({
             Pinned outside the scrollable region above: DESIGN.md requires the running total and confirm
             action stay "permanently on screen," not buried below Counter/Payment/Customer fields.
             The "Total" label sits outside the panel — the gradient is never behind small text (DESIGN.md §Palette). */}
-        <div className="flex shrink-0 flex-col gap-1 border-t border-line px-4 py-3">
+        <div className="border-line flex shrink-0 flex-col gap-1 border-t px-4 py-3">
           {redeemPoints > 0 && (
-            <div className="flex items-center justify-between text-body-sm text-ink-2">
+            <div className="text-body-sm text-ink-2 flex items-center justify-between">
               <span>{t("Points discount")}</span>
               <span>−{formatLKR(redemptionDiscount)}</span>
             </div>
@@ -311,16 +321,21 @@ export function Cart({
 }
 
 function CartLineRow({ line, dispatch }: { line: CartLine; dispatch: Dispatch<CartAction> }) {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
   return (
-    <li className="flex flex-col gap-2 rounded-tile bg-surface-2 p-3">
+    <li className="rounded-tile bg-surface-2 flex flex-col gap-2 p-3">
       <div className="flex items-start justify-between gap-2">
-        <span className="text-body-sm text-ink">{line.name}</span>
+        <span className="text-body-sm text-ink flex items-start gap-1.5">
+          {line.mainCategory && (
+            <MainCategoryIcon category={line.mainCategory} className="mt-0.5" />
+          )}
+          <span>{line.name}</span>
+        </span>
         <button
           type="button"
           onClick={() => dispatch({ type: "remove", menuItemId: line.menuItemId })}
           aria-label={`Remove ${line.name}`}
-          className="flex size-8 items-center justify-center text-ink-2"
+          className="text-ink-2 flex size-8 items-center justify-center"
         >
           <X className="size-4" />
         </button>
@@ -332,16 +347,16 @@ function CartLineRow({ line, dispatch }: { line: CartLine; dispatch: Dispatch<Ca
             type="button"
             onClick={() => dispatch({ type: "decrement", menuItemId: line.menuItemId })}
             aria-label={`Decrease ${line.name} quantity`}
-            className="flex size-11 items-center justify-center rounded-full bg-surface text-ink"
+            className="bg-surface text-ink flex size-11 items-center justify-center rounded-full"
           >
             <Minus className="size-4" />
           </button>
-          <span className="w-6 text-center text-num text-ink">{line.qty}</span>
+          <span className="text-num text-ink w-6 text-center">{line.qty}</span>
           <button
             type="button"
             onClick={() => dispatch({ type: "increment", menuItemId: line.menuItemId })}
             aria-label={`Increase ${line.name} quantity`}
-            className="flex size-11 items-center justify-center rounded-full bg-surface text-ink"
+            className="bg-surface text-ink flex size-11 items-center justify-center rounded-full"
           >
             <Plus className="size-4" />
           </button>
@@ -356,7 +371,7 @@ function CartLineRow({ line, dispatch }: { line: CartLine; dispatch: Dispatch<Ca
           dispatch({ type: "setNotes", menuItemId: line.menuItemId, notes: event.target.value })
         }
         placeholder={t("Add a note")}
-        className="h-11 rounded-tile border border-line bg-surface px-2 text-body-sm text-ink placeholder:text-ink-3"
+        className="rounded-tile border-line bg-surface text-body-sm text-ink placeholder:text-ink-3 h-11 border px-2"
       />
     </li>
   );

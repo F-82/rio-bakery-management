@@ -29,7 +29,13 @@ type OrderSuccess = {
   printJobs: OrderPrintJob[];
 };
 
-export function PosScreen({ categories, menuItems, counters, defaultCounterId, redeemLkrPerPoint }: PosScreenProps) {
+export function PosScreen({
+  categories,
+  menuItems,
+  counters,
+  defaultCounterId,
+  redeemLkrPerPoint,
+}: PosScreenProps) {
   const { t } = useTranslation();
   const [cart, dispatch] = useReducer(cartReducer, initialCartState);
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
@@ -47,9 +53,7 @@ export function PosScreen({ categories, menuItems, counters, defaultCounterId, r
     const query = search.trim().toLowerCase();
     return menuItems.filter((item) => {
       const matchesCategory = activeCategoryId === null || item.category_id === activeCategoryId;
-      const matchesType =
-        menuType === "all" ||
-        (menuType === "hot_plate" ? item.requires_kitchen_prep : !item.requires_kitchen_prep);
+      const matchesType = menuType === "all" || item.main_category === menuType;
       const matchesSearch = query === "" || item.name.toLowerCase().includes(query);
       return matchesCategory && matchesType && matchesSearch;
     });
@@ -64,6 +68,7 @@ export function PosScreen({ categories, menuItems, counters, defaultCounterId, r
       id: item.id,
       name: item.name,
       price: item.price,
+      mainCategory: item.main_category,
       requiresKitchenPrep: item.requires_kitchen_prep,
     };
     dispatch({ type: "add", item: cartItem });
@@ -125,18 +130,24 @@ export function PosScreen({ categories, menuItems, counters, defaultCounterId, r
           Menu, Orders): breadcrumb + text-3xl font-light title. POS never had
           one before; it rendered directly with no chrome at all. */}
       <div className="shrink-0 px-4 pt-4 pb-2 md:px-5 md:pt-5">
-        <div className="flex items-center gap-2 text-xs text-ink-2">
+        <div className="text-ink-2 flex items-center gap-2 text-xs">
           <span>{t("Orders")}</span>
           <ChevronRight className="size-3" />
           <span>{t("New order")}</span>
         </div>
-        <h1 className="mt-1 text-2xl font-light tracking-tight text-ink md:text-3xl">{t("New order")}</h1>
+        <h1 className="text-ink mt-1 text-2xl font-light tracking-tight md:text-3xl">
+          {t("New order")}
+        </h1>
       </div>
 
       <div className="pos-layout min-h-0 flex-1">
         <div className="pos-grid">
           <MenuTypeToggle value={menuType} onChange={setMenuType} />
-          <CategoryTabs categories={categories} activeId={activeCategoryId} onSelect={setActiveCategoryId} />
+          <CategoryTabs
+            categories={categories}
+            activeId={activeCategoryId}
+            onSelect={setActiveCategoryId}
+          />
           <SearchInput value={search} onChange={setSearch} />
           <ItemTileGrid items={filteredItems} cartQtyFor={cartQtyFor} onAdd={handleAdd} />
         </div>

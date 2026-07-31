@@ -32,15 +32,50 @@ describe("menu_items — requires_kitchen_prep toggle", () => {
       expect(before.kitchen_ticket).toBe(false);
 
       // Flip the flag — the only thing the menu CRUD screen changes.
-      await c.query("update public.menu_items set requires_kitchen_prep = true where id = $1", [fishBun]);
+      await c.query("update public.menu_items set requires_kitchen_prep = true where id = $1", [
+        fishBun,
+      ]);
 
       const after = await createOrder(c, { items: [{ menu_item_id: fishBun, qty: 1 }] });
       expect(after.kitchen_ticket).toBe(true);
 
       // And back off again — the toggle isn't one-directional.
-      await c.query("update public.menu_items set requires_kitchen_prep = false where id = $1", [fishBun]);
+      await c.query("update public.menu_items set requires_kitchen_prep = false where id = $1", [
+        fishBun,
+      ]);
       const restored = await createOrder(c, { items: [{ menu_item_id: fishBun, qty: 1 }] });
       expect(restored.kitchen_ticket).toBe(false);
+    });
+  });
+});
+
+describe("menu_items — main category and weekly menu", () => {
+  it("imports the supplied Sunday bakery menu without exposing blank-price items", async () => {
+    await withRollback(async (c) => {
+      await setActor(c, await userId(c, OWNER));
+
+      const sundayBakery = await c.query(
+        `select name, price, available, main_category, availability_schedule
+         from public.menu_items
+         where business_id = $1
+           and main_category = 'bakery'
+           and availability_schedule = 'sunday'
+         order by sort_order`,
+        [BUSINESS_ID],
+      );
+
+      expect(sundayBakery.rows).toHaveLength(45);
+      expect(sundayBakery.rows[0]).toMatchObject({
+        name: "Normal Bread",
+        price: "100.00",
+        available: true,
+        main_category: "bakery",
+        availability_schedule: "sunday",
+      });
+      expect(sundayBakery.rows.find((item) => item.name === "Deval Bun")).toMatchObject({
+        price: "0.00",
+        available: false,
+      });
     });
   });
 });
@@ -55,7 +90,7 @@ describe("RLS — menu_items / recipe_items writes", () => {
       await c.query("savepoint bad_insert");
       await expect(
         c.query(
-          "insert into public.menu_items (business_id, name, price) values ($1, 'Staff Item', 100) returning id",
+          "insert into public.menu_items (business_id, name, price, main_category) values ($1, 'Staff Item', 100, 'bakery') returning id",
           [BUSINESS_ID],
         ),
       ).rejects.toThrow();
@@ -72,7 +107,7 @@ describe("RLS — menu_items / recipe_items writes", () => {
       await resetRole(c);
       await becomeAuthenticated(c, owner);
       const inserted = await c.query(
-        "insert into public.menu_items (business_id, name, price) values ($1, 'Owner Item', 100) returning id",
+        "insert into public.menu_items (business_id, name, price, main_category) values ($1, 'Owner Item', 100, 'bakery') returning id",
         [BUSINESS_ID],
       );
       expect(inserted.rows.length).toBe(1);

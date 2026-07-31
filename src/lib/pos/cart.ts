@@ -1,9 +1,11 @@
 import { Decimal } from "decimal.js";
+import type { MenuMainCategory } from "@/lib/menu-classification";
 
 export type CartMenuItem = {
   id: string;
   name: string;
   price: number;
+  mainCategory?: MenuMainCategory;
   requiresKitchenPrep: boolean;
 };
 
@@ -11,6 +13,7 @@ export type CartLine = {
   menuItemId: string;
   name: string;
   unitPrice: number;
+  mainCategory?: MenuMainCategory;
   requiresKitchenPrep: boolean;
   qty: number;
   notes: string;
@@ -53,6 +56,7 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
             menuItemId: action.item.id,
             name: action.item.name,
             unitPrice: action.item.price,
+            mainCategory: action.item.mainCategory,
             requiresKitchenPrep: action.item.requiresKitchenPrep,
             qty: 1,
             notes: "",
@@ -69,7 +73,9 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
     case "decrement":
       return {
         lines: state.lines
-          .map((line) => (line.menuItemId === action.menuItemId ? { ...line, qty: line.qty - 1 } : line))
+          .map((line) =>
+            line.menuItemId === action.menuItemId ? { ...line, qty: line.qty - 1 } : line,
+          )
           .filter((line) => line.qty > 0),
       };
     case "setNotes":

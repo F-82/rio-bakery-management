@@ -14,10 +14,10 @@ const OWNER = "owner@riobakershut.lk";
 const BAKERY_STAFF = "bakery@riobakershut.lk";
 
 async function counterId(c: Client, name: string): Promise<string> {
-  const r = await c.query(
-    "select id from public.counters where business_id = $1 and name = $2",
-    [BUSINESS_ID, name],
-  );
+  const r = await c.query("select id from public.counters where business_id = $1 and name = $2", [
+    BUSINESS_ID,
+    name,
+  ]);
   return r.rows[0].id as string;
 }
 
@@ -26,8 +26,12 @@ async function createOrderAs(
   uid: string,
   payload: Record<string, unknown>,
 ): Promise<string> {
-  await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: uid })]);
-  const r = await c.query("select public.create_order($1::jsonb) as res", [JSON.stringify(payload)]);
+  await c.query("select set_config('request.jwt.claims', $1, true)", [
+    JSON.stringify({ sub: uid }),
+  ]);
+  const r = await c.query("select public.create_order($1::jsonb) as res", [
+    JSON.stringify(payload),
+  ]);
   return (r.rows[0].res as { order_id: string }).order_id;
 }
 
@@ -111,7 +115,7 @@ describe("RLS — cross-business isolation", () => {
       ).rows[0].id;
       const otherItem = (
         await c.query(
-          "insert into public.menu_items (business_id, name, price, category_id) values ($1, 'Secret B Item', 100, $2) returning id",
+          "insert into public.menu_items (business_id, name, price, category_id, main_category) values ($1, 'Secret B Item', 100, $2, 'bakery') returning id",
           [otherBiz, otherCat],
         )
       ).rows[0].id;

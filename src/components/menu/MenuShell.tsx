@@ -4,15 +4,30 @@ import Image from "next/image";
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Search, ChevronRight, Plus, Pencil, X, ImagePlus, ChefHat,
-} from "lucide-react";
+import { Search, ChevronRight, Plus, Pencil, X, ImagePlus, ChefHat } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { fetchMenuItemRecipe } from "@/lib/menu-detail";
 import {
-  uploadMenuItemImageAction, createMenuItem, updateMenuItem, replaceMenuItemRecipe,
+  uploadMenuItemImageAction,
+  createMenuItem,
+  updateMenuItem,
+  replaceMenuItemRecipe,
 } from "@/lib/actions/menu";
-import type { MenuCategory, MenuListRow, RecipeInventoryOption, RecipeLine, SoldTodayMap } from "@/lib/queries/menu";
+import type {
+  MenuCategory,
+  MenuListRow,
+  RecipeInventoryOption,
+  RecipeLine,
+  SoldTodayMap,
+} from "@/lib/queries/menu";
+import { MainCategoryIcon } from "./MainCategoryIcon";
+import {
+  MENU_MAIN_CATEGORIES,
+  MENU_MAIN_CATEGORY_LABELS,
+  MENU_SCHEDULE_LABELS,
+  type MenuMainCategory,
+  type MenuSchedule,
+} from "@/lib/menu-classification";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -34,7 +49,7 @@ const TAX_LABELS: Record<string, string> = {
 };
 
 const TAX_KEYS = ["standard", "zero_rated", "exempt"] as const;
-type TaxKey = typeof TAX_KEYS[number];
+type TaxKey = (typeof TAX_KEYS)[number];
 
 // ---------------------------------------------------------------------------
 
@@ -42,19 +57,24 @@ type TaxKey = typeof TAX_KEYS[number];
 // Primitive helpers
 // ---------------------------------------------------------------------------
 
-function Chip({ children, tone = "neutral" }: {
+function Chip({
+  children,
+  tone = "neutral",
+}: {
   children: React.ReactNode;
   tone?: "neutral" | "green" | "yellow" | "black" | "red";
 }) {
   const tones: Record<string, string> = {
     neutral: "bg-neutral-100 text-neutral-700",
-    green:   "bg-[rgba(12,151,98,0.10)] text-[var(--accent-green)]",
-    yellow:  "bg-[rgba(250,255,127,0.55)] text-neutral-800",
-    black:   "bg-black text-white",
-    red:     "bg-[rgba(239,68,68,0.08)] text-red-600",
+    green: "bg-[rgba(12,151,98,0.10)] text-[var(--accent-green)]",
+    yellow: "bg-[rgba(250,255,127,0.55)] text-neutral-800",
+    black: "bg-black text-white",
+    red: "bg-[rgba(239,68,68,0.08)] text-red-600",
   };
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${tones[tone]}`}>
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${tones[tone]}`}
+    >
       {children}
     </span>
   );
@@ -69,7 +89,9 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
       onClick={() => onChange(!on)}
       className={`h-6 w-11 shrink-0 rounded-full p-0.5 transition-colors ${on ? "bg-black" : "bg-neutral-300"}`}
     >
-      <span className={`block h-5 w-5 rounded-full bg-white transition-transform ${on ? "translate-x-5" : ""}`} />
+      <span
+        className={`block h-5 w-5 rounded-full bg-white transition-transform ${on ? "translate-x-5" : ""}`}
+      />
     </button>
   );
 }
@@ -96,6 +118,8 @@ function lkr(n: number) {
 
 type DraftItem = {
   name: string;
+  main_category: MenuMainCategory;
+  availability_schedule: MenuSchedule;
   category_id: string;
   price: number;
   requires_kitchen_prep: boolean;
@@ -105,8 +129,14 @@ type DraftItem = {
 };
 
 const EMPTY_DRAFT: DraftItem = {
-  name: "", category_id: "", price: 0,
-  requires_kitchen_prep: false, tax_category: "standard", available: true,
+  name: "",
+  main_category: "hot_plate",
+  availability_schedule: "all_days",
+  category_id: "",
+  price: 0,
+  requires_kitchen_prep: false,
+  tax_category: "standard",
+  available: true,
   image_url: null,
 };
 
@@ -140,7 +170,10 @@ function ItemForm({
     fd.append("file", file);
     const result = await uploadMenuItemImageAction(fd);
     setUploading(false);
-    if (!result.ok) { setUploadError(result.error); return; }
+    if (!result.ok) {
+      setUploadError(result.error);
+      return;
+    }
     set({ image_url: result.url });
   }
 
@@ -155,15 +188,66 @@ function ItemForm({
         />
       </Field>
 
+      <Field label="Main category">
+        <div className="grid grid-cols-3 gap-2">
+          {MENU_MAIN_CATEGORIES.map((category) => (
+            <button
+              key={category}
+              type="button"
+              onClick={() =>
+                set({
+                  main_category: category,
+                  availability_schedule:
+                    category === "bakery"
+                      ? value.availability_schedule === "all_days"
+                        ? "monday_saturday"
+                        : value.availability_schedule
+                      : "all_days",
+                })
+              }
+              className={`flex min-h-11 items-center justify-center gap-1.5 rounded-full px-2 text-xs font-medium transition-colors ${
+                value.main_category === category
+                  ? "bg-black text-white"
+                  : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+              }`}
+              aria-pressed={value.main_category === category}
+            >
+              <MainCategoryIcon
+                category={category}
+                className={value.main_category === category ? "text-white" : undefined}
+              />
+              <span>{MENU_MAIN_CATEGORY_LABELS[category]}</span>
+            </button>
+          ))}
+        </div>
+      </Field>
+
+      {value.main_category === "bakery" && (
+        <Field label="Bakery menu schedule">
+          <select
+            className={inputCls}
+            value={value.availability_schedule}
+            onChange={(e) => set({ availability_schedule: e.target.value as MenuSchedule })}
+          >
+            <option value="monday_saturday">Monday to Saturday</option>
+            <option value="sunday">Sunday only</option>
+          </select>
+        </Field>
+      )}
+
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Category">
+        <Field label="Subcategory">
           <select
             className={inputCls}
             value={value.category_id}
             onChange={(e) => set({ category_id: e.target.value })}
           >
             <option value="">No category</option>
-            {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
           </select>
         </Field>
         <Field label="Price (LKR)">
@@ -208,10 +292,18 @@ function ItemForm({
           onClick={() => fileInputRef.current?.click()}
           className="flex w-full items-center gap-3 rounded-[18px] border border-dashed border-neutral-300 bg-neutral-50 px-4 py-4 text-left hover:bg-neutral-100 disabled:opacity-60"
         >
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-neutral-700 shadow-sm overflow-hidden">
-            {value.image_url
-              ? <Image src={value.image_url} alt="" width={40} height={40} className="h-full w-full object-cover" />
-              : <ImagePlus className="h-4 w-4" />}
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white text-neutral-700 shadow-sm">
+            {value.image_url ? (
+              <Image
+                src={value.image_url}
+                alt=""
+                width={40}
+                height={40}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <ImagePlus className="h-4 w-4" />
+            )}
           </span>
           <span>
             <span className="block text-sm font-medium">
@@ -234,7 +326,9 @@ function ItemForm({
       <div className="flex items-center justify-between rounded-[18px] bg-neutral-100 px-4 py-3">
         <div>
           <div className="text-sm font-medium">Available</div>
-          <div className="text-xs text-neutral-500">Show this item on the POS and online ordering.</div>
+          <div className="text-xs text-neutral-500">
+            Show this item on the POS and online ordering.
+          </div>
         </div>
         <Toggle on={value.available} onChange={(v) => set({ available: v })} />
       </div>
@@ -244,11 +338,14 @@ function ItemForm({
           <div className="flex items-center gap-2 text-sm font-medium">
             <ChefHat className="h-4 w-4" /> Send to the kitchen printer
           </div>
-          <Toggle on={value.requires_kitchen_prep} onChange={(v) => set({ requires_kitchen_prep: v })} />
+          <Toggle
+            on={value.requires_kitchen_prep}
+            onChange={(v) => set({ requires_kitchen_prep: v })}
+          />
         </div>
         <p className="mt-2 text-xs leading-relaxed text-neutral-700">
-          Turn on for anything cooked or warmed to order. Leave it off for anything sold as-is,
-          like a bottled drink or a pre-made pastry.
+          Turn on for anything cooked or warmed to order. Leave it off for anything sold as-is, like
+          a bottled drink or a pre-made pastry.
         </p>
       </div>
     </div>
@@ -276,10 +373,7 @@ function EditDrawer({
 }) {
   if (!item) return null;
   return (
-    <div
-      className="fixed inset-0 z-50 flex justify-end bg-black/30 p-0 md:p-4"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50 flex justify-end bg-black/30 p-0 md:p-4" onClick={onClose}>
       <EditDrawerContent
         key={item.id}
         item={item}
@@ -294,7 +388,12 @@ function EditDrawer({
 }
 
 function EditDrawerContent({
-  item, categories, inventoryOptions, businessId, onClose, onSaved,
+  item,
+  categories,
+  inventoryOptions,
+  businessId,
+  onClose,
+  onSaved,
 }: {
   item: MenuListRow;
   categories: MenuCategory[];
@@ -305,6 +404,8 @@ function EditDrawerContent({
 }) {
   const [draft, setDraft] = useState<DraftItem>({
     name: item.name,
+    main_category: item.main_category,
+    availability_schedule: item.availability_schedule,
     category_id: item.category_id ?? "",
     price: item.price,
     requires_kitchen_prep: item.requires_kitchen_prep,
@@ -321,9 +422,14 @@ function EditDrawerContent({
   useEffect(() => {
     let cancelled = false;
     fetchMenuItemRecipe(createClient(), item.id).then((lines) => {
-      if (!cancelled) { setRecipe(lines); setLoadingRecipe(false); }
+      if (!cancelled) {
+        setRecipe(lines);
+        setLoadingRecipe(false);
+      }
     });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [item.id]);
 
   async function handleSave() {
@@ -331,6 +437,8 @@ function EditDrawerContent({
     setError(null);
     const result = await updateMenuItem(item.id, {
       name: draft.name,
+      mainCategory: draft.main_category,
+      availabilitySchedule: draft.availability_schedule,
       categoryId: draft.category_id || null,
       price: draft.price,
       requiresKitchenPrep: draft.requires_kitchen_prep,
@@ -338,13 +446,20 @@ function EditDrawerContent({
       available: draft.available,
       imageUrl: draft.image_url,
     });
-    if (!result.ok) { setError(result.error ?? "Failed to save."); setSaving(false); return; }
+    if (!result.ok) {
+      setError(result.error ?? "Failed to save.");
+      setSaving(false);
+      return;
+    }
 
     // Persist recipe
-    await replaceMenuItemRecipe(item.id, recipe.map((r) => ({
-      inventoryItemId: r.inventory_item_id,
-      qty: r.qty,
-    })));
+    await replaceMenuItemRecipe(
+      item.id,
+      recipe.map((r) => ({
+        inventoryItemId: r.inventory_item_id,
+        qty: r.qty,
+      })),
+    );
 
     setSaving(false);
     onSaved();
@@ -359,13 +474,19 @@ function EditDrawerContent({
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <div className="text-xs text-neutral-500">{item.category?.name ?? "No category"}</div>
+          <div className="flex items-center gap-2 text-xs text-neutral-500">
+            <MainCategoryIcon category={draft.main_category} />
+            <span>{item.category?.name ?? "No subcategory"}</span>
+          </div>
           <h2 className="mt-1 text-2xl font-light tracking-tight">{item.name}</h2>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <Chip tone="black">{lkr(draft.price)}</Chip>
-            {draft.available
-              ? <Chip tone="green">Available</Chip>
-              : <Chip tone="red">Unavailable</Chip>}
+            <Chip>{MENU_SCHEDULE_LABELS[draft.availability_schedule]}</Chip>
+            {draft.available ? (
+              <Chip tone="green">Available</Chip>
+            ) : (
+              <Chip tone="red">Unavailable</Chip>
+            )}
             {draft.requires_kitchen_prep && <Chip tone="yellow">Kitchen prep</Chip>}
           </div>
         </div>
@@ -385,13 +506,19 @@ function EditDrawerContent({
         ) : (
           <div className="mt-3 space-y-2">
             {recipe.map((r, idx) => (
-              <div key={r.inventory_item_id} className="flex items-center gap-2 rounded-[14px] bg-white px-3 py-2">
+              <div
+                key={r.inventory_item_id}
+                className="flex items-center gap-2 rounded-[14px] bg-white px-3 py-2"
+              >
                 <span className="flex-1 text-sm">{r.inventory_item.name}</span>
                 <input
                   type="number"
                   value={r.qty}
                   onChange={(e) =>
-                    setRecipe((p) => p.map((x, i) => (i === idx ? { ...x, qty: Number(e.target.value) } : x)))}
+                    setRecipe((p) =>
+                      p.map((x, i) => (i === idx ? { ...x, qty: Number(e.target.value) } : x)),
+                    )
+                  }
                   className="w-20 rounded-lg bg-neutral-100 px-2 py-1 text-sm outline-none"
                 />
                 <span className="w-10 text-xs text-neutral-500">{r.inventory_item.base_unit}</span>
@@ -410,17 +537,24 @@ function EditDrawerContent({
                 className="flex-1 rounded-[14px] bg-white px-3 py-2 text-sm outline-none"
               >
                 <option value="">Select ingredient</option>
-                {inventoryOptions.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
+                {inventoryOptions.map((i) => (
+                  <option key={i.id} value={i.id}>
+                    {i.name}
+                  </option>
+                ))}
               </select>
               <button
                 onClick={() => {
                   const inv = inventoryOptions.find((o) => o.id === newIngredient);
                   if (!inv) return;
-                  setRecipe((p) => [...p, {
-                    inventory_item_id: inv.id,
-                    qty: 1,
-                    inventory_item: { name: inv.name, base_unit: inv.base_unit },
-                  }]);
+                  setRecipe((p) => [
+                    ...p,
+                    {
+                      inventory_item_id: inv.id,
+                      qty: 1,
+                      inventory_item: { name: inv.name, base_unit: inv.base_unit },
+                    },
+                  ]);
                   setNewIngredient("");
                 }}
                 className="rounded-full bg-black px-4 py-2 text-sm text-white hover:opacity-90"
@@ -440,7 +574,9 @@ function EditDrawerContent({
         </div>
       </div>
 
-      {error && <p className="mt-3 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+      {error && (
+        <p className="mt-3 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+      )}
 
       {/* Sticky footer */}
       <div className="sticky bottom-0 mt-5 flex gap-2 bg-white pt-3 pb-1">
@@ -467,7 +603,11 @@ function EditDrawerContent({
 // ---------------------------------------------------------------------------
 
 function AddModal({
-  open, categories, businessId, onClose, onSaved,
+  open,
+  categories,
+  businessId,
+  onClose,
+  onSaved,
 }: {
   open: boolean;
   categories: MenuCategory[];
@@ -479,7 +619,12 @@ function AddModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => { if (open) { setDraft(EMPTY_DRAFT); setError(null); } }, [open]);
+  useEffect(() => {
+    if (open) {
+      setDraft(EMPTY_DRAFT);
+      setError(null);
+    }
+  }, [open]);
 
   if (!open) return null;
 
@@ -488,6 +633,8 @@ function AddModal({
     setError(null);
     const result = await createMenuItem({
       name: draft.name,
+      mainCategory: draft.main_category,
+      availabilitySchedule: draft.availability_schedule,
       categoryId: draft.category_id || null,
       price: draft.price,
       requiresKitchenPrep: draft.requires_kitchen_prep,
@@ -495,7 +642,11 @@ function AddModal({
       available: draft.available,
       imageUrl: null,
     });
-    if (!result.ok) { setError(result.error ?? "Failed to create item."); setSaving(false); return; }
+    if (!result.ok) {
+      setError(result.error ?? "Failed to create item.");
+      setSaving(false);
+      return;
+    }
     setSaving(false);
     onSaved();
     onClose();
@@ -512,16 +663,24 @@ function AddModal({
       >
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-light tracking-tight">Add menu item</h2>
-          <button onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-100 hover:bg-neutral-200">
+          <button
+            onClick={onClose}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-100 hover:bg-neutral-200"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
         <div className="mt-4">
           <ItemForm value={draft} onChange={setDraft} categories={categories} />
         </div>
-        {error && <p className="mt-3 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+        {error && (
+          <p className="mt-3 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+        )}
         <div className="mt-5 flex gap-2">
-          <button onClick={onClose} className="flex-1 rounded-full bg-neutral-100 px-4 py-3 text-sm text-neutral-700 hover:bg-neutral-200">
+          <button
+            onClick={onClose}
+            className="flex-1 rounded-full bg-neutral-100 px-4 py-3 text-sm text-neutral-700 hover:bg-neutral-200"
+          >
             Cancel
           </button>
           <button
@@ -541,164 +700,231 @@ function AddModal({
 // Main shell
 // ---------------------------------------------------------------------------
 
-export function MenuShell({ items, categories, inventoryOptions, canManage, businessId, soldToday }: MenuShellProps) {
+export function MenuShell({
+  items,
+  categories,
+  inventoryOptions,
+  canManage,
+  businessId,
+  soldToday,
+}: MenuShellProps) {
   const router = useRouter();
 
   // Client-side filter state
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All categories");
+  const [activeMainCategory, setActiveMainCategory] = useState<MenuMainCategory | "all">("all");
   const [availableOnly, setAvailableOnly] = useState(false);
   const [editing, setEditing] = useState<MenuListRow | null>(null);
   const [adding, setAdding] = useState(false);
 
   // Derived
-  const filtered = useMemo(() =>
-    items.filter((i) =>
-      (activeCategory === "All categories" || i.category?.name === activeCategory) &&
-      (!availableOnly || i.available) &&
-      i.name.toLowerCase().includes(query.toLowerCase()),
-    ), [items, activeCategory, availableOnly, query]);
+  const filtered = useMemo(
+    () =>
+      items.filter(
+        (i) =>
+          (activeCategory === "All categories" || i.category?.name === activeCategory) &&
+          (activeMainCategory === "all" || i.main_category === activeMainCategory) &&
+          (!availableOnly || i.available) &&
+          i.name.toLowerCase().includes(query.toLowerCase()),
+      ),
+    [items, activeCategory, activeMainCategory, availableOnly, query],
+  );
 
-  const statsTotal    = items.length;
-  const statsAvail    = items.filter((i) => i.available).length;
-  const statsPrep     = items.filter((i) => i.requires_kitchen_prep).length;
-  const statsCats     = categories.length;
+  const statsTotal = items.length;
+  const statsAvail = items.filter((i) => i.available).length;
+  const statsPrep = items.filter((i) => i.requires_kitchen_prep).length;
+  const statsCats = categories.length;
 
-  function handleSaved() { router.refresh(); }
+  function handleSaved() {
+    router.refresh();
+  }
 
   return (
     <>
-          {/* Page header */}
-          <section className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
-            <div>
-              <div className="flex items-center gap-2 text-xs text-neutral-500">
-                <span>Rio Bakers Hut</span>
-                <ChevronRight className="h-3 w-3" />
-                <span className="text-neutral-800 font-medium">Menu</span>
+      {/* Page header */}
+      <section className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
+        <div>
+          <div className="flex items-center gap-2 text-xs text-neutral-500">
+            <span>Rio Bakers Hut</span>
+            <ChevronRight className="h-3 w-3" />
+            <span className="font-medium text-neutral-800">Menu</span>
+          </div>
+          <h1 className="mt-1 text-3xl font-light tracking-tight text-neutral-900">Menu</h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 rounded-full bg-neutral-100 px-3.5 py-2 text-sm text-neutral-700">
+            Available only
+            <Toggle on={availableOnly} onChange={setAvailableOnly} />
+          </div>
+          {canManage && (
+            <button
+              onClick={() => setAdding(true)}
+              className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm text-white hover:opacity-90"
+            >
+              <Plus className="h-3.5 w-3.5" /> Add item
+            </button>
+          )}
+        </div>
+      </section>
+
+      {/* Search — moved out of the old per-page topbar, which is gone
+              now that (owner)/layout.tsx owns the persistent chrome */}
+      <label className="flex cursor-text items-center gap-2 rounded-full bg-neutral-100 px-3.5 py-2 text-sm text-neutral-600">
+        <Search className="h-3.5 w-3.5 flex-shrink-0" />
+        <input
+          placeholder="Search menu items…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="flex-1 bg-transparent text-sm outline-none placeholder:text-neutral-400"
+        />
+      </label>
+
+      {/* Category filter pills */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => setActiveMainCategory("all")}
+          className={`rounded-full px-3.5 py-2 text-sm transition-colors ${
+            activeMainCategory === "all"
+              ? "bg-black text-white"
+              : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+          }`}
+        >
+          All menus
+        </button>
+        {MENU_MAIN_CATEGORIES.map((category) => (
+          <button
+            key={category}
+            onClick={() => setActiveMainCategory(category)}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm transition-colors ${
+              activeMainCategory === category
+                ? "bg-black text-white"
+                : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+            }`}
+          >
+            <MainCategoryIcon
+              category={category}
+              className={activeMainCategory === category ? "text-white" : undefined}
+            />
+            {MENU_MAIN_CATEGORY_LABELS[category]}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {["All categories", ...categories.map((c) => c.name)].map((c) => (
+          <button
+            key={c}
+            onClick={() => setActiveCategory(c)}
+            className={`rounded-full px-3.5 py-2 text-sm transition-colors ${
+              activeCategory === c
+                ? "bg-black text-white"
+                : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+            }`}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
+
+      {/* Summary stats */}
+      <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        {[
+          { label: "Menu items", value: statsTotal, bg: "#f5f5f5", text: "text-neutral-800" },
+          {
+            label: "Available",
+            value: statsAvail,
+            bg: "rgba(12,151,98,0.10)",
+            text: "text-[var(--accent-green)]",
+          },
+          {
+            label: "Kitchen prep",
+            value: statsPrep,
+            bg: "rgba(250,255,127,0.45)",
+            text: "text-neutral-800",
+          },
+          { label: "Categories", value: statsCats, bg: "#f5f5f5", text: "text-neutral-800" },
+        ].map((s) => (
+          <div key={s.label} className="rounded-[20px] p-4" style={{ background: s.bg }}>
+            <div className={`text-3xl font-light ${s.text}`}>{s.value}</div>
+            <div className="mt-1 text-xs font-medium text-neutral-600">{s.label}</div>
+          </div>
+        ))}
+      </section>
+
+      {/* Items table */}
+      <section className="overflow-hidden rounded-[24px] border border-black/5">
+        {/* Header row — desktop */}
+        <div className="hidden grid-cols-12 gap-3 bg-neutral-50 px-5 py-3 text-xs font-medium text-neutral-500 md:grid">
+          <div className="col-span-3">Name</div>
+          <div className="col-span-2">Category</div>
+          <div className="col-span-2">Price</div>
+          <div className="col-span-1">Sold today</div>
+          <div className="col-span-1">Kitchen prep</div>
+          <div className="col-span-1">Tax</div>
+          <div className="col-span-2 text-right">Availability</div>
+        </div>
+
+        {filtered.map((item) => (
+          <div
+            key={item.id}
+            className="grid grid-cols-2 items-center gap-3 border-t border-black/5 px-5 py-3.5 transition-colors hover:bg-neutral-50 md:grid-cols-12"
+          >
+            <div className="col-span-2 md:col-span-3">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <MainCategoryIcon category={item.main_category} />
+                <span>{item.name}</span>
               </div>
-              <h1 className="mt-1 text-3xl font-light tracking-tight text-neutral-900">Menu</h1>
+              {(soldToday[item.id] ?? 0) > 0 && (
+                <div className="text-xs text-neutral-400">{soldToday[item.id]} sold today</div>
+              )}
+              <div className="text-xs text-neutral-400">
+                {MENU_SCHEDULE_LABELS[item.availability_schedule]}
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 rounded-full bg-neutral-100 px-3.5 py-2 text-sm text-neutral-700">
-                Available only
-                <Toggle on={availableOnly} onChange={setAvailableOnly} />
-              </div>
+            <div className="col-span-1 text-xs text-neutral-500 md:col-span-2 md:text-sm">
+              {item.category?.name ?? "—"}
+            </div>
+            <div className="col-span-1 text-sm tabular-nums md:col-span-2">{lkr(item.price)}</div>
+            <div className="col-span-1 hidden text-sm text-neutral-600 tabular-nums md:block">
+              {soldToday[item.id] ?? 0}
+            </div>
+            <div className="col-span-1 md:col-span-1">
+              {item.requires_kitchen_prep ? (
+                <Chip tone="yellow">Prep</Chip>
+              ) : (
+                <span className="text-sm text-neutral-400">—</span>
+              )}
+            </div>
+            <div className="col-span-1 text-xs text-neutral-600 md:col-span-1">
+              {TAX_LABELS[item.tax_category] ?? item.tax_category}
+            </div>
+            <div className="col-span-2 flex items-center justify-end gap-2 md:col-span-2">
+              {item.available ? (
+                <Chip tone="green">Available</Chip>
+              ) : (
+                <Chip tone="red">Unavailable</Chip>
+              )}
               {canManage && (
                 <button
-                  onClick={() => setAdding(true)}
-                  className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm text-white hover:opacity-90"
+                  onClick={() => setEditing(item)}
+                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-neutral-100 text-neutral-700 transition-colors hover:bg-neutral-200"
                 >
-                  <Plus className="h-3.5 w-3.5" /> Add item
+                  <Pencil className="h-3.5 w-3.5" />
                 </button>
               )}
             </div>
-          </section>
-
-          {/* Search — moved out of the old per-page topbar, which is gone
-              now that (owner)/layout.tsx owns the persistent chrome */}
-          <label className="flex items-center gap-2 rounded-full bg-neutral-100 px-3.5 py-2 text-sm text-neutral-600 cursor-text">
-            <Search className="h-3.5 w-3.5 flex-shrink-0" />
-            <input
-              placeholder="Search menu items…"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="bg-transparent outline-none flex-1 text-sm placeholder:text-neutral-400"
-            />
-          </label>
-
-          {/* Category filter pills */}
-          <div className="flex flex-wrap gap-2">
-            {["All categories", ...categories.map((c) => c.name)].map((c) => (
-              <button
-                key={c}
-                onClick={() => setActiveCategory(c)}
-                className={`rounded-full px-3.5 py-2 text-sm transition-colors ${
-                  activeCategory === c
-                    ? "bg-black text-white"
-                    : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
-                }`}
-              >
-                {c}
-              </button>
-            ))}
           </div>
+        ))}
 
-          {/* Summary stats */}
-          <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {[
-              { label: "Menu items",   value: statsTotal, bg: "#f5f5f5",                    text: "text-neutral-800" },
-              { label: "Available",    value: statsAvail, bg: "rgba(12,151,98,0.10)",        text: "text-[var(--accent-green)]" },
-              { label: "Kitchen prep", value: statsPrep,  bg: "rgba(250,255,127,0.45)",      text: "text-neutral-800" },
-              { label: "Categories",   value: statsCats,  bg: "#f5f5f5",                     text: "text-neutral-800" },
-            ].map((s) => (
-              <div key={s.label} className="rounded-[20px] p-4" style={{ background: s.bg }}>
-                <div className={`text-3xl font-light ${s.text}`}>{s.value}</div>
-                <div className="mt-1 text-xs text-neutral-600 font-medium">{s.label}</div>
-              </div>
-            ))}
-          </section>
+        {filtered.length === 0 && (
+          <div className="border-t border-black/5 px-5 py-10 text-center text-sm text-neutral-500">
+            No items match this filter.
+          </div>
+        )}
+      </section>
 
-          {/* Items table */}
-          <section className="overflow-hidden rounded-[24px] border border-black/5">
-            {/* Header row — desktop */}
-            <div className="hidden grid-cols-12 gap-3 bg-neutral-50 px-5 py-3 text-xs font-medium text-neutral-500 md:grid">
-              <div className="col-span-3">Name</div>
-              <div className="col-span-2">Category</div>
-              <div className="col-span-2">Price</div>
-              <div className="col-span-1">Sold today</div>
-              <div className="col-span-1">Kitchen prep</div>
-              <div className="col-span-1">Tax</div>
-              <div className="col-span-2 text-right">Availability</div>
-            </div>
-
-            {filtered.map((item) => (
-              <div
-                key={item.id}
-                className="grid grid-cols-2 items-center gap-3 border-t border-black/5 px-5 py-3.5 transition-colors hover:bg-neutral-50 md:grid-cols-12"
-              >
-                <div className="col-span-2 md:col-span-3">
-                  <div className="text-sm font-medium">{item.name}</div>
-                  {(soldToday[item.id] ?? 0) > 0 && (
-                    <div className="text-xs text-neutral-400">{soldToday[item.id]} sold today</div>
-                  )}
-                </div>
-                <div className="col-span-1 text-xs text-neutral-500 md:col-span-2 md:text-sm">{item.category?.name ?? "—"}</div>
-                <div className="col-span-1 text-sm md:col-span-2 tabular-nums">{lkr(item.price)}</div>
-                <div className="col-span-1 hidden text-sm tabular-nums text-neutral-600 md:block">
-                  {soldToday[item.id] ?? 0}
-                </div>
-                <div className="col-span-1 md:col-span-1">
-                  {item.requires_kitchen_prep
-                    ? <Chip tone="yellow">Prep</Chip>
-                    : <span className="text-sm text-neutral-400">—</span>}
-                </div>
-                <div className="col-span-1 text-xs text-neutral-600 md:col-span-1">
-                  {TAX_LABELS[item.tax_category] ?? item.tax_category}
-                </div>
-                <div className="col-span-2 flex items-center justify-end gap-2 md:col-span-2">
-                  {item.available
-                    ? <Chip tone="green">Available</Chip>
-                    : <Chip tone="red">Unavailable</Chip>}
-                  {canManage && (
-                    <button
-                      onClick={() => setEditing(item)}
-                      className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-colors flex-shrink-0"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-
-            {filtered.length === 0 && (
-              <div className="border-t border-black/5 px-5 py-10 text-center text-sm text-neutral-500">
-                No items match this filter.
-              </div>
-            )}
-          </section>
-
-          <div className="h-4" />
+      <div className="h-4" />
 
       {/* Edit drawer */}
       {canManage && (

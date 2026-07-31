@@ -4,13 +4,13 @@ Single-tenant now, schema is multi-tenant-ready. Online-only web app. LKR, Asia/
 
 ## Stack
 
-| Layer | Choice |
-|---|---|
-| Frontend | Next.js App Router, TypeScript, Tailwind, shadcn/ui |
-| Backend | Supabase (Postgres, Auth, Realtime, Storage) |
-| Migrations | Supabase CLI, remote-only, forward-only |
+| Layer        | Choice                                                      |
+| ------------ | ----------------------------------------------------------- |
+| Frontend     | Next.js App Router, TypeScript, Tailwind, shadcn/ui         |
+| Backend      | Supabase (Postgres, Auth, Realtime, Storage)                |
+| Migrations   | Supabase CLI, remote-only, forward-only                     |
 | Print bridge | Node agent on-site, subscribes to `print_jobs` via Realtime |
-| Host | Vercel |
+| Host         | Vercel                                                      |
 
 No Docker. No `supabase start`. No `db reset` against a linked project.
 
@@ -18,15 +18,19 @@ No Docker. No `supabase start`. No `db reset` against a linked project.
 
 The two source docs disagreed. Rulings:
 
-| Question | Ruling | Source |
-|---|---|---|
-| Counter split | Bakery Counter + Hot Plate Counter | Flows §2 |
-| Menu scoping | **None.** Both counters see the full menu | Flows §2 |
-| `counter_id` meaning | Attribution only — which till rang it up. Never a permission | Flows §2 |
-| What triggers a kitchen ticket | `requires_kitchen_prep` on the line item | derived |
-| `counter_tag` on MenuItem | **Dropped.** Merged into `requires_kitchen_prep` | derived |
+| Question                       | Ruling                                                                                                                            | Source               |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| Counter split                  | Bakery Counter + Hot Plate Counter                                                                                                | Flows §2             |
+| Menu scoping                   | **None.** Both counters see the full menu                                                                                         | Flows §2             |
+| `counter_id` meaning           | Attribution only — which till rang it up. Never a permission                                                                      | Flows §2             |
+| What triggers a kitchen ticket | `requires_kitchen_prep` on the line item                                                                                          | derived              |
+| `counter_tag` on MenuItem      | **Dropped as a counter permission.** Replaced by display-only `main_category`; printer routing still uses `requires_kitchen_prep` | client clarification |
 
-Why `counter_tag` is gone: both docs conflated *where sold* with *needs cooking*. Only the second drives behaviour. Client confirmed bakery items "might" need prep (warmed pastries), which makes `is_hot_plate` a lie the moment it happens. One flag, per item, no counter involvement.
+`main_category` is catalog grouping only: `hot_plate | bakery | drinks`. It never
+restricts a counter and never controls printing. Client confirmed bakery items
+"might" need prep (warmed pastries), so `requires_kitchen_prep` remains an
+independent flag. Bakery availability rotates between Monday–Saturday and
+Sunday menus; drinks and hot plate use `all_days`.
 
 ## Invariants
 
@@ -64,8 +68,10 @@ counters        id, business_id, name, kind, active
 categories      id, business_id, name, scope, sort_order
                 scope: menu | inventory
 menu_items      id, business_id, name, price, category_id, image_url,
-                available, requires_kitchen_prep, tax_category,
-                sort_order, created_at
+                available, main_category, availability_schedule,
+                requires_kitchen_prep, tax_category, sort_order, created_at
+                main_category: hot_plate | bakery | drinks
+                availability_schedule: all_days | monday_saturday | sunday
 inventory_items id, business_id, name, category_id, stock_type, base_unit,
                 qty_on_hand, low_stock_threshold, unit_cost, barcode, active
                 stock_type: ingredient | finished_good | merchandise
@@ -167,10 +173,10 @@ loyalty_transactions id, customer_id, order_id, points_earned,
 
 **Rates are settings, not constants:**
 
-| Setting | Default | Note |
-|---|---|---|
-| `loyalty.earn_points_per_lkr` | `1` | client-specified |
-| `loyalty.redeem_lkr_per_point` | `0.01` | **needs owner sign-off** |
+| Setting                        | Default | Note                     |
+| ------------------------------ | ------- | ------------------------ |
+| `loyalty.earn_points_per_lkr`  | `1`     | client-specified         |
+| `loyalty.redeem_lkr_per_point` | `0.01`  | **needs owner sign-off** |
 
 At earn 1/LKR, a redemption rate of 1 LKR per point is a 100% discount on everything. `0.01` gives 1% back, which is a normal programme. Confirm before launch.
 
@@ -203,18 +209,18 @@ Two tills writing concurrently to the same stock rows without step 3 produces wr
 
 ## RLS
 
-| Table | owner | manager | staff |
-|---|---|---|---|
-| orders | all | all | insert + read own counter, today |
-| order_items | all | all | via order |
-| menu_items | write | write | read |
-| inventory_items | write | write | read (needs stock to sell) |
-| stock_movements | all | all | insert via RPC only |
-| expenses | all | read + insert | **none** |
-| customers | all | all | read + insert (loyalty lookup) |
-| print_jobs | all | all | read + reprint own |
-| profiles | all | all | read self |
-| settings | write | write | read public keys |
+| Table           | owner | manager       | staff                            |
+| --------------- | ----- | ------------- | -------------------------------- |
+| orders          | all   | all           | insert + read own counter, today |
+| order_items     | all   | all           | via order                        |
+| menu_items      | write | write         | read                             |
+| inventory_items | write | write         | read (needs stock to sell)       |
+| stock_movements | all   | all           | insert via RPC only              |
+| expenses        | all   | read + insert | **none**                         |
+| customers       | all   | all           | read + insert (loyalty lookup)   |
+| print_jobs      | all   | all           | read + reprint own               |
+| profiles        | all   | all           | read self                        |
+| settings        | write | write         | read public keys                 |
 
 Managers have the owner's operational access, but their app navigation omits
 Dashboard. Their Revenue screen exposes revenue and expense entry only; it
@@ -238,9 +244,9 @@ There is no revenue multiplier, adjustment factor, or reduction setting. If a fu
 
 ## Deferred
 
-| Item | Why |
-|---|---|
-| Barcode / QR scan | Flows §4 — phase two, menu-linked flow is primary |
-| Offline mode | Client confirmed online-only |
-| Multi-tenant UI | Schema ready, no UI until a second client exists |
-| Real printer driver | Hardware unknown |
+| Item                | Why                                               |
+| ------------------- | ------------------------------------------------- |
+| Barcode / QR scan   | Flows §4 — phase two, menu-linked flow is primary |
+| Offline mode        | Client confirmed online-only                      |
+| Multi-tenant UI     | Schema ready, no UI until a second client exists  |
+| Real printer driver | Hardware unknown                                  |

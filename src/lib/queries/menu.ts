@@ -1,6 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { colomboToday } from "@/lib/dashboard";
 import type { Database } from "@/types/database";
+import {
+  currentMenuSchedule,
+  type MenuMainCategory,
+  type MenuSchedule,
+} from "@/lib/menu-classification";
 
 type TaxCategory = Database["public"]["Enums"]["tax_category"];
 
@@ -9,10 +14,17 @@ export type MenuCategory = Pick<
   "id" | "name" | "sort_order"
 >;
 
-export type PosMenuItem = Pick<
-  Database["public"]["Tables"]["menu_items"]["Row"],
-  "id" | "name" | "price" | "category_id" | "requires_kitchen_prep" | "tax_category" | "image_url"
->;
+export type PosMenuItem = {
+  id: string;
+  name: string;
+  price: number;
+  category_id: string | null;
+  requires_kitchen_prep: boolean;
+  tax_category: TaxCategory;
+  image_url: string | null;
+  main_category: MenuMainCategory;
+  availability_schedule: MenuSchedule;
+};
 
 export type MenuListRow = {
   id: string;
@@ -22,6 +34,8 @@ export type MenuListRow = {
   price: number;
   image_url: string | null;
   available: boolean;
+  main_category: MenuMainCategory;
+  availability_schedule: MenuSchedule;
   requires_kitchen_prep: boolean;
   tax_category: TaxCategory;
 };
@@ -61,16 +75,19 @@ export async function getMenuItemsForPos(): Promise<PosMenuItem[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("menu_items")
-    .select("id, name, price, category_id, requires_kitchen_prep, tax_category, image_url")
+    .select(
+      "id, name, price, category_id, requires_kitchen_prep, tax_category, image_url, main_category, availability_schedule",
+    )
     .eq("available", true)
+    .in("availability_schedule", ["all_days", currentMenuSchedule()])
     .order("sort_order");
 
   if (error) throw error;
-  return data;
+  return data as unknown as PosMenuItem[];
 }
 
 const LIST_COLUMNS =
-  "id, name, category_id, categories(name), price, image_url, available, requires_kitchen_prep, tax_category";
+  "id, name, category_id, categories(name), price, image_url, available, main_category, availability_schedule, requires_kitchen_prep, tax_category";
 
 /** Menu items for the management list, newest catalog controls first. */
 export async function getMenuItems(filter: MenuItemFilter): Promise<MenuListRow[]> {
@@ -84,7 +101,11 @@ export async function getMenuItems(filter: MenuItemFilter): Promise<MenuListRow[
   const { data, error } = await query;
   if (error) throw error;
 
-  return data.map(({ categories, ...row }) => ({ ...row, category: categories }));
+  return (
+    data as unknown as (Omit<MenuListRow, "category"> & {
+      categories: { name: string } | null;
+    })[]
+  ).map(({ categories, ...row }) => ({ ...row, category: categories }));
 }
 
 export type SoldTodayMap = Record<string, number>;
