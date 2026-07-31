@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  availableMenuItem,
   cleanupCommitted,
   createOrderCommitted,
   inventoryQtyMap,
-  menuItemId,
   newClient,
   userId,
   type CreateOrderResult,
@@ -27,17 +27,17 @@ describe("concurrency", () => {
     const c = newClient();
     await c.connect();
     const uid = await userId(c, OWNER);
-    const kottu = await menuItemId(c, "Chicken Kottu");
+    const item = await availableMenuItem(c, { withRecipe: true });
     const snapshot = await inventoryQtyMap(c);
     const recipe = await c.query(
       "select inventory_item_id, qty from public.recipe_items where menu_item_id = $1",
-      [kottu],
+      [item.id],
     );
 
     const N = 8;
     const results = await Promise.allSettled(
       Array.from({ length: N }, () =>
-        createOrderCommitted(uid, { items: [{ menu_item_id: kottu, qty: 1 }] }),
+        createOrderCommitted(uid, { items: [{ menu_item_id: item.id, qty: 1 }] }),
       ),
     );
     const { ok, errors } = partition(results);
@@ -68,13 +68,13 @@ describe("concurrency", () => {
     const c = newClient();
     await c.connect();
     const uid = await userId(c, OWNER);
-    const bun = await menuItemId(c, "Fish Bun");
+    const item = await availableMenuItem(c);
     const snapshot = await inventoryQtyMap(c);
 
     const N = 12;
     const results = await Promise.allSettled(
       Array.from({ length: N }, () =>
-        createOrderCommitted(uid, { items: [{ menu_item_id: bun, qty: 1 }] }),
+        createOrderCommitted(uid, { items: [{ menu_item_id: item.id, qty: 1 }] }),
       ),
     );
     const { ok, errors } = partition(results);

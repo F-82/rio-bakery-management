@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  availableMenuItem,
   BUSINESS_ID,
   createOrder,
   inventoryQtyMap,
-  menuItemId,
   setActor,
   userId,
   withRollback,
@@ -11,59 +11,52 @@ import {
 
 const OWNER = "owner@riobakershut.lk";
 
-async function inventoryId(c: import("pg").Client, name: string): Promise<string> {
-  const r = await c.query(
-    "select id from public.inventory_items where business_id = $1 and name = $2",
-    [BUSINESS_ID, name],
-  );
-  return r.rows[0].id as string;
-}
-
 describe("create_order — pricing & snapshots", () => {
   it("computes totals server-side and ignores client-supplied prices", async () => {
     await withRollback(async (c) => {
       await setActor(c, await userId(c, OWNER));
-      const kottu = await menuItemId(c, "Chicken Kottu"); // 850
-      const bun = await menuItemId(c, "Fish Bun"); // 120
+      const item = await availableMenuItem(c);
       const res = await createOrder(c, {
         items: [
-          { menu_item_id: kottu, qty: 2, unit_price: 999999, price: 999999, line_total: 999999 },
-          { menu_item_id: bun, qty: 3, unit_price: 1 },
+          {
+            menu_item_id: item.id,
+            qty: 2,
+            unit_price: 999999,
+            price: 999999,
+            line_total: 999999,
+          },
         ],
       });
-      expect(Number(res.subtotal)).toBe(2060);
-      expect(Number(res.total)).toBe(2060);
+      expect(Number(res.subtotal)).toBe(item.price * 2);
+      expect(Number(res.total)).toBe(item.price * 2);
 
       const items = await c.query(
-        "select name_snapshot, unit_price, line_total from public.order_items where order_id = $1 order by name_snapshot",
+        "select name_snapshot, unit_price, line_total from public.order_items where order_id = $1",
         [res.order_id],
       );
-      const kottuRow = items.rows.find((r) => r.name_snapshot === "Chicken Kottu");
-      const bunRow = items.rows.find((r) => r.name_snapshot === "Fish Bun");
-      expect(Number(kottuRow.unit_price)).toBe(850);
-      expect(Number(kottuRow.line_total)).toBe(1700);
-      expect(Number(bunRow.unit_price)).toBe(120);
-      expect(Number(bunRow.line_total)).toBe(360);
+      expect(items.rows[0].name_snapshot).toBe(item.name);
+      expect(Number(items.rows[0].unit_price)).toBe(item.price);
+      expect(Number(items.rows[0].line_total)).toBe(item.price * 2);
     });
   });
 
   it("snapshots name, price, prep flag and tax category onto the line", async () => {
     await withRollback(async (c) => {
       await setActor(c, await userId(c, OWNER));
-      const kottu = await menuItemId(c, "Chicken Kottu");
-      const res = await createOrder(c, { items: [{ menu_item_id: kottu, qty: 1 }] });
+      const item = await availableMenuItem(c, { requiresKitchenPrep: true });
+      const res = await createOrder(c, { items: [{ menu_item_id: item.id, qty: 1 }] });
       // Renaming/repricing the menu item afterwards must not change the line.
       await c.query("update public.menu_items set name = 'RENAMED', price = 99999 where id = $1", [
-        kottu,
+        item.id,
       ]);
       const oi = await c.query(
         "select name_snapshot, unit_price, requires_kitchen_prep, tax_category from public.order_items where order_id = $1",
         [res.order_id],
       );
-      expect(oi.rows[0].name_snapshot).toBe("Chicken Kottu");
-      expect(Number(oi.rows[0].unit_price)).toBe(850);
-      expect(oi.rows[0].requires_kitchen_prep).toBe(true);
-      expect(oi.rows[0].tax_category).toBe("standard");
+      expect(oi.rows[0].name_snapshot).toBe(item.name);
+      expect(Number(oi.rows[0].unit_price)).toBe(item.price);
+      expect(oi.rows[0].requires_kitchen_prep).toBe(item.requiresKitchenPrep);
+      expect(oi.rows[0].tax_category).toBe(item.taxCategory);
     });
   });
 });
@@ -72,8 +65,8 @@ describe("create_order — kitchen tickets", () => {
   it("emits no kitchen ticket when no line requires prep", async () => {
     await withRollback(async (c) => {
       await setActor(c, await userId(c, OWNER));
-      const bun = await menuItemId(c, "Fish Bun"); // prep = false
-      const res = await createOrder(c, { items: [{ menu_item_id: bun, qty: 1 }] });
+      const item = await availableMenuItem(c, { requiresKitchenPrep: false });
+      const res = await createOrder(c, { items: [{ menu_item_id: item.id, qty: 1 }] });
       expect(res.kitchen_ticket).toBe(false);
       const jobs = await c.query("select target from public.print_jobs where order_id = $1", [
         res.order_id,
@@ -85,14 +78,12 @@ describe("create_order — kitchen tickets", () => {
   it("mixed order → 1 receipt + 1 KOT with only prep lines and no prices", async () => {
     await withRollback(async (c) => {
       await setActor(c, await userId(c, OWNER));
-      const kottu = await menuItemId(c, "Chicken Kottu"); // prep
-      const bun = await menuItemId(c, "Fish Bun"); // no prep
-      const coffee = await menuItemId(c, "Milk Coffee"); // prep
+      const prepItem = await availableMenuItem(c, { requiresKitchenPrep: true });
+      const counterItem = await availableMenuItem(c, { requiresKitchenPrep: false });
       const res = await createOrder(c, {
         items: [
-          { menu_item_id: kottu, qty: 1 },
-          { menu_item_id: bun, qty: 1 },
-          { menu_item_id: coffee, qty: 1 },
+          { menu_item_id: prepItem.id, qty: 1 },
+          { menu_item_id: counterItem.id, qty: 1 },
         ],
       });
       expect(res.kitchen_ticket).toBe(true);
@@ -106,11 +97,8 @@ describe("create_order — kitchen tickets", () => {
       const receipt = jobs.rows.find((r) => r.target === "customer_receipt").payload;
       const kot = jobs.rows.find((r) => r.target === "kitchen_ticket").payload;
 
-      expect(receipt.items.length).toBe(3);
-      expect(kot.items.map((i: { name: string }) => i.name).sort()).toEqual([
-        "Chicken Kottu",
-        "Milk Coffee",
-      ]);
+      expect(receipt.items.length).toBe(2);
+      expect(kot.items.map((i: { name: string }) => i.name)).toEqual([prepItem.name]);
       expect(kot.order_number).toBe(res.order_number);
       expect(kot.source).toBe("pos");
       // No price fields anywhere in the KOT payload.
@@ -125,15 +113,10 @@ describe("create_order — kitchen tickets", () => {
   it("includes dine-in or takeaway on the kitchen ticket", async () => {
     await withRollback(async (c) => {
       await setActor(c, await userId(c, OWNER));
-      const prepItem = (
-        await c.query(
-          "select id from public.menu_items where business_id = $1 and available and requires_kitchen_prep order by id limit 1",
-          [BUSINESS_ID],
-        )
-      ).rows[0].id as string;
+      const prepItem = await availableMenuItem(c, { requiresKitchenPrep: true });
       const res = await createOrder(c, {
         source: "takeaway",
-        items: [{ menu_item_id: prepItem, qty: 1 }],
+        items: [{ menu_item_id: prepItem.id, qty: 1 }],
       });
       const job = await c.query(
         "select payload from public.print_jobs where order_id = $1 and target = 'kitchen_ticket'",
@@ -149,18 +132,25 @@ describe("create_order — stock ledger", () => {
   it("allows negative stock and returns a warning instead of erroring", async () => {
     await withRollback(async (c) => {
       await setActor(c, await userId(c, OWNER));
-      const kottuRoti = await inventoryId(c, "Kottu Roti");
-      await c.query("update public.inventory_items set qty_on_hand = 100 where id = $1", [
-        kottuRoti,
+      const item = await availableMenuItem(c, { withRecipe: true });
+      const recipe = (
+        await c.query(
+          "select inventory_item_id, qty from public.recipe_items where menu_item_id = $1 order by inventory_item_id limit 1",
+          [item.id],
+        )
+      ).rows[0] as { inventory_item_id: string; qty: string };
+      await c.query("update public.inventory_items set qty_on_hand = 0 where id = $1", [
+        recipe.inventory_item_id,
       ]);
-      const kottu = await menuItemId(c, "Chicken Kottu"); // needs 250 Kottu Roti
-      const res = await createOrder(c, { items: [{ menu_item_id: kottu, qty: 1 }] });
+      const res = await createOrder(c, { items: [{ menu_item_id: item.id, qty: 1 }] });
 
       const q = await c.query("select qty_on_hand from public.inventory_items where id = $1", [
-        kottuRoti,
+        recipe.inventory_item_id,
       ]);
-      expect(Number(q.rows[0].qty_on_hand)).toBe(-150);
-      const warn = res.low_stock_warnings.find((w) => w.inventory_item_id === kottuRoti);
+      expect(Number(q.rows[0].qty_on_hand)).toBe(-Number(recipe.qty));
+      const warn = res.low_stock_warnings.find(
+        (w) => w.inventory_item_id === recipe.inventory_item_id,
+      );
       expect(warn).toBeTruthy();
       expect(warn!.negative).toBe(true);
     });
@@ -173,12 +163,17 @@ describe("create_order — stock ledger", () => {
         "update public.settings set value = 'false'::jsonb where business_id = $1 and key = 'inventory.allow_negative_stock'",
         [BUSINESS_ID],
       );
-      const kottuRoti = await inventoryId(c, "Kottu Roti");
-      await c.query("update public.inventory_items set qty_on_hand = 100 where id = $1", [
-        kottuRoti,
+      const item = await availableMenuItem(c, { withRecipe: true });
+      const recipe = (
+        await c.query(
+          "select inventory_item_id from public.recipe_items where menu_item_id = $1 order by inventory_item_id limit 1",
+          [item.id],
+        )
+      ).rows[0] as { inventory_item_id: string };
+      await c.query("update public.inventory_items set qty_on_hand = 0 where id = $1", [
+        recipe.inventory_item_id,
       ]);
-      const kottu = await menuItemId(c, "Chicken Kottu");
-      await expect(createOrder(c, { items: [{ menu_item_id: kottu, qty: 1 }] })).rejects.toThrow(
+      await expect(createOrder(c, { items: [{ menu_item_id: item.id, qty: 1 }] })).rejects.toThrow(
         /insufficient stock/,
       );
     });
@@ -188,20 +183,17 @@ describe("create_order — stock ledger", () => {
     await withRollback(async (c) => {
       await setActor(c, await userId(c, OWNER));
       const before = await inventoryQtyMap(c);
-      const menus = [
-        "Chicken Kottu",
-        "Fish Bun",
-        "Egg Fried Rice",
-        "Milk Coffee",
-        "Croissant",
-        "Vegetable Kottu",
-      ];
+      const menus = (
+        await c.query(
+          "select id from public.menu_items where business_id = $1 and available and price > 0 order by id limit 6",
+          [BUSINESS_ID],
+        )
+      ).rows as Array<{ id: string }>;
       const created: string[] = [];
       for (let i = 0; i < 10; i++) {
-        const name = menus[Math.floor(Math.random() * menus.length)];
-        const id = await menuItemId(c, name);
-        const qty = 1 + Math.floor(Math.random() * 3);
-        const res = await createOrder(c, { items: [{ menu_item_id: id, qty }] });
+        const item = menus[i % menus.length];
+        const qty = 1 + (i % 3);
+        const res = await createOrder(c, { items: [{ menu_item_id: item.id, qty }] });
         created.push(res.order_id);
       }
       // Void two of them to exercise reversals in the ledger.
@@ -229,8 +221,8 @@ describe("void_order", () => {
     await withRollback(async (c) => {
       await setActor(c, await userId(c, OWNER));
       const before = await inventoryQtyMap(c);
-      const kottu = await menuItemId(c, "Chicken Kottu");
-      const res = await createOrder(c, { items: [{ menu_item_id: kottu, qty: 2 }] });
+      const item = await availableMenuItem(c, { withRecipe: true });
+      const res = await createOrder(c, { items: [{ menu_item_id: item.id, qty: 2 }] });
 
       await c.query("select public.void_order($1, $2)", [res.order_id, "mistake"]);
 
@@ -263,10 +255,10 @@ describe("daily_seq", () => {
   it("assigns a distinct, increasing sequence to sequential orders", async () => {
     await withRollback(async (c) => {
       await setActor(c, await userId(c, OWNER));
-      const bun = await menuItemId(c, "Fish Bun");
+      const item = await availableMenuItem(c);
       const seqs: number[] = [];
       for (let i = 0; i < 5; i++) {
-        const res = await createOrder(c, { items: [{ menu_item_id: bun, qty: 1 }] });
+        const res = await createOrder(c, { items: [{ menu_item_id: item.id, qty: 1 }] });
         seqs.push(res.daily_seq);
       }
       expect(new Set(seqs).size).toBe(seqs.length);

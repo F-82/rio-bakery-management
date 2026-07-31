@@ -603,13 +603,11 @@ function EditDrawerContent({
 // ---------------------------------------------------------------------------
 
 function AddModal({
-  open,
   categories,
   businessId,
   onClose,
   onSaved,
 }: {
-  open: boolean;
   categories: MenuCategory[];
   businessId: string;
   onClose: () => void;
@@ -618,15 +616,6 @@ function AddModal({
   const [draft, setDraft] = useState<DraftItem>(EMPTY_DRAFT);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (open) {
-      setDraft(EMPTY_DRAFT);
-      setError(null);
-    }
-  }, [open]);
-
-  if (!open) return null;
 
   async function handleSave() {
     setSaving(true);
@@ -950,9 +939,8 @@ export function MenuShell({
       )}
 
       {/* Add modal */}
-      {canManage && (
+      {canManage && adding && (
         <AddModal
-          open={adding}
           categories={categories}
           businessId={businessId}
           onClose={() => setAdding(false)}

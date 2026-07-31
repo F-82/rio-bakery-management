@@ -1,6 +1,7 @@
 import type { Client } from "pg";
 import { describe, expect, it } from "vitest";
 import {
+  availableMenuItem,
   BUSINESS_ID,
   becomeAnon,
   becomeAuthenticated,
@@ -40,8 +41,8 @@ describe("RLS — expenses", () => {
     await withRollback(async (c) => {
       const owner = await userId(c, OWNER);
       const staff = await userId(c, BAKERY_STAFF);
-      await c.query(
-        "insert into public.expenses (business_id, category, amount, created_by) values ($1, 'Rent', 50000, $2)",
+      const expense = await c.query(
+        "insert into public.expenses (business_id, category, amount, created_by) values ($1, 'Rent', 50000, $2) returning id",
         [BUSINESS_ID, owner],
       );
 
@@ -61,7 +62,9 @@ describe("RLS — expenses", () => {
       // Owner: sees the expense (positive control).
       await resetRole(c);
       await becomeAuthenticated(c, owner);
-      const ownerSel = await c.query("select category, amount from public.expenses");
+      const ownerSel = await c.query("select category, amount from public.expenses where id = $1", [
+        expense.rows[0].id,
+      ]);
       expect(ownerSel.rows.length).toBe(1);
       expect(ownerSel.rows[0].category).toBe("Rent");
     });
@@ -75,16 +78,15 @@ describe("RLS — orders scoped by counter", () => {
       const staff = await userId(c, BAKERY_STAFF);
       const bakery = await counterId(c, "Bakery");
       const hotPlate = await counterId(c, "Hot Plate");
-      const kottu = await menuItemId(c, "Chicken Kottu");
-      const bun = await menuItemId(c, "Fish Bun");
+      const item = await availableMenuItem(c);
 
       const hotOrder = await createOrderAs(c, owner, {
         counter_id: hotPlate,
-        items: [{ menu_item_id: kottu, qty: 1 }],
+        items: [{ menu_item_id: item.id, qty: 1 }],
       });
       const bakeryOrder = await createOrderAs(c, owner, {
         counter_id: bakery,
-        items: [{ menu_item_id: bun, qty: 1 }],
+        items: [{ menu_item_id: item.id, qty: 1 }],
       });
 
       await becomeAuthenticated(c, staff);
@@ -197,6 +199,31 @@ describe("RLS — coverage", () => {
       await becomeAnon(c);
       const m = await c.query("select id from public.menu_items limit 1");
       expect(m.rows.length).toBe(0);
+    });
+  });
+
+  it("keeps privileged functions private and the priority view security-invoker", async () => {
+    await withRollback(async (c) => {
+      const privileges = await c.query(
+        `select
+           has_function_privilege('anon', 'public.create_order(jsonb)', 'EXECUTE') as anon_create,
+           has_function_privilege('anon', 'public.void_order(uuid,text)', 'EXECUTE') as anon_void,
+           has_function_privilege('anon', 'public.find_or_create_customer(jsonb)', 'EXECUTE') as anon_customer,
+           has_function_privilege('authenticated', 'public.create_order(jsonb)', 'EXECUTE') as auth_create`,
+      );
+      expect(privileges.rows[0]).toEqual({
+        anon_create: false,
+        anon_void: false,
+        anon_customer: false,
+        auth_create: true,
+      });
+
+      const view = await c.query(
+        `select coalesce(reloptions, '{}'::text[]) @> array['security_invoker=true'] as secure
+         from pg_class
+         where oid = 'public.priority_customers'::regclass`,
+      );
+      expect(view.rows[0].secure).toBe(true);
     });
   });
 });

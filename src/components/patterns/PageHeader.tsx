@@ -11,7 +11,7 @@ export function PageHeader({ title, actions, className }: PageHeaderProps) {
   if (!actions) return null;
 
   return (
-    <div className={cn("flex items-center justify-end gap-4", className)}>
+    <div aria-label={title} className={cn("flex items-center justify-end gap-4", className)}>
       <div className="flex items-center gap-2">{actions}</div>
     </div>
   );

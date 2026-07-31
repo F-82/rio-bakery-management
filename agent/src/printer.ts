@@ -12,6 +12,7 @@ export class ConsolePrinter implements Printer {
 
 export class EscPosPrinter implements Printer {
   async print(text: string): Promise<void> {
+    void text;
     // Throws an error to simulate the behavior requested in the spec
     // ("once we know the hardware").
     // We log it so the developer knows why it failed if they try to use it.

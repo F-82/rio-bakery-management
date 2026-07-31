@@ -23,43 +23,18 @@ type OrdersShellProps = {
 };
 
 // ---------------------------------------------------------------------------
-// Primitive helpers
-// ---------------------------------------------------------------------------
-
-function Chip({
-  children,
-  tone = "neutral",
-}: {
-  children: React.ReactNode;
-  tone?: "neutral" | "green" | "yellow" | "black" | "red";
-}) {
-  const tones: Record<string, string> = {
-    neutral: "bg-neutral-100 text-neutral-700",
-    green: "bg-[rgba(12,151,98,0.10)] text-[var(--accent-green)]",
-    yellow: "bg-[rgba(250,255,127,0.55)] text-neutral-800",
-    black: "bg-black text-white",
-    red: "bg-[rgba(239,68,68,0.08)] text-red-600",
-  };
-  return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${tones[tone]}`}
-    >
-      {children}
-    </span>
-  );
-}
-
-const STATUS_CHIP: Record<string, { tone: "green" | "neutral" | "red"; label: string }> = {
-  open: { tone: "yellow" as any, label: "Open" },
-  completed: { tone: "green", label: "Completed" },
-  voided: { tone: "red", label: "Voided" },
-};
-
-// ---------------------------------------------------------------------------
 // Main shell
 // ---------------------------------------------------------------------------
 
-export function OrdersShell({ initialOrders, filter, counters, sources, canVoid, counterId, maxDate }: OrdersShellProps) {
+export function OrdersShell({
+  initialOrders,
+  filter,
+  counters,
+  sources,
+  canVoid,
+  counterId,
+  maxDate,
+}: OrdersShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();

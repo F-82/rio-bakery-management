@@ -68,12 +68,54 @@ export async function userId(c: pg.Client, email: string): Promise<string> {
 }
 
 export async function menuItemId(c: pg.Client, name: string): Promise<string> {
-  const r = await c.query(
-    "select id from public.menu_items where business_id = $1 and name = $2",
-    [BUSINESS_ID, name],
-  );
+  const r = await c.query("select id from public.menu_items where business_id = $1 and name = $2", [
+    BUSINESS_ID,
+    name,
+  ]);
   if (!r.rows[0]) throw new Error(`no menu item ${name}`);
   return r.rows[0].id as string;
+}
+
+export async function availableMenuItem(
+  c: pg.Client,
+  options: { requiresKitchenPrep?: boolean; withRecipe?: boolean } = {},
+): Promise<{
+  id: string;
+  name: string;
+  price: number;
+  requiresKitchenPrep: boolean;
+  taxCategory: string;
+}> {
+  const requiresKitchenPrep = options.requiresKitchenPrep ?? null;
+  const withRecipe = options.withRecipe ?? false;
+  const r = await c.query(
+    `select m.id, m.name, m.price, m.requires_kitchen_prep, m.tax_category
+     from public.menu_items m
+     where m.business_id = $1
+       and m.available
+       and m.price > 0
+       and ($2::boolean is null or m.requires_kitchen_prep = $2)
+       and (
+         not $3::boolean
+         or exists (
+           select 1
+           from public.recipe_items r
+           where r.menu_item_id = m.id
+             and r.business_id = m.business_id
+         )
+       )
+     order by m.price desc, m.id
+     limit 1`,
+    [BUSINESS_ID, requiresKitchenPrep, withRecipe],
+  );
+  if (!r.rows[0]) throw new Error("no available menu item matches the requested test fixture");
+  return {
+    id: r.rows[0].id as string,
+    name: r.rows[0].name as string,
+    price: Number(r.rows[0].price),
+    requiresKitchenPrep: r.rows[0].requires_kitchen_prep as boolean,
+    taxCategory: r.rows[0].tax_category as string,
+  };
 }
 
 export async function inventoryQtyMap(c: pg.Client): Promise<Map<string, number>> {
@@ -109,7 +151,9 @@ export async function createOrder(
   c: pg.Client,
   payload: { items: LineInput[]; [k: string]: unknown },
 ): Promise<CreateOrderResult> {
-  const r = await c.query("select public.create_order($1::jsonb) as res", [JSON.stringify(payload)]);
+  const r = await c.query("select public.create_order($1::jsonb) as res", [
+    JSON.stringify(payload),
+  ]);
   return r.rows[0].res as CreateOrderResult;
 }
 
@@ -126,7 +170,9 @@ export async function createOrderCommitted(
   try {
     await c.query("begin");
     await setActor(c, uid);
-    const r = await c.query("select public.create_order($1::jsonb) as res", [JSON.stringify(payload)]);
+    const r = await c.query("select public.create_order($1::jsonb) as res", [
+      JSON.stringify(payload),
+    ]);
     await c.query("commit");
     return r.rows[0].res as CreateOrderResult;
   } catch (e) {
@@ -143,7 +189,10 @@ export async function createOrderCommitted(
  * = replica bypasses the append-only trigger (and cascades), so children are
  * deleted explicitly, in FK order.
  */
-export async function cleanupCommitted(orderIds: string[], snapshot: Map<string, number>): Promise<void> {
+export async function cleanupCommitted(
+  orderIds: string[],
+  snapshot: Map<string, number>,
+): Promise<void> {
   if (orderIds.length === 0 && snapshot.size === 0) return;
   const c = newClient();
   await c.connect();

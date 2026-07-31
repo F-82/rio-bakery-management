@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { Printer } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -74,9 +74,11 @@ const TARGET_LABELS: Record<PrintTarget, string> = {
 export function PrintPreview({ target, payload, onClose }: PrintPreviewProps) {
   const { t } = useTranslation();
   const [business, setBusiness] = useState<{ name: string; logoUrl: string | null } | null>(null);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
+  const mounted = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false,
+  );
 
   useEffect(() => {
     if (target === null || business) return;

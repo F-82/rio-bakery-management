@@ -1,4 +1,10 @@
-import { Project, SyntaxKind, JsxText, JsxAttribute, SourceFile } from "ts-morph";
+import {
+  Project,
+  SyntaxKind,
+  SourceFile,
+  type ArrowFunction,
+  type FunctionDeclaration,
+} from "ts-morph";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -6,7 +12,6 @@ const project = new Project({
   tsConfigFilePath: "tsconfig.json",
 });
 
-const srcDir = path.join(__dirname, "../src");
 const localesDir = path.join(__dirname, "../public/locales/en");
 
 if (!fs.existsSync(localesDir)) {
@@ -21,14 +26,19 @@ function sanitize(text: string) {
 
 function processFile(sourceFile: SourceFile) {
   let hasModifications = false;
-  
+
   // Skip files that shouldn't have UI text, like layout or api routes, or already translated
-  if (sourceFile.getFilePath().includes("layout.tsx") || !sourceFile.getFilePath().endsWith(".tsx")) {
+  if (
+    sourceFile.getFilePath().includes("layout.tsx") ||
+    !sourceFile.getFilePath().endsWith(".tsx")
+  ) {
     return;
   }
 
   // Check if it's a React component by looking for default export or named export functions that return JSX
-  const hasJSX = sourceFile.getDescendantsOfKind(SyntaxKind.JsxElement).length > 0 || sourceFile.getDescendantsOfKind(SyntaxKind.JsxSelfClosingElement).length > 0;
+  const hasJSX =
+    sourceFile.getDescendantsOfKind(SyntaxKind.JsxElement).length > 0 ||
+    sourceFile.getDescendantsOfKind(SyntaxKind.JsxSelfClosingElement).length > 0;
   if (!hasJSX) return;
 
   const jsxTexts = sourceFile.getDescendantsOfKind(SyntaxKind.JsxText);
@@ -81,27 +91,27 @@ function processFile(sourceFile: SourceFile) {
     // We look for the default export or the main function
     const functions = sourceFile.getFunctions();
     const arrowFunctions = sourceFile.getDescendantsOfKind(SyntaxKind.ArrowFunction);
-    
+
     // We try to inject it at the top of the body of any function returning JSX
-    const injectIntoFunction = (func: any) => {
-        const body = func.getBody();
-        if (body && body.isKind(SyntaxKind.Block)) {
-            const block = body;
-            const statements = block.getStatements();
-            const hasT = statements.some((s: any) => s.getText().includes("useTranslation"));
-            if (!hasT) {
-                block.insertStatements(0, "const { t } = useTranslation();");
-                hasModifications = true;
-            }
+    const injectIntoFunction = (func: FunctionDeclaration | ArrowFunction) => {
+      const body = func.getBody();
+      if (body && body.isKind(SyntaxKind.Block)) {
+        const block = body;
+        const statements = block.getStatements();
+        const hasT = statements.some((s) => s.getText().includes("useTranslation"));
+        if (!hasT) {
+          block.insertStatements(0, "const { t } = useTranslation();");
+          hasModifications = true;
         }
+      }
     };
 
-    functions.forEach(f => {
-       if (f.getDescendantsOfKind(SyntaxKind.JsxElement).length > 0) injectIntoFunction(f);
+    functions.forEach((f) => {
+      if (f.getDescendantsOfKind(SyntaxKind.JsxElement).length > 0) injectIntoFunction(f);
     });
-    
-    arrowFunctions.forEach(f => {
-       if (f.getDescendantsOfKind(SyntaxKind.JsxElement).length > 0) injectIntoFunction(f);
+
+    arrowFunctions.forEach((f) => {
+      if (f.getDescendantsOfKind(SyntaxKind.JsxElement).length > 0) injectIntoFunction(f);
     });
 
     if (hasModifications) {
