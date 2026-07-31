@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Inbox } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { DataTable, type DataTableColumn } from "@/components/patterns/DataTable";
@@ -75,23 +75,37 @@ export function OrdersList({
   const [orders, setOrders] = useState(initialOrders);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
+  // The realtime channel subscribes once (empty deps). Reading `filter`/
+  // `counters` through refs — rather than closing over them as effect deps —
+  // keeps the latest values inside the handlers without tearing down and
+  // reopening the websocket on every filter change (same pattern as
+  // DashboardShell). Events are async, so a commit-time ref sync is soon enough.
+  const filterRef = useRef(filter);
+  useEffect(() => {
+    filterRef.current = filter;
+  }, [filter]);
+  const countersRef = useRef(counters);
+  useEffect(() => {
+    countersRef.current = counters;
+  }, [counters]);
+
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase
       .channel("orders-list")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "orders" }, (payload) => {
         const row = payload.new as RealtimeOrderRow;
-        if (!matchesFilter(row, filter)) return;
-        const counter = counters.find((c) => c.id === row.counter_id) ?? null;
+        if (!matchesFilter(row, filterRef.current)) return;
+        const counter = countersRef.current.find((c) => c.id === row.counter_id) ?? null;
         setOrders((current) => [{ ...row, counter }, ...current]);
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders" }, (payload) => {
         const row = payload.new as RealtimeOrderRow;
         setOrders((current) => {
-          if (!matchesFilter(row, filter)) {
+          if (!matchesFilter(row, filterRef.current)) {
             return current.filter((order) => order.id !== row.id);
           }
-          const counter = counters.find((c) => c.id === row.counter_id) ?? null;
+          const counter = countersRef.current.find((c) => c.id === row.counter_id) ?? null;
           const updated: OrderListRow = { ...row, counter };
           const exists = current.some((order) => order.id === row.id);
           return exists
@@ -104,7 +118,7 @@ export function OrdersList({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [filter, counters]);
+  }, []);
 
   const columns: DataTableColumn<OrderListRow>[] = [
     {

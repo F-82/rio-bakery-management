@@ -105,8 +105,8 @@ function IconBubble({
 /**
  * Rowner — dashboard content. Renders inside (owner)/layout.tsx's persistent
  * AppShell (topbar + sidebar), which now owns the nav chrome this component
- * used to duplicate. Data is seeded from the server and patched live via
- * Supabase Realtime (same channel/logic as the previous DashboardClient).
+ * used to duplicate. Data is seeded from the server and patched live via a
+ * single Supabase Realtime channel opened once on mount.
  */
 export function DashboardShell({
   initialOrders,

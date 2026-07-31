@@ -373,3 +373,6 @@ No paragraphs. If it needs a paragraph, it belongs in ARCHITECTURE.md.
 - [done] perceived-latency fix: filter/tab changes on orders, inventory, customers, finance + the reports/tax period selectors now navigate through a shared `useUrlFilters` transition (router.replace, scroll:false) and dim the affected list while the server refetches — replaces bare router.push that froze the UI with no feedback
 - [note] `useUrlFilters` at src/lib/hooks/use-url-filters.ts; MenuShell already filters client-side (no nav), so untouched
 - [note] OrdersFilters/MenuFilters/InventoryFilters/CustomerFilters/FinanceTabs confirmed dead (no imports) — superseded by inline Shell filters; left in place, candidates for deletion
+- [done] realtime: OrdersList now opens its Supabase channel once on mount and reads filter/counters via refs (matching DashboardShell), instead of tearing down + reconnecting the websocket on every filter change
+- [done] deleted orphaned DashboardClient.tsx (a full duplicate of DashboardShell's subscription logic, imported nowhere)
+- [note] server-side subscription scoping (filter: business_id=eq.…) deferred — business_id isn't plumbed to client components and print_jobs may lack the column; scaling concern, not felt latency
