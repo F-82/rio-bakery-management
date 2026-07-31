@@ -75,10 +75,9 @@ describe("create_order — kitchen tickets", () => {
       const bun = await menuItemId(c, "Fish Bun"); // prep = false
       const res = await createOrder(c, { items: [{ menu_item_id: bun, qty: 1 }] });
       expect(res.kitchen_ticket).toBe(false);
-      const jobs = await c.query(
-        "select target from public.print_jobs where order_id = $1",
-        [res.order_id],
-      );
+      const jobs = await c.query("select target from public.print_jobs where order_id = $1", [
+        res.order_id,
+      ]);
       expect(jobs.rows.map((r) => r.target)).toEqual(["customer_receipt"]);
     });
   });
@@ -113,12 +112,35 @@ describe("create_order — kitchen tickets", () => {
         "Milk Coffee",
       ]);
       expect(kot.order_number).toBe(res.order_number);
+      expect(kot.source).toBe("pos");
       // No price fields anywhere in the KOT payload.
       expect(JSON.stringify(kot)).not.toMatch(/unit_price|line_total|"price"|subtotal|"total"/);
       for (const i of kot.items) {
         expect(i).not.toHaveProperty("unit_price");
         expect(i).not.toHaveProperty("line_total");
       }
+    });
+  });
+
+  it("includes dine-in or takeaway on the kitchen ticket", async () => {
+    await withRollback(async (c) => {
+      await setActor(c, await userId(c, OWNER));
+      const prepItem = (
+        await c.query(
+          "select id from public.menu_items where business_id = $1 and available and requires_kitchen_prep order by id limit 1",
+          [BUSINESS_ID],
+        )
+      ).rows[0].id as string;
+      const res = await createOrder(c, {
+        source: "takeaway",
+        items: [{ menu_item_id: prepItem, qty: 1 }],
+      });
+      const job = await c.query(
+        "select payload from public.print_jobs where order_id = $1 and target = 'kitchen_ticket'",
+        [res.order_id],
+      );
+
+      expect(job.rows[0].payload.source).toBe("takeaway");
     });
   });
 });
@@ -156,9 +178,9 @@ describe("create_order — stock ledger", () => {
         kottuRoti,
       ]);
       const kottu = await menuItemId(c, "Chicken Kottu");
-      await expect(
-        createOrder(c, { items: [{ menu_item_id: kottu, qty: 1 }] }),
-      ).rejects.toThrow(/insufficient stock/);
+      await expect(createOrder(c, { items: [{ menu_item_id: kottu, qty: 1 }] })).rejects.toThrow(
+        /insufficient stock/,
+      );
     });
   });
 

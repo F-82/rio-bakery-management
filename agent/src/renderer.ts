@@ -2,6 +2,7 @@ export type PrintJobPayload = {
   order_number: string;
   counter_id: string | null;
   created_at: string;
+  source?: string;
   // Customer receipt only:
   subtotal?: number;
   discount_amount?: number;
@@ -18,12 +19,12 @@ export type PrintJobPayload = {
 
 export function renderCustomerReceipt(payload: PrintJobPayload): string {
   let out = "";
-  
+
   // Header
   out += "       RIO BAKERS HUT       \n";
   out += "==============================\n";
   out += `Order No: ${payload.order_number}\n`;
-  out += `Date: ${new Date(payload.created_at).toLocaleString('en-LK')}\n`;
+  out += `Date: ${new Date(payload.created_at).toLocaleString("en-LK")}\n`;
   if (payload.payment_method) {
     out += `Payment: ${payload.payment_method.toUpperCase()}\n`;
   }
@@ -34,7 +35,7 @@ export function renderCustomerReceipt(payload: PrintJobPayload): string {
     out += `${item.name}\n`;
     const qtyLine = `  ${item.qty} x ${item.unit_price?.toFixed(2)}`;
     const totalStr = item.line_total?.toFixed(2) ?? "0.00";
-    
+
     // Calculate padding
     const paddingLength = 30 - qtyLine.length - totalStr.length;
     const padding = paddingLength > 0 ? " ".repeat(paddingLength) : " ";
@@ -53,7 +54,7 @@ export function renderCustomerReceipt(payload: PrintJobPayload): string {
 
   const totalStr = payload.total?.toFixed(2) ?? "0.00";
   out += `Total:   ${" ".repeat(30 - 9 - totalStr.length)}${totalStr}\n`;
-  
+
   out += "==============================\n";
   out += "         Thank You!         \n";
 
@@ -62,6 +63,7 @@ export function renderCustomerReceipt(payload: PrintJobPayload): string {
 
 export function renderKitchenTicket(payload: PrintJobPayload): string {
   let out = "";
+  const orderType = payload.source === "takeaway" ? "TAKEAWAY" : "DINE-IN";
 
   // The spec says: "KOT carries no prices and leads with the order number at the largest size the printer supports."
   // Since we are generating plain text for now, we simulate large text with ASCII or just prominent spacing.
@@ -69,7 +71,8 @@ export function renderKitchenTicket(payload: PrintJobPayload): string {
   out += "******************************\n";
   out += `*       ORDER: ${payload.order_number}       *\n`;
   out += "******************************\n\n";
-  out += `Time: ${new Date(payload.created_at).toLocaleTimeString('en-LK')}\n`;
+  out += `        *** ${orderType} ***\n\n`;
+  out += `Time: ${new Date(payload.created_at).toLocaleTimeString("en-LK")}\n`;
   out += "==============================\n\n";
 
   for (const item of payload.items) {

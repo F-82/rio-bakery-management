@@ -37,7 +37,7 @@ export function KitchenQueue({ initialOrders }: { initialOrders: KitchenOrder[] 
             const { data } = await supabase
               .from("orders")
               .select(
-                "id, order_number, created_at, prep_status, prepared_at, counters(name), order_items!inner(id, name_snapshot, qty, notes, requires_kitchen_prep)",
+                "id, order_number, created_at, source, prep_status, prepared_at, counters(name), order_items!inner(id, name_snapshot, qty, notes, requires_kitchen_prep)",
               )
               .eq("id", row.id)
               .eq("order_items.requires_kitchen_prep", true)
@@ -52,6 +52,7 @@ export function KitchenQueue({ initialOrders }: { initialOrders: KitchenOrder[] 
                         id: data.id,
                         orderNumber: data.order_number,
                         createdAt: data.created_at,
+                        source: data.source,
                         prepStatus: data.prep_status as "pending" | "prepared",
                         preparedAt: data.prepared_at,
                         counter: data.counters,
@@ -169,6 +170,9 @@ function QueueSection({
                   <div className="text-3xl font-light tracking-tight">#{order.orderNumber}</div>
                   <div className="mt-1 text-xs text-neutral-500">
                     {order.counter?.name ?? t("Counter")} · {formatDate(order.createdAt, "time")}
+                  </div>
+                  <div className="mt-2 inline-flex rounded-full bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-800">
+                    {t(order.source === "takeaway" ? "Takeaway" : "Dine-in")}
                   </div>
                 </div>
                 <ChefHat className="h-5 w-5 text-neutral-400" />

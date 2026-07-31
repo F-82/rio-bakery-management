@@ -5,6 +5,7 @@ export type KitchenOrder = {
   id: string;
   orderNumber: string;
   createdAt: string;
+  source: string;
   prepStatus: "pending" | "prepared";
   preparedAt: string | null;
   counter: { name: string } | null;
@@ -21,7 +22,7 @@ export async function getTodaysKitchenOrders(): Promise<KitchenOrder[]> {
   const { data, error } = await supabase
     .from("orders")
     .select(
-      "id, order_number, created_at, prep_status, prepared_at, counters(name), order_items!inner(id, name_snapshot, qty, notes, requires_kitchen_prep)",
+      "id, order_number, created_at, source, prep_status, prepared_at, counters(name), order_items!inner(id, name_snapshot, qty, notes, requires_kitchen_prep)",
     )
     .eq("order_day", colomboToday())
     .neq("prep_status", "not_required")
@@ -34,6 +35,7 @@ export async function getTodaysKitchenOrders(): Promise<KitchenOrder[]> {
     id: order.id,
     orderNumber: order.order_number,
     createdAt: order.created_at,
+    source: order.source,
     prepStatus: order.prep_status as "pending" | "prepared",
     preparedAt: order.prepared_at,
     counter: order.counters,

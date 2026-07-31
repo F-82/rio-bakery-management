@@ -144,6 +144,42 @@ describe("RLS — order creation still works via the RPC", () => {
       expect(sel.rows.length).toBe(1);
     });
   });
+
+  it("lets staff print an order they created at another counter", async () => {
+    await withRollback(async (c) => {
+      const staff = await userId(c, BAKERY_STAFF);
+      const hotPlate = await counterId(c, "Hot Plate");
+      const prepItem = (
+        await c.query(
+          "select id from public.menu_items where business_id = $1 and available and requires_kitchen_prep order by id limit 1",
+          [BUSINESS_ID],
+        )
+      ).rows[0].id as string;
+
+      await becomeAuthenticated(c, staff);
+      const orderId = await createOrderAs(c, staff, {
+        counter_id: hotPlate,
+        source: "takeaway",
+        items: [{ menu_item_id: prepItem, qty: 1 }],
+      });
+
+      const order = await c.query("select id from public.orders where id = $1", [orderId]);
+      const items = await c.query("select id from public.order_items where order_id = $1", [
+        orderId,
+      ]);
+      const jobs = await c.query(
+        "select target, payload from public.print_jobs where order_id = $1 order by target",
+        [orderId],
+      );
+
+      expect(order.rows).toHaveLength(1);
+      expect(items.rows).toHaveLength(1);
+      expect(jobs.rows.map((row) => row.target)).toEqual(["customer_receipt", "kitchen_ticket"]);
+      expect(jobs.rows.find((row) => row.target === "kitchen_ticket").payload.source).toBe(
+        "takeaway",
+      );
+    });
+  });
 });
 
 describe("RLS — coverage", () => {
