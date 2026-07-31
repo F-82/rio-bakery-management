@@ -9,19 +9,19 @@ type SearchInputProps = {
 };
 
 export function SearchInput({ value, onChange }: SearchInputProps) {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div className="relative px-3 py-2">
       <Search
-        className="pointer-events-none absolute top-1/2 left-6 size-4 -translate-y-1/2 text-ink-3"
+        className="text-ink-3 pointer-events-none absolute top-1/2 left-6 size-4 -translate-y-1/2"
         aria-hidden
       />
       <input
         type="search"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        placeholder={t("Search menu")}
-        className="flex h-11 w-full items-center rounded-full bg-surface-2 pr-3 pl-9 text-body-sm text-ink placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-focus/20"
+        placeholder={t("Search by name or menu number")}
+        className="bg-surface-2 text-body-sm text-ink placeholder:text-ink-3 focus:ring-focus/20 flex h-11 w-full items-center rounded-full pr-3 pl-9 focus:ring-2 focus:outline-none"
       />
     </div>
   );

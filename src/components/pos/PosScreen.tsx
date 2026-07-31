@@ -10,6 +10,7 @@ import { SearchInput } from "./SearchInput";
 import { Cart } from "./Cart";
 import { SuccessScreen } from "./SuccessScreen";
 import { cartReducer, initialCartState, type CartMenuItem } from "@/lib/pos/cart";
+import { matchesMenuSearch } from "@/lib/pos/menu-search";
 import { createOrder, type OrderPrintJob } from "@/lib/actions/orders";
 import { reprintJob } from "@/lib/actions/print";
 import type { MenuCategory, PosMenuItem } from "@/lib/queries/menu";
@@ -50,14 +51,10 @@ export function PosScreen({
   const [isPending, startTransition] = useTransition();
 
   const filteredItems = useMemo(() => {
-    const query = search.trim().toLowerCase();
     return menuItems.filter((item) => {
       const matchesCategory = activeCategoryId === null || item.category_id === activeCategoryId;
       const matchesType = menuType === "all" || item.main_category === menuType;
-      const matchesSearch =
-        query === "" ||
-        item.name.toLowerCase().includes(query) ||
-        String(item.menu_number).includes(query.replace(/^#/, ""));
+      const matchesSearch = matchesMenuSearch(item, search);
       return matchesCategory && matchesType && matchesSearch;
     });
   }, [menuItems, activeCategoryId, menuType, search]);
