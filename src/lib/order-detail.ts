@@ -17,7 +17,7 @@ export type OrderDetail = {
   createdAt: string;
   voidedAt: string | null;
   voidReason: string | null;
-  counter: { name: string; kind: CounterKind } | null;
+  counter: { id: string; name: string; kind: CounterKind } | null;
   items: {
     id: string;
     name: string;
@@ -49,7 +49,7 @@ export async function fetchOrderDetail(
   const { data: order, error } = await supabase
     .from("orders")
     .select(
-      "id, order_number, status, source, payment_method, subtotal, discount_amount, discount_reason, total, created_at, voided_at, void_reason, counters(name, kind)",
+      "id, order_number, status, source, payment_method, subtotal, discount_amount, discount_reason, total, created_at, voided_at, void_reason, counters(id, name, kind)",
     )
     .eq("id", orderId)
     .single();

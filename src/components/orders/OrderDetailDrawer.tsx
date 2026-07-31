@@ -17,11 +17,17 @@ import { useTranslation } from "react-i18next";
 type OrderDetailDrawerProps = {
   orderId: string | null;
   canVoid: boolean;
+  counterId: string | null;
   onClose: () => void;
 };
 
-export function OrderDetailDrawer({ orderId, canVoid, onClose }: OrderDetailDrawerProps) {
-    const { t } = useTranslation();
+export function OrderDetailDrawer({
+  orderId,
+  canVoid,
+  counterId,
+  onClose,
+}: OrderDetailDrawerProps) {
+  const { t } = useTranslation();
   return (
     <Sheet open={orderId !== null} onOpenChange={(open) => !open && onClose()}>
       <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
@@ -30,7 +36,14 @@ export function OrderDetailDrawer({ orderId, canVoid, onClose }: OrderDetailDraw
         </SheetHeader>
         {/* Keyed by orderId so switching orders remounts fresh state instead
             of needing a manual reset effect for voiding/voidReason/etc. */}
-        {orderId && <OrderDetailContent key={orderId} orderId={orderId} canVoid={canVoid} />}
+        {orderId && (
+          <OrderDetailContent
+            key={orderId}
+            orderId={orderId}
+            canVoid={canVoid}
+            counterId={counterId}
+          />
+        )}
       </SheetContent>
     </Sheet>
   );
@@ -41,8 +54,16 @@ const TARGET_LABELS: Record<string, string> = {
   kitchen_ticket: "Kitchen ticket",
 };
 
-function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: boolean }) {
-    const { t } = useTranslation();
+function OrderDetailContent({
+  orderId,
+  canVoid,
+  counterId,
+}: {
+  orderId: string;
+  canVoid: boolean;
+  counterId: string | null;
+}) {
+  const { t } = useTranslation();
   const [detail, setDetail] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [voiding, setVoiding] = useState(false);
@@ -88,10 +109,10 @@ function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: bo
   }
 
   if (loading) {
-    return <p className="px-4 text-body-sm text-ink-2">{t("Loading…")}</p>;
+    return <p className="text-body-sm text-ink-2 px-4">{t("Loading…")}</p>;
   }
   if (!detail) {
-    return <p className="px-4 text-body-sm text-ink-2">{t("Order not found.")}</p>;
+    return <p className="text-body-sm text-ink-2 px-4">{t("Order not found.")}</p>;
   }
 
   return (
@@ -101,11 +122,14 @@ function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: bo
         <p className="text-display text-ink">{detail.orderNumber}</p>
         <div className="mt-2 flex items-center gap-2">
           {detail.counter && <CounterBadge kind={detail.counter.kind} />}
-          <span className="text-body-sm text-ink-2">{formatDate(detail.createdAt, "datetime")}</span>
+          <span className="text-body-sm text-ink-2">
+            {formatDate(detail.createdAt, "datetime")}
+          </span>
         </div>
         {detail.status === "voided" && (
-          <p role="status" className="mt-2 text-body-sm text-alert">
-            {t("Voided")}{detail.voidedAt && formatDate(detail.voidedAt, "datetime")}
+          <p role="status" className="text-body-sm text-alert mt-2">
+            {t("Voided")}
+            {detail.voidedAt && formatDate(detail.voidedAt, "datetime")}
             {detail.voidReason ? ` — ${detail.voidReason}` : ""}
           </p>
         )}
@@ -115,7 +139,10 @@ function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: bo
         <h3 className="text-h3 text-ink">{t("Items")}</h3>
         <ul className="flex flex-col gap-2">
           {detail.items.map((item) => (
-            <li key={item.id} className="flex items-center justify-between gap-3 rounded-tile bg-surface-2 p-3">
+            <li
+              key={item.id}
+              className="rounded-tile bg-surface-2 flex items-center justify-between gap-3 p-3"
+            >
               <div>
                 <p className="text-body-sm text-ink">
                   {formatQty(item.qty)} × {item.name}
@@ -126,7 +153,7 @@ function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: bo
             </li>
           ))}
         </ul>
-        <div className="flex items-center justify-between border-t border-line pt-2">
+        <div className="border-line flex items-center justify-between border-t pt-2">
           <span className="text-label text-ink-2">{t("Total")}</span>
           <MoneyText amount={detail.total} size="num-lg" />
         </div>
@@ -138,8 +165,13 @@ function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: bo
           <p className="text-body-sm text-ink-2">{t("No print jobs.")}</p>
         ) : (
           detail.printJobs.map((job) => (
-            <div key={job.id} className="flex flex-wrap items-center justify-between gap-3 rounded-tile bg-surface p-3">
-              <span className="text-label text-ink-2">{TARGET_LABELS[job.target] ?? job.target}</span>
+            <div
+              key={job.id}
+              className="rounded-tile bg-surface flex flex-wrap items-center justify-between gap-3 p-3"
+            >
+              <span className="text-label text-ink-2">
+                {TARGET_LABELS[job.target] ?? job.target}
+              </span>
               <div className="flex items-center gap-3">
                 <Button variant="ghost" onClick={() => setPreviewJob(job)}>
                   {t("Preview")}
@@ -157,22 +189,24 @@ function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: bo
         onClose={() => setPreviewJob(null)}
       />
 
-      {canVoid && detail.status !== "voided" && (
-        <div className="flex flex-col gap-2 border-t border-line pt-4">
+      {(canVoid || detail.counter?.id === counterId) && detail.status !== "voided" && (
+        <div className="border-line flex flex-col gap-2 border-t pt-4">
           {!voiding ? (
             <Button variant="destructive-outline" onClick={() => setVoiding(true)}>
-              {t("Void order")}</Button>
+              {t("Void order")}
+            </Button>
           ) : (
-            <div className="flex flex-col gap-2 rounded-tile bg-alert-bg p-3">
+            <div className="rounded-tile bg-alert-bg flex flex-col gap-2 p-3">
               {/* text-alert-strong, not text-alert — red-600 on --alert-bg is ~4.2:1, under the 4.5:1 floor (T3) */}
               <label className="text-label text-alert-strong" htmlFor="void-reason">
-                {t("Reason for voiding")}</label>
+                {t("Reason for voiding")}
+              </label>
               <input
                 id="void-reason"
                 type="text"
                 value={voidReason}
                 onChange={(event) => setVoidReason(event.target.value)}
-                className="h-11 rounded-tile border border-line bg-surface px-3 text-body-sm text-ink"
+                className="rounded-tile border-line bg-surface text-body-sm text-ink h-11 border px-3"
                 placeholder={t("e.g. customer changed their mind")}
               />
               {voidError && (
@@ -182,14 +216,16 @@ function OrderDetailContent({ orderId, canVoid }: { orderId: string; canVoid: bo
               )}
               <div className="flex gap-2">
                 <Button variant="outline" className="flex-1" onClick={() => setVoiding(false)}>
-                  {t("Cancel")}</Button>
+                  {t("Cancel")}
+                </Button>
                 <Button
                   variant="destructive"
                   className="flex-1"
                   disabled={!voidReason.trim()}
                   onClick={handleVoid}
                 >
-                  {t("Confirm void")}</Button>
+                  {t("Confirm void")}
+                </Button>
               </div>
             </div>
           )}

@@ -84,6 +84,51 @@ describe("kitchen preparation queue", () => {
       ).rejects.toThrow(/not authorized/);
     });
   });
+
+  it("lets counter staff void their own counter orders but not another counter's", async () => {
+    await withRollback(async (c) => {
+      await setActor(c, await userId(c, OWNER));
+      const bakeryOrder = await createOrder(c, {
+        counter_id: await counterId(c, "bakery"),
+        items: [{ menu_item_id: await prepMenuItemId(c), qty: 1 }],
+      });
+
+      await becomeAuthenticated(c, await userId(c, BAKERY_STAFF));
+      await c.query("select public.void_order($1, $2)", [bakeryOrder.order_id, "entry mistake"]);
+
+      await resetRole(c);
+      const voided = await c.query("select status from public.orders where id = $1", [
+        bakeryOrder.order_id,
+      ]);
+      expect(voided.rows[0].status).toBe("voided");
+
+      await setActor(c, await userId(c, OWNER));
+      const hotPlateOrder = await createOrder(c, {
+        counter_id: await counterId(c, "hot_plate"),
+        items: [{ menu_item_id: await prepMenuItemId(c), qty: 1 }],
+      });
+
+      await becomeAuthenticated(c, await userId(c, HOT_PLATE_STAFF));
+      await c.query("select public.void_order($1, $2)", [hotPlateOrder.order_id, "entry mistake"]);
+
+      await resetRole(c);
+      const hotPlateVoided = await c.query("select status from public.orders where id = $1", [
+        hotPlateOrder.order_id,
+      ]);
+      expect(hotPlateVoided.rows[0].status).toBe("voided");
+
+      await setActor(c, await userId(c, OWNER));
+      const otherCounterOrder = await createOrder(c, {
+        counter_id: await counterId(c, "bakery"),
+        items: [{ menu_item_id: await prepMenuItemId(c), qty: 1 }],
+      });
+
+      await becomeAuthenticated(c, await userId(c, HOT_PLATE_STAFF));
+      await expect(
+        c.query("select public.void_order($1, $2)", [otherCounterOrder.order_id, "not my order"]),
+      ).rejects.toThrow(/not authorized/);
+    });
+  });
 });
 
 describe("manager permissions", () => {

@@ -19,6 +19,7 @@ type OrdersListProps = {
   filter: OrdersFilter;
   counters: ActiveCounter[];
   canVoid: boolean;
+  counterId: string | null;
 };
 
 const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive"> = {
@@ -60,7 +61,13 @@ function matchesFilter(row: RealtimeOrderRow, filter: OrdersFilter): boolean {
  * against the subscriber's own RLS, so staff only ever receive events for
  * rows they could already SELECT (see 20260727053426_orders_realtime.sql).
  */
-export function OrdersList({ initialOrders, filter, counters, canVoid }: OrdersListProps) {
+export function OrdersList({
+  initialOrders,
+  filter,
+  counters,
+  canVoid,
+  counterId,
+}: OrdersListProps) {
   // `initialOrders` only ever changes when the parent remounts this
   // component with a new `key` (see page.tsx) after a filter change, so a
   // plain useState initializer is enough — no sync-on-prop-change effect.
@@ -71,34 +78,26 @@ export function OrdersList({ initialOrders, filter, counters, canVoid }: OrdersL
     const supabase = createClient();
     const channel = supabase
       .channel("orders-list")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "orders" },
-        (payload) => {
-          const row = payload.new as RealtimeOrderRow;
-          if (!matchesFilter(row, filter)) return;
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "orders" }, (payload) => {
+        const row = payload.new as RealtimeOrderRow;
+        if (!matchesFilter(row, filter)) return;
+        const counter = counters.find((c) => c.id === row.counter_id) ?? null;
+        setOrders((current) => [{ ...row, counter }, ...current]);
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders" }, (payload) => {
+        const row = payload.new as RealtimeOrderRow;
+        setOrders((current) => {
+          if (!matchesFilter(row, filter)) {
+            return current.filter((order) => order.id !== row.id);
+          }
           const counter = counters.find((c) => c.id === row.counter_id) ?? null;
-          setOrders((current) => [{ ...row, counter }, ...current]);
-        },
-      )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "orders" },
-        (payload) => {
-          const row = payload.new as RealtimeOrderRow;
-          setOrders((current) => {
-            if (!matchesFilter(row, filter)) {
-              return current.filter((order) => order.id !== row.id);
-            }
-            const counter = counters.find((c) => c.id === row.counter_id) ?? null;
-            const updated: OrderListRow = { ...row, counter };
-            const exists = current.some((order) => order.id === row.id);
-            return exists
-              ? current.map((order) => (order.id === row.id ? updated : order))
-              : [updated, ...current];
-          });
-        },
-      )
+          const updated: OrderListRow = { ...row, counter };
+          const exists = current.some((order) => order.id === row.id);
+          return exists
+            ? current.map((order) => (order.id === row.id ? updated : order))
+            : [updated, ...current];
+        });
+      })
       .subscribe();
 
     return () => {
@@ -123,7 +122,9 @@ export function OrdersList({ initialOrders, filter, counters, canVoid }: OrdersL
     {
       key: "status",
       header: "Status",
-      render: (row) => <Badge variant={STATUS_VARIANT[row.status] ?? "outline"}>{row.status}</Badge>,
+      render: (row) => (
+        <Badge variant={STATUS_VARIANT[row.status] ?? "outline"}>{row.status}</Badge>
+      ),
     },
     { key: "payment_method", header: "Payment", render: (row) => row.payment_method ?? "—" },
     { key: "created_at", header: "Time", render: (row) => formatDate(row.created_at, "datetime") },
@@ -148,7 +149,12 @@ export function OrdersList({ initialOrders, filter, counters, canVoid }: OrdersL
         />
       )}
 
-      <OrderDetailDrawer orderId={selectedOrderId} canVoid={canVoid} onClose={() => setSelectedOrderId(null)} />
+      <OrderDetailDrawer
+        orderId={selectedOrderId}
+        canVoid={canVoid}
+        counterId={counterId}
+        onClose={() => setSelectedOrderId(null)}
+      />
     </div>
   );
 }
