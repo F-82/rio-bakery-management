@@ -1,10 +1,10 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   ChevronRight, TrendingUp, ArrowUpRight, ArrowDownRight, CalendarDays,
   PieChart, ReceiptText, Building2, Receipt, Wallet,
 } from "lucide-react";
+import { useUrlFilters } from "@/lib/hooks/use-url-filters";
 import { RevenueByDayChart } from "./RevenueByDayChart";
 import { ExpensesLedger } from "./ExpensesLedger";
 import { PlatformEarningsTab } from "./PlatformEarningsTab";
@@ -48,9 +48,7 @@ export function FinanceShell({
   tab, period, selectedDate, maxDate, summary, revenueByDay, expenses, expenseCategories, businessId, canAddExpense, managerView,
 }: FinanceShellProps) {
   const { t } = useTranslation();
-  const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const { isPending, commit, searchParams } = useUrlFilters();
 
   function updateTab(value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -58,7 +56,7 @@ export function FinanceShell({
     else params.set("tab", value);
     params.delete("period");
     params.delete("date");
-    router.push(`${pathname}?${params.toString()}`);
+    commit(params);
   }
 
   function updatePeriod(value: FinancePeriod) {
@@ -66,7 +64,7 @@ export function FinanceShell({
     if (value === "month") params.delete("period");
     else params.set("period", value);
     params.delete("date");
-    router.push(`${pathname}?${params.toString()}`);
+    commit(params);
   }
 
   function updateDate(value: string) {
@@ -74,7 +72,7 @@ export function FinanceShell({
     if (value) params.set("date", value);
     else params.delete("date");
     params.delete("period");
-    router.push(`${pathname}?${params.toString()}`);
+    commit(params);
   }
 
   return (
@@ -115,7 +113,13 @@ export function FinanceShell({
             ))}
           </div>}
 
-          {/* Tab content */}
+          {/* Tab content — dims in place while a period/tab change refetches */}
+          <div
+            aria-busy={isPending}
+            className={`space-y-4 transition-opacity md:space-y-5 ${
+              isPending ? "pointer-events-none opacity-50" : ""
+            }`}
+          >
           {tab === "overview" && summary && revenueByDay && (
             <>
               {/* Period selector */}
@@ -233,6 +237,7 @@ export function FinanceShell({
           )}
 
           {!managerView && tab === "platform" && <PlatformEarningsTab />}
+          </div>
 
           <div className="h-4" />
     </>

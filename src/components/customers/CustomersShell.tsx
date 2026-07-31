@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   Search, ChevronRight, Star, Users as UsersIcon, UserPlus
 } from "lucide-react";
+import { useUrlFilters } from "@/lib/hooks/use-url-filters";
 import { CustomerList } from "./CustomerList";
 import { AddCustomerDrawer } from "./AddCustomerDrawer";
 import { LoyaltySettingsCard } from "./LoyaltySettingsCard";
@@ -29,21 +29,10 @@ type CustomersShellProps = {
 // ---------------------------------------------------------------------------
 
 export function CustomersShell({ customers, loyaltySettings, canManage, isOwner }: CustomersShellProps) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const { isPending, updateParams, searchParams } = useUrlFilters();
 
   const [search, setSearch] = useState(searchParams.get("search") ?? "");
   const priority = searchParams.get("priority") === "1";
-
-  function updateParams(patch: Record<string, string | null>) {
-    const params = new URLSearchParams(searchParams.toString());
-    for (const [key, value] of Object.entries(patch)) {
-      if (value) params.set(key, value);
-      else params.delete(key);
-    }
-    router.push(`${pathname}?${params.toString()}`);
-  }
 
   const totalPoints = customers.reduce((sum, c) => sum + (c.loyalty_points ?? 0), 0);
   const priorityRows = customers.filter((c): c is PriorityCustomerRow => "priority_note" in c);
@@ -126,7 +115,12 @@ export function CustomersShell({ customers, loyaltySettings, canManage, isOwner 
           </div>
 
           {/* Customer list — CustomerDetailDrawer + all logic preserved */}
-          <section className="overflow-hidden rounded-[24px] border border-black/5">
+          <section
+            aria-busy={isPending}
+            className={`overflow-hidden rounded-[24px] border border-black/5 transition-opacity ${
+              isPending ? "pointer-events-none opacity-50" : ""
+            }`}
+          >
             <CustomerList customers={customers} />
           </section>
 

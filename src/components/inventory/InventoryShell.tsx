@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   Search, ChevronRight, Plus, AlertTriangle,
 } from "lucide-react";
+import { useUrlFilters } from "@/lib/hooks/use-url-filters";
 import { InventoryList } from "./InventoryList";
 import { AddItemDrawer } from "./AddItemDrawer";
 import type { InventoryListRow, InventoryCategory, InventoryFilter } from "@/lib/queries/inventory";
@@ -25,23 +25,12 @@ type InventoryShellProps = {
 // ---------------------------------------------------------------------------
 
 export function InventoryShell({ items, categories, canManage, lowStockCount }: InventoryShellProps) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const { isPending, updateParams, searchParams } = useUrlFilters();
 
   const [search, setSearch] = useState(searchParams.get("search") ?? "");
 
   const lowStockOnly = searchParams.get("lowStock") === "1";
   const categoryId = searchParams.get("category") ?? "";
-
-  function updateParams(patch: Record<string, string | null>) {
-    const params = new URLSearchParams(searchParams.toString());
-    for (const [key, value] of Object.entries(patch)) {
-      if (value) params.set(key, value);
-      else params.delete(key);
-    }
-    router.push(`${pathname}?${params.toString()}`);
-  }
 
   const stats = [
     { label: "Total items",  value: items.length,                                           bg: "#f5f5f5",                   text: "text-neutral-800" },
@@ -143,7 +132,12 @@ export function InventoryShell({ items, categories, canManage, lowStockCount }: 
           </div>
 
           {/* Inventory list — ItemDetailDrawer + all logic preserved */}
-          <section className="overflow-hidden rounded-[24px] border border-black/5">
+          <section
+            aria-busy={isPending}
+            className={`overflow-hidden rounded-[24px] border border-black/5 transition-opacity ${
+              isPending ? "pointer-events-none opacity-50" : ""
+            }`}
+          >
             <InventoryList
               items={items}
               categories={categories}

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search, ChevronRight, Plus, Clock, Archive, CalendarDays } from "lucide-react";
+import { useUrlFilters } from "@/lib/hooks/use-url-filters";
 import { OrdersList } from "./OrdersList";
 import type { OrderListRow, OrdersFilter } from "@/lib/queries/orders";
 import type { ActiveCounter } from "@/lib/queries/counters";
@@ -35,22 +35,11 @@ export function OrdersShell({
   counterId,
   maxDate,
 }: OrdersShellProps) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const { isPending, updateParams } = useUrlFilters();
 
   // Local search state (applied on blur / Enter like existing OrdersFilters)
   const [search, setSearch] = useState(filter.search ?? "");
   // Note: OrdersList manages its own drawer state and realtime subscription
-
-  function updateParams(patch: Record<string, string | null>) {
-    const params = new URLSearchParams(searchParams.toString());
-    for (const [key, value] of Object.entries(patch)) {
-      if (value) params.set(key, value);
-      else params.delete(key);
-    }
-    router.push(`${pathname}?${params.toString()}`);
-  }
 
   const tab = filter.tab ?? "active";
   const selectedDate = filter.dateFrom === filter.dateTo ? (filter.dateFrom ?? "") : "";
@@ -196,7 +185,12 @@ export function OrdersShell({
       </div>
 
       {/* Orders list — preserves Supabase realtime subscription + drawer state */}
-      <section className="overflow-hidden rounded-[24px] border border-black/5">
+      <section
+        aria-busy={isPending}
+        className={`overflow-hidden rounded-[24px] border border-black/5 transition-opacity ${
+          isPending ? "pointer-events-none opacity-50" : ""
+        }`}
+      >
         <OrdersList
           initialOrders={initialOrders}
           filter={filter}

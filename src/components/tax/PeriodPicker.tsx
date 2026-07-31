@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { currentTaxPeriodValue, type TaxGranularity } from "@/lib/tax";
+import { useUrlFilters } from "@/lib/hooks/use-url-filters";
 import { useTranslation } from "react-i18next";
 
 const YEARS_BACK = 5;
@@ -22,15 +22,14 @@ function currentYear(): number {
  */
 export function PeriodPicker({ granularity }: { granularity: TaxGranularity }) {
     const { t } = useTranslation();
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const { isPending, commit, searchParams } = useUrlFilters();
   const period = searchParams.get("period") || currentTaxPeriodValue(granularity);
+  const dimClass = `transition-opacity ${isPending ? "pointer-events-none opacity-60" : ""}`;
 
   function setPeriod(value: string) {
     const params = new URLSearchParams(searchParams.toString());
     params.set("period", value);
-    router.push(`${pathname}?${params.toString()}`);
+    commit(params);
   }
 
   const thisYear = currentYear();
@@ -42,7 +41,7 @@ export function PeriodPicker({ granularity }: { granularity: TaxGranularity }) {
         type="month"
         value={period}
         onChange={(event) => event.target.value && setPeriod(event.target.value)}
-        className={SELECT_CLASS}
+        className={`${SELECT_CLASS} ${dimClass}`}
         aria-label="Month"
       />
     );
@@ -52,7 +51,7 @@ export function PeriodPicker({ granularity }: { granularity: TaxGranularity }) {
     const match = QUARTER_VALUE.exec(period);
     const [periodYear, quarter] = match ? [match[1], match[2]] : [String(thisYear), "1"];
     return (
-      <div className="flex gap-2">
+      <div className={`flex gap-2 ${dimClass}`}>
         <select
           value={periodYear}
           onChange={(event) => setPeriod(`${event.target.value}-Q${quarter}`)}
@@ -82,7 +81,7 @@ export function PeriodPicker({ granularity }: { granularity: TaxGranularity }) {
   }
 
   return (
-    <select value={period} onChange={(event) => setPeriod(event.target.value)} className={SELECT_CLASS} aria-label="Year">
+    <select value={period} onChange={(event) => setPeriod(event.target.value)} className={`${SELECT_CLASS} ${dimClass}`} aria-label="Year">
       {years.map((year) => (
         <option key={year} value={year}>
           {year}

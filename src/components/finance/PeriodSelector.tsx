@@ -1,24 +1,30 @@
 "use client";
 
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { TabPills } from "@/components/patterns/TabPills";
 import { FINANCE_PERIODS, type FinancePeriod } from "@/lib/finance";
+import { useUrlFilters } from "@/lib/hooks/use-url-filters";
 
 const DEFAULT_PERIOD: FinancePeriod = "month";
 
-/** Lives in the URL, same pattern as OrdersFilters — a plain server refetch on change. */
+/** Lives in the URL — a plain server refetch on change, non-blocking via a transition. */
 export function PeriodSelector() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const { isPending, commit, searchParams } = useUrlFilters();
   const period = (searchParams.get("period") as FinancePeriod) || DEFAULT_PERIOD;
 
   function handleChange(value: FinancePeriod) {
     const params = new URLSearchParams(searchParams.toString());
     if (value === DEFAULT_PERIOD) params.delete("period");
     else params.set("period", value);
-    router.push(`${pathname}?${params.toString()}`);
+    commit(params);
   }
 
-  return <TabPills tabs={FINANCE_PERIODS} value={period} onChange={handleChange} label="Period" />;
+  return (
+    <TabPills
+      tabs={FINANCE_PERIODS}
+      value={period}
+      onChange={handleChange}
+      label="Period"
+      className={`transition-opacity ${isPending ? "pointer-events-none opacity-60" : ""}`}
+    />
+  );
 }

@@ -370,3 +370,6 @@ No paragraphs. If it needs a paragraph, it belongs in ARCHITECTURE.md.
 - [note] added `*.csv` to `.gitignore` while preserving the client's existing ignore edits; menu source CSVs remain local rather than repository content
 - [done] reclassified all 27 existing Beverage, Mojito, Milkshake, and Lassi items under the all-week `drinks` main category; kitchen-prep flags remain unchanged because printer routing is independent of menu grouping
 - [done] added unavailable LKR 0.00 placeholders for Rio Special Bun to both Monday–Saturday and Sunday bakery menus; owner price is still pending and each schedule can be priced independently
+- [done] perceived-latency fix: filter/tab changes on orders, inventory, customers, finance + the reports/tax period selectors now navigate through a shared `useUrlFilters` transition (router.replace, scroll:false) and dim the affected list while the server refetches — replaces bare router.push that froze the UI with no feedback
+- [note] `useUrlFilters` at src/lib/hooks/use-url-filters.ts; MenuShell already filters client-side (no nav), so untouched
+- [note] OrdersFilters/MenuFilters/InventoryFilters/CustomerFilters/FinanceTabs confirmed dead (no imports) — superseded by inline Shell filters; left in place, candidates for deletion
