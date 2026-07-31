@@ -369,3 +369,4 @@ No paragraphs. If it needs a paragraph, it belongs in ARCHITECTURE.md.
 - [decision] menu-item uniqueness now includes price because the supplied weekday catalog legitimately contains the same name and schedule at two prices; no display names were invented or source rows merged
 - [note] added `*.csv` to `.gitignore` while preserving the client's existing ignore edits; menu source CSVs remain local rather than repository content
 - [done] reclassified all 27 existing Beverage, Mojito, Milkshake, and Lassi items under the all-week `drinks` main category; kitchen-prep flags remain unchanged because printer routing is independent of menu grouping
+- [done] added unavailable LKR 0.00 placeholders for Rio Special Bun to both Monday–Saturday and Sunday bakery menus; owner price is still pending and each schedule can be priced independently

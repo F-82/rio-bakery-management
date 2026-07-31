@@ -64,7 +64,7 @@ describe("menu_items — main category and weekly menu", () => {
         [BUSINESS_ID],
       );
 
-      expect(sundayBakery.rows).toHaveLength(45);
+      expect(sundayBakery.rows).toHaveLength(46);
       expect(sundayBakery.rows[0]).toMatchObject({
         name: "Normal Bread",
         price: "100.00",
@@ -132,6 +132,36 @@ describe("menu_items — main category and weekly menu", () => {
           (item) => item.main_category === "drinks" && item.availability_schedule === "all_days",
         ),
       ).toBe(true);
+    });
+  });
+
+  it("adds Rio Special Bun to both bakery schedules pending its price", async () => {
+    await withRollback(async (c) => {
+      await setActor(c, await userId(c, OWNER));
+
+      const specialBuns = await c.query(
+        `select price, available, main_category, availability_schedule
+         from public.menu_items
+         where business_id = $1
+           and name = 'Rio Special Bun'
+         order by availability_schedule`,
+        [BUSINESS_ID],
+      );
+
+      expect(specialBuns.rows).toEqual([
+        {
+          price: "0.00",
+          available: false,
+          main_category: "bakery",
+          availability_schedule: "monday_saturday",
+        },
+        {
+          price: "0.00",
+          available: false,
+          main_category: "bakery",
+          availability_schedule: "sunday",
+        },
+      ]);
     });
   });
 });
