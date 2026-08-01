@@ -74,7 +74,7 @@ export function PosScreen({
     dispatch({ type: "add", item: cartItem });
   }
 
-  function handleConfirm(changeToPointsLkr?: number, redeemPoints?: number) {
+  function handleConfirm(changeToPointsLkr?: number, redeemPoints?: number, cashGiven?: number) {
     if (!counterId) {
       setError("Pick a counter first.");
       return;
@@ -88,6 +88,7 @@ export function PosScreen({
         customerId: customer?.id,
         changeToPointsLkr,
         redeemPoints,
+        cashGiven,
         items: cart.lines.map((line) => ({
           menuItemId: line.menuItemId,
           qty: line.qty,

@@ -35,7 +35,7 @@ type CartProps = {
   onCustomerChange: (customer: CustomerInfo | null) => void;
   /** LKR value of one loyalty point at redemption — ARCHITECTURE.md §Loyalty, a settings value not a constant. */
   redeemLkrPerPoint: number;
-  onConfirm: (changeToPointsLkr?: number, redeemPoints?: number) => void;
+  onConfirm: (changeToPointsLkr?: number, redeemPoints?: number, cashGiven?: number) => void;
   isSubmitting: boolean;
   error: string | null;
 };
@@ -107,6 +107,14 @@ export function Cart({
     paymentMethod === "cash" && Boolean(customer) && changeDue.isPositive();
   const changeToPointsLkr =
     giveChangeAsPoints && canOfferChangeAsPoints ? changeDue.toNumber() : undefined;
+
+  // Cash actually handed over — sent for the receipt only, never as a total
+  // adjustment (Invariant 3). Only for cash, only when a positive amount was
+  // entered; the server floors the printed change at 0.
+  const cashGivenForOrder =
+    paymentMethod === "cash" && cashGivenStr.trim() !== "" && cashGiven.isPositive()
+      ? cashGiven.toNumber()
+      : undefined;
 
   return (
     <aside className="pos-cart" data-expanded={expanded} aria-label="Cart">
@@ -309,7 +317,7 @@ export function Cart({
               type="button"
               size="lg"
               disabled={cart.lines.length === 0 || isSubmitting}
-              onClick={() => onConfirm(changeToPointsLkr, redeemPoints)}
+              onClick={() => onConfirm(changeToPointsLkr, redeemPoints, cashGivenForOrder)}
             >
               {isSubmitting ? "Placing order…" : "Complete order"}
             </Button>

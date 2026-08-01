@@ -102,6 +102,16 @@ export function PrintPreview({ target, payload, onClose }: PrintPreviewProps) {
   const isReceipt = target === "customer_receipt";
   const paymentMethod =
     data && typeof data.payment_method === "string" ? data.payment_method : null;
+  // Cash tender — receipt annotation only (no revenue meaning). Present only
+  // for cash orders where an amount was entered; older orders won't carry it.
+  const cashGiven = data && typeof data.cash_given === "number" ? data.cash_given : null;
+  const changeDue = data && typeof data.change_due === "number" ? data.change_due : null;
+  const changeToPoints =
+    data && typeof data.change_to_points === "number" ? data.change_to_points : 0;
+  // Of the change owed, whatever wasn't credited to loyalty points is handed
+  // back as cash.
+  const cashChange =
+    changeDue !== null ? Math.max(changeDue - changeToPoints, 0) : null;
   const orderType =
     data && data.source === "takeaway"
       ? t("Takeaway")
@@ -174,6 +184,17 @@ export function PrintPreview({ target, payload, onClose }: PrintPreviewProps) {
                     <span className="text-lg font-bold text-black">{formatLKR(data.total)}</span>
                   </div>
                 )}
+                {cashGiven !== null && (
+                  <div className="mt-1.5 border-t border-dashed border-neutral-300 pt-1.5">
+                    <Row label={t("Cash given")} value={formatLKR(cashGiven)} />
+                    {changeToPoints > 0 && (
+                      <Row label={t("Added to points")} value={formatLKR(changeToPoints)} />
+                    )}
+                    {cashChange !== null && (
+                      <Row label={t("Change")} value={formatLKR(cashChange)} />
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
@@ -238,6 +259,26 @@ export function PrintPreview({ target, payload, onClose }: PrintPreviewProps) {
                   <span className="text-label text-ink">{t("Total")}</span>
                   <MoneyText amount={data.total} size="num-lg" />
                 </AccentPanel>
+              )}
+              {cashGiven !== null && (
+                <div className="border-line mt-1 flex flex-col gap-1 border-t pt-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-body-sm text-ink-2">{t("Cash given")}</span>
+                    <span className="text-body-sm text-ink">{formatLKR(cashGiven)}</span>
+                  </div>
+                  {changeToPoints > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-body-sm text-ink-2">{t("Added to points")}</span>
+                      <span className="text-body-sm text-ink">{formatLKR(changeToPoints)}</span>
+                    </div>
+                  )}
+                  {cashChange !== null && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-body-sm text-ink-2">{t("Change")}</span>
+                      <span className="text-body-sm text-ink">{formatLKR(cashChange)}</span>
+                    </div>
+                  )}
+                </div>
               )}
               {paymentMethod && (
                 <p className="text-micro text-ink-2 mt-1">
