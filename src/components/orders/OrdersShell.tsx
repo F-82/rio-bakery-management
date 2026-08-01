@@ -5,7 +5,9 @@ import Link from "next/link";
 import { Search, ChevronRight, Plus, Clock, Archive, CalendarDays } from "lucide-react";
 import { useUrlFilters } from "@/lib/hooks/use-url-filters";
 import { OrdersList } from "./OrdersList";
+import { ItemsSoldPanel } from "./ItemsSoldPanel";
 import type { OrderListRow, OrdersFilter } from "@/lib/queries/orders";
+import type { ItemsSoldRow } from "@/lib/items-sold";
 import type { ActiveCounter } from "@/lib/queries/counters";
 
 // ---------------------------------------------------------------------------
@@ -14,6 +16,7 @@ import type { ActiveCounter } from "@/lib/queries/counters";
 
 type OrdersShellProps = {
   initialOrders: OrderListRow[];
+  itemsSold: ItemsSoldRow[];
   filter: OrdersFilter;
   counters: ActiveCounter[];
   sources: string[];
@@ -28,6 +31,7 @@ type OrdersShellProps = {
 
 export function OrdersShell({
   initialOrders,
+  itemsSold,
   filter,
   counters,
   sources,
@@ -183,6 +187,10 @@ export function OrdersShell({
           className="flex-1 bg-transparent text-sm text-neutral-700 outline-none placeholder:text-neutral-400"
         />
       </div>
+
+      {/* Items sold across the filtered orders — only meaningful for the active
+          (open/completed) tab; the archived tab is voided orders, never sold. */}
+      {tab === "active" && <ItemsSoldPanel rows={itemsSold} busy={isPending} />}
 
       {/* Orders list — preserves Supabase realtime subscription + drawer state */}
       <section

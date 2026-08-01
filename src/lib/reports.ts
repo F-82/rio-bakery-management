@@ -1,5 +1,6 @@
 import { Decimal } from "decimal.js";
 import { formatDate, formatLKR } from "@/lib/format";
+import type { ItemsSoldRow } from "@/lib/items-sold";
 import type { Database } from "@/types/database";
 
 /**
@@ -108,4 +109,11 @@ export function buildDetailCsv(orders: ReportOrder[]): string {
   ]);
 
   return [header, ...rows].map((row) => row.map(csvField).join(",")).join("\n");
+}
+
+/** Items-sold breakdown as CSV — quantity and revenue per plate. */
+export function buildItemsSoldCsv(rows: ItemsSoldRow[]): string {
+  const header = ["Item", "Quantity sold", "Revenue"];
+  const body = rows.map((row) => [row.name, String(row.qty), formatLKR(row.revenue)]);
+  return [header, ...body].map((row) => row.map(csvField).join(",")).join("\n");
 }

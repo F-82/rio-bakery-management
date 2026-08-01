@@ -9,7 +9,9 @@ import { PageHeader } from "@/components/patterns/PageHeader";
 import { PeriodSelector } from "@/components/finance/PeriodSelector";
 import { ExportActions } from "@/components/patterns/ExportActions";
 import { BreakdownSection } from "@/components/reports/BreakdownSection";
+import { ItemsSoldBreakdown } from "@/components/reports/ItemsSoldBreakdown";
 import { DetailTable } from "@/components/reports/DetailTable";
+import type { ItemsSoldRow } from "@/lib/items-sold";
 import { formatDate } from "@/lib/format";
 import {
   buildCounterBreakdown,
@@ -24,6 +26,7 @@ import { useTranslation } from "react-i18next";
 
 type SalesReportProps = {
   orders: ReportOrder[];
+  itemsSold: ItemsSoldRow[];
   range: DateRange;
 };
 
@@ -33,7 +36,7 @@ type SalesReportProps = {
  * nav item and lands in step 16). Same call as the Platform Earnings and
  * booking-revenue stubs: no UI for a type that doesn't exist yet.
  */
-export function SalesReport({ orders, range }: SalesReportProps) {
+export function SalesReport({ orders, itemsSold, range }: SalesReportProps) {
     const { t } = useTranslation();
   const summary = summariseSales(orders);
   const counterBreakdown = buildCounterBreakdown(orders);
@@ -83,6 +86,8 @@ export function SalesReport({ orders, range }: SalesReportProps) {
       <BreakdownSection icon={Store} title={t("By counter")} rows={counterBreakdown} totalRevenue={summary.revenue} />
       <BreakdownSection icon={Split} title={t("By source")} rows={sourceBreakdown} totalRevenue={summary.revenue} />
       <BreakdownSection icon={Landmark} title={t("By payment")} rows={paymentBreakdown} totalRevenue={summary.revenue} />
+
+      <ItemsSoldBreakdown rows={itemsSold} filename={`items-sold-${range.from}-to-${range.to}.csv`} />
 
       <div className="flex flex-col gap-4 rounded-card bg-surface p-6">
         <span className="text-micro text-ink-2">{t("Detail")}</span>

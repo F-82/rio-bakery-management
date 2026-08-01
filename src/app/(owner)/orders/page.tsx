@@ -1,4 +1,4 @@
-import { getOrders, getOrderSources, type OrdersFilter } from "@/lib/queries/orders";
+import { getItemsSold, getOrders, getOrderSources, type OrdersFilter } from "@/lib/queries/orders";
 import { getActiveCounters } from "@/lib/queries/counters";
 import { getCurrentProfileContext } from "@/lib/queries/profile";
 import { OrdersShell } from "@/components/orders/OrdersShell";
@@ -29,8 +29,9 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
     search: firstValue(params.search),
   };
 
-  const [orders, sources, counters, context] = await Promise.all([
+  const [orders, itemsSold, sources, counters, context] = await Promise.all([
     getOrders(filter),
+    getItemsSold(filter),
     getOrderSources(),
     getActiveCounters(),
     getCurrentProfileContext(),
@@ -41,6 +42,7 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
   return (
     <OrdersShell
       initialOrders={orders}
+      itemsSold={itemsSold}
       filter={filter}
       counters={counters}
       sources={sources}

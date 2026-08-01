@@ -1,5 +1,5 @@
 import { SalesReport } from "@/components/reports/SalesReport";
-import { getOrdersForReport } from "@/lib/queries/reports";
+import { getItemsSoldForReport, getOrdersForReport } from "@/lib/queries/reports";
 import { getPeriodRange, type FinancePeriod } from "@/lib/finance";
 
 type ReportsPageProps = {
@@ -14,7 +14,10 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
   const params = await searchParams;
   const period = (firstValue(params.period) as FinancePeriod) || "month";
   const range = getPeriodRange(period);
-  const orders = await getOrdersForReport(range.from, range.to);
+  const [orders, itemsSold] = await Promise.all([
+    getOrdersForReport(range.from, range.to),
+    getItemsSoldForReport(range.from, range.to),
+  ]);
 
-  return <SalesReport orders={orders} range={range} />;
+  return <SalesReport orders={orders} itemsSold={itemsSold} range={range} />;
 }
