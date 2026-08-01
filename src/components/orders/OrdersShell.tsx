@@ -188,8 +188,9 @@ export function OrdersShell({
         />
       </div>
 
-      {/* Items sold across the filtered orders — only meaningful for the active
-          (open/completed) tab; the archived tab is voided orders, never sold. */}
+      {/* Items sold across the filtered orders — completed orders only (see
+          getItemsSold), so it matches the sales report. Hidden on the archived
+          tab, which is voided orders and never has anything sold to show. */}
       {tab === "active" && <ItemsSoldPanel rows={itemsSold} busy={isPending} />}
 
       {/* Orders list — preserves Supabase realtime subscription + drawer state */}

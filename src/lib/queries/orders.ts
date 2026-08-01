@@ -59,12 +59,15 @@ export async function getOrders(filter: OrdersFilter): Promise<OrderListRow[]> {
 
 /**
  * "How many of each plate were sold" for the Orders page — aggregates
- * order_items across the same filtered set the list shows (inner join to
- * orders so the filters apply to the parent). Voided orders are excluded by
- * the same status logic as getOrders: the active tab is open+completed, and
- * the panel is only rendered there — a voided line was reversed, never sold.
+ * order_items over the currently filtered orders (inner join to orders so the
+ * filters apply to the parent). Completed orders only — same rule as the sales
+ * report's By-item breakdown, so the two never disagree: an open order hasn't
+ * been paid for and a voided one was reversed, so neither counts as sold. An
+ * explicit "open" status filter therefore has nothing sold to show.
  */
 export async function getItemsSold(filter: OrdersFilter): Promise<ItemsSoldRow[]> {
+  if (filter.tab !== "active" || filter.status === "open") return [];
+
   const supabase = await createClient();
   let query = supabase
     .from("order_items")
@@ -73,14 +76,8 @@ export async function getItemsSold(filter: OrdersFilter): Promise<ItemsSoldRow[]
     )
     // Bakery-scale ceiling: comfortably covers a busy day/week; a huge range
     // would truncate, matching the list's own 200-order cap philosophy.
-    .limit(5000);
-
-  if (filter.tab === "active") {
-    query = query.in("orders.status", ["open", "completed"]);
-    if (filter.status) query = query.eq("orders.status", filter.status);
-  } else {
-    query = query.eq("orders.status", "voided");
-  }
+    .limit(5000)
+    .eq("orders.status", "completed");
 
   if (filter.counterId) query = query.eq("orders.counter_id", filter.counterId);
   if (filter.source) query = query.eq("orders.source", filter.source);
